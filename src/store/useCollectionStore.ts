@@ -85,17 +85,19 @@ export const useCollectionStore = create<CollectionState>()(
       deleteDeck: (deckId) => {
         const state = get();
         const updatedDecks = state.decks.filter((d) => d.id !== deckId);
+        const validDecks = updatedDecks.filter((d) => d.isValid);
 
         let newActiveId = state.activeDeckId;
         if (state.activeDeckId === deckId) {
-          const firstValid = updatedDecks.find((d) => d.isValid);
-          newActiveId = firstValid ? firstValid.id : null;
+          // Reassign to remaining valid deck
+          newActiveId = validDecks.length > 0 ? validDecks[0].id : null;
         }
 
         // Auto-activate if only 1 valid deck exists
-        const validDecks = updatedDecks.filter((d) => d.isValid);
         if (validDecks.length === 1) {
           newActiveId = validDecks[0].id;
+        } else if (newActiveId && !validDecks.some((d) => d.id === newActiveId)) {
+          newActiveId = validDecks.length > 0 ? validDecks[0].id : null;
         }
 
         set({
@@ -167,11 +169,11 @@ export const useCollectionStore = create<CollectionState>()(
             : d
         );
 
-        // Auto-activate if this becomes the single valid deck
+        // Auto-activate if this becomes the single valid deck or no active deck was set
         let activeId = state.activeDeckId;
         const validDecks = updatedDecks.filter((d) => d.isValid);
-        if (validDecks.length === 1 && !activeId) {
-          activeId = validDecks[0].id;
+        if (validDecks.length === 1 || !activeId) {
+          activeId = validDecks[0]?.id || null;
         }
 
         set({
@@ -202,19 +204,23 @@ export const useCollectionStore = create<CollectionState>()(
         const newTotal = Math.max(0, deck.totalCount - 1);
         const isValid = newTotal === 30;
 
+        const updatedDecks = state.decks.map((d) =>
+          d.id === deck.id
+            ? { ...d, cards: updatedCards, totalCount: newTotal, isValid, updatedAt: Date.now() }
+            : d
+        );
+
+        const validDecks = updatedDecks.filter((d) => d.isValid);
         let activeId = state.activeDeckId;
         if (deck.id === activeId && !isValid) {
-          // If active deck became incomplete, find another valid deck or retain
-          const otherValid = state.decks.find((d) => d.id !== deck.id && d.isValid);
-          activeId = otherValid ? otherValid.id : null;
+          // If active deck became incomplete, reassign to remaining valid deck
+          activeId = validDecks.length > 0 ? validDecks[0].id : null;
+        } else if (validDecks.length === 1) {
+          activeId = validDecks[0].id;
         }
 
         set({
-          decks: state.decks.map((d) =>
-            d.id === deck.id
-              ? { ...d, cards: updatedCards, totalCount: newTotal, isValid, updatedAt: Date.now() }
-              : d
-          ),
+          decks: updatedDecks,
           activeDeckId: activeId,
         });
       },
@@ -229,12 +235,21 @@ export const useCollectionStore = create<CollectionState>()(
         const completedCards = completeDeckSmart(deck.cards, MAGE_CARDS);
         const total = Object.values(completedCards).reduce((a, b) => a + b, 0);
 
+        const updatedDecks = state.decks.map((d) =>
+          d.id === deck.id
+            ? { ...d, cards: completedCards, totalCount: total, isValid: total === 30, updatedAt: Date.now() }
+            : d
+        );
+
+        let activeId = state.activeDeckId;
+        const validDecks = updatedDecks.filter((d) => d.isValid);
+        if (validDecks.length === 1 || !activeId) {
+          activeId = validDecks[0]?.id || null;
+        }
+
         set({
-          decks: state.decks.map((d) =>
-            d.id === deck.id
-              ? { ...d, cards: completedCards, totalCount: total, isValid: total === 30, updatedAt: Date.now() }
-              : d
-          ),
+          decks: updatedDecks,
+          activeDeckId: activeId,
         });
 
         get().showToast('Deck automatically completed with a balanced mana curve!');
@@ -275,9 +290,16 @@ export const useCollectionStore = create<CollectionState>()(
 
       getActiveValidDeck: () => {
         const state = get();
-        if (!state.activeDeckId) return null;
-        const deck = state.decks.find((d) => d.id === state.activeDeckId);
-        return deck && deck.isValid ? deck : null;
+        if (state.activeDeckId) {
+          const deck = state.decks.find((d) => d.id === state.activeDeckId);
+          if (deck && deck.isValid) return deck;
+        }
+        // Auto-activate single valid deck fallback
+        const validDecks = state.decks.filter((d) => d.isValid);
+        if (validDecks.length === 1) {
+          return validDecks[0];
+        }
+        return null;
       },
     }),
     {

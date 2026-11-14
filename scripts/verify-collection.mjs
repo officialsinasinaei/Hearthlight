@@ -101,6 +101,27 @@ if (fs.existsSync(heroSelectPath)) {
   }
 }
 
+// 6. Sidebar Header Layout & Bounding Box Invariants
+const sidebarPath = path.join(root, 'src/components/collection/CollectionSidebar.tsx');
+if (fs.existsSync(sidebarPath)) {
+  const content = fs.readFileSync(sidebarPath, 'utf8');
+  if (!content.includes('data-testid="deck-editor-title"')) {
+    failures.push('[LAYOUT_FAIL] CollectionSidebar missing data-testid="deck-editor-title".');
+  }
+  if (!content.includes('data-testid="deck-card-count"')) {
+    failures.push('[LAYOUT_FAIL] CollectionSidebar missing data-testid="deck-card-count".');
+  }
+  if (!content.includes('<aside')) {
+    failures.push('[LAYOUT_FAIL] CollectionSidebar root must be an <aside> element.');
+  }
+  if (!content.includes('max-h-screen') || !content.includes('overflow-hidden') || !content.includes('flex flex-col')) {
+    failures.push('[LAYOUT_FAIL] CollectionSidebar outer <aside> must enforce max-h-screen overflow-hidden flex flex-col.');
+  }
+  if (!content.includes('shrink-0')) {
+    failures.push('[LAYOUT_FAIL] CollectionSidebar header must be shrink-0.');
+  }
+}
+
 console.log('--- COLLECTION HARNESS EXECUTION REPORT ---');
 if (failures.length > 0) {
   console.log(`FAILS with ${failures.length} issues:`);

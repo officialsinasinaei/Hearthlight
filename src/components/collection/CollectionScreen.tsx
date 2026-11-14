@@ -66,7 +66,7 @@ export function CollectionScreen() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-5 py-2 rounded-xl bg-gradient-to-b from-[#2b180d] to-[#120803] border-2 border-[#fae6a2] text-[#f7eedc] text-xs font-black shadow-[0_10px_25px_rgba(0,0,0,0.9)]"
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] px-5 py-2 rounded-xl bg-gradient-to-b from-[#2b180d] to-[#120803] border-2 border-[#fae6a2] text-[#f7eedc] text-xs font-black shadow-[0_10px_25px_rgba(0,0,0,0.9)]"
           >
             {toastMessage}
           </motion.div>
