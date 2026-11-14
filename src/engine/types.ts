@@ -1,5 +1,5 @@
 export type CardRarity = 'COMMON' | 'RARE' | 'EPIC' | 'LEGENDARY';
-export type CardType = 'MINION' | 'SPELL';
+export type CardType = 'MINION' | 'SPELL' | 'WEAPON' | 'HERO' | 'LOCATION';
 export type Keyword = 'TAUNT' | 'DIVINE_SHIELD' | 'RUSH' | 'WINDFURY' | 'LIFESTEAL';
 
 export type EffectType =
@@ -19,18 +19,34 @@ export interface CardEffect {
 
 export interface CardDefinition {
   id: string;
+  slug?: string;
   name: string;
   cost: number;
   attack?: number;
   health?: number;
+  durability?: number;
   type: CardType;
   rarity: CardRarity;
   tribe?: string;
+  cardClass?: string;
   text: string;
+  flavorText?: string;
+  imageUrl?: string;
   artEmoji: string;
   artGradient: string;
   keywords: Keyword[];
   effects?: CardEffect[];
+}
+
+export interface SavedDeck {
+  id: string;
+  name: string;
+  heroClass: 'MAGE';
+  heroId: 'jaina';
+  cards: Record<string, number>; // cardId -> quantity (max 2, or 1 for legendary)
+  totalCount: number; // target 30
+  isValid: boolean; // totalCount === 30
+  updatedAt: number;
 }
 
 export interface CardInstance {

@@ -1,88 +1,64 @@
-import { CardDefinition } from './types';
+import { CardDefinition, SavedDeck } from './types';
+import rawMageCards from './mage-cards.json';
 
-export const CARD_POOL: CardDefinition[] = [
-  {
-    id: 'sunscale-squire',
-    name: 'Sunscale Squire',
-    cost: 1,
-    attack: 1,
-    health: 2,
-    type: 'MINION',
-    rarity: 'COMMON',
-    tribe: 'Paladin',
-    text: '<b>Divine Shield</b>. Stands guard at the Golden Gate.',
-    artEmoji: '🛡️',
-    artGradient: 'from-amber-400 via-yellow-500 to-amber-700',
-    keywords: ['DIVINE_SHIELD'],
-  },
-  {
-    id: 'ironwood-grizzly',
-    name: 'Ironwood Grizzly',
-    cost: 3,
-    attack: 3,
-    health: 4,
-    type: 'MINION',
-    rarity: 'COMMON',
-    tribe: 'Beast',
-    text: '<b>Taunt</b>',
-    artEmoji: '🐻',
-    artGradient: 'from-emerald-500 via-teal-600 to-stone-800',
-    keywords: ['TAUNT'],
-  },
-  {
-    id: 'ember-novice',
-    name: 'Embercaster',
-    cost: 2,
-    attack: 2,
-    health: 2,
-    type: 'MINION',
-    rarity: 'RARE',
-    tribe: 'Mage',
-    text: '<b>Battlecry:</b> Deal 2 damage to any target.',
-    artEmoji: '🔥',
-    artGradient: 'from-orange-400 via-red-500 to-rose-900',
-    keywords: [],
-    effects: [{ trigger: 'BATTLECRY', type: 'DEAL_DAMAGE', amount: 2, needsTarget: true, targetFilter: 'ANY' }],
-  },
-  {
-    id: 'arcane-intellect-lite',
-    name: 'Starlight Wisdom',
-    cost: 3,
-    type: 'SPELL',
-    rarity: 'RARE',
-    text: 'Draw 2 cards from your deck.',
-    artEmoji: '✨',
-    artGradient: 'from-sky-400 via-indigo-500 to-purple-900',
-    keywords: [],
-    effects: [{ trigger: 'SPELL', type: 'DRAW_CARDS', amount: 2 }],
-  },
-  {
-    id: 'stormpike-knight',
-    name: 'Stormwind Lancer',
-    cost: 4,
-    attack: 4,
-    health: 3,
-    type: 'MINION',
-    rarity: 'EPIC',
-    tribe: 'Knight',
-    text: '<b>Rush</b>. <b>Divine Shield</b>.',
-    artEmoji: '⚔️',
-    artGradient: 'from-blue-400 via-indigo-600 to-slate-900',
-    keywords: ['RUSH', 'DIVINE_SHIELD'],
-  },
-  {
-    id: 'solar-archon',
-    name: 'Aurelius, Sunlord',
-    cost: 6,
-    attack: 5,
-    health: 5,
-    type: 'MINION',
-    rarity: 'LEGENDARY',
-    tribe: 'Elemental',
-    text: '<b>Taunt</b>, <b>Divine Shield</b>. <b>Battlecry:</b> Restore 4 Health to your Hero.',
-    artEmoji: '👑',
-    artGradient: 'from-yellow-300 via-amber-500 to-red-800',
-    keywords: ['TAUNT', 'DIVINE_SHIELD'],
-    effects: [{ trigger: 'BATTLECRY', type: 'RESTORE_HEALTH', amount: 4 }],
-  },
-];
+export const MAGE_CARDS: CardDefinition[] = rawMageCards as CardDefinition[];
+
+// Canonical Starter Card Pool (backward compatibility)
+export const CARD_POOL: CardDefinition[] = MAGE_CARDS.slice(0, 12);
+
+/**
+ * Smart algorithm to complete an incomplete deck to 30 cards
+ * with a balanced mana curve while respecting copy limits.
+ */
+export function completeDeckSmart(
+  currentCards: Record<string, number>,
+  allCards: CardDefinition[] = MAGE_CARDS
+): Record<string, number> {
+  const result: Record<string, number> = { ...currentCards };
+  let currentTotal = Object.values(result).reduce((sum, count) => sum + count, 0);
+
+  if (currentTotal >= 30) return result;
+
+  // Target curve quotas for a standard Mage deck (out of 30 cards):
+  // 1-2 mana: ~10 cards
+  // 3-4 mana: ~10 cards
+  // 5-6 mana: ~6 cards
+  // 7+ mana: ~4 cards
+  const sortedCandidates = [...allCards].sort((a, b) => {
+    // Prefer spells & versatile minions
+    const aWeight = (a.type === 'SPELL' ? 2 : 1) + (a.rarity === 'COMMON' || a.rarity === 'RARE' ? 1 : 0);
+    const bWeight = (b.type === 'SPELL' ? 2 : 1) + (b.rarity === 'COMMON' || b.rarity === 'RARE' ? 1 : 0);
+    return bWeight - aWeight || a.cost - b.cost;
+  });
+
+  for (const card of sortedCandidates) {
+    if (currentTotal >= 30) break;
+    const maxCopies = card.rarity === 'LEGENDARY' ? 1 : 2;
+    const existing = result[card.id] || 0;
+    const canAdd = Math.min(maxCopies - existing, 30 - currentTotal);
+
+    if (canAdd > 0) {
+      result[card.id] = existing + canAdd;
+      currentTotal += canAdd;
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Constructs the default starter "Classic Mage" deck (30/30 valid cards).
+ */
+export function createStarterMageDeck(): SavedDeck {
+  const starterCards = completeDeckSmart({}, MAGE_CARDS);
+  return {
+    id: 'starter-mage-deck',
+    name: 'Classic Mage',
+    heroClass: 'MAGE',
+    heroId: 'jaina',
+    cards: starterCards,
+    totalCount: 30,
+    isValid: true,
+    updatedAt: Date.now(),
+  };
+}
