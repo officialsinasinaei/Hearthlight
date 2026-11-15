@@ -12,6 +12,7 @@ import { normalizePointerCoords } from '../../utils/pointerCoords';
 
 export function MainMenuScreen() {
   const navigateTo = useAppStore((s) => s.navigateTo);
+  const openFindingOpponent = useAppStore((s) => s.openFindingOpponent);
   const showToast = useAppStore((s) => s.showToast);
   const { isRotatedPortrait } = useViewportStage();
 
@@ -148,9 +149,10 @@ export function MainMenuScreen() {
 
             {/* THE CENTERPIECE CIRCULAR PLAY MEDALLION */}
             <CenterPlayMedallion
-              onPlayClick={() =>
-                showToast('The Tavern Arena is preparing for battle! 1v1 Battlefields will arrive in a future update.')
-              }
+              onPlayClick={() => {
+                openFindingOpponent();
+                showToast('Searching for a worthy opponent...');
+              }}
             />
           </div>
         </div>

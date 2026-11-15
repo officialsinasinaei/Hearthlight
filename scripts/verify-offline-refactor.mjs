@@ -123,6 +123,11 @@ async function run() {
       if (!toast) {
         failures.push('Tavern toast notification failed to render on Main Menu');
       }
+      const cancelBtn = await page.$('[data-testid="cancel-matchmaking-button"]');
+      if (cancelBtn) {
+        await cancelBtn.click();
+        await sleep(350);
+      }
     }
     await page.screenshot({ path: path.join(outDir, '01_main_menu_offline.png') });
 

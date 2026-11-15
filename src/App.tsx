@@ -2,8 +2,10 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useAppStore } from './store/useAppStore';
 import { MainMenuScreen } from './components/menu/MainMenuScreen';
 import { CollectionScreen } from './components/collection/CollectionScreen';
+import { BattlefieldScreen } from './components/battlefield/BattlefieldScreen';
 import { LandscapeViewportShell } from './components/layout/LandscapeViewportShell';
 import { TavernToast } from './components/ui';
+import { FindingOpponentModal } from './components/FindingOpponentModal';
 
 export default function App() {
   const currentScreen = useAppStore((s) => s.currentScreen);
@@ -38,9 +40,23 @@ export default function App() {
               <CollectionScreen />
             </motion.div>
           )}
+
+          {currentScreen === 'BATTLEFIELD' && (
+            <motion.div
+              key="battlefield"
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 1.02 }}
+              transition={{ duration: 0.25 }}
+              className="w-full h-full"
+            >
+              <BattlefieldScreen />
+            </motion.div>
+          )}
         </AnimatePresence>
 
         <TavernToast message={toastMessage} />
+        <FindingOpponentModal />
       </div>
     </LandscapeViewportShell>
   );

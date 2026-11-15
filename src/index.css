@@ -43,6 +43,11 @@
     background-color: #140e0a;
     color: #f7eedc;
   }
+
+  img {
+    -webkit-user-drag: none;
+    user-drag: none;
+  }
 }
 
 /* Automatic 90° CSS Landscape Stage Fallback (For Mobile Portrait Mode) */

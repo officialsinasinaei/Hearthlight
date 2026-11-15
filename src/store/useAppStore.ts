@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-export type AppScreen = 'MAIN_MENU' | 'COLLECTION';
+export type AppScreen = 'MAIN_MENU' | 'COLLECTION' | 'BATTLEFIELD';
 
 export interface FriendEntry {
   id: string;
@@ -27,10 +27,13 @@ interface AppStoreState {
   isFriendsOpen: boolean;
   isSettingsOpen: boolean;
   settings: GameSettings;
+  isFindingOpponentOpen: boolean;
   toastMessage: string | null;
 
   // Actions
   navigateTo: (screen: AppScreen) => void;
+  openFindingOpponent: () => void;
+  closeFindingOpponent: () => void;
   toggleFriends: (force?: boolean) => void;
   toggleSettings: (force?: boolean) => void;
   updateSettings: (partial: Partial<GameSettings>) => void;
@@ -79,7 +82,14 @@ export const useAppStore = create<AppStoreState>((set) => ({
     enableScreenShake: true,
     highContrastCards: false,
   },
+  isFindingOpponentOpen: false,
   toastMessage: null,
+
+  openFindingOpponent: () =>
+    set({ isFindingOpponentOpen: true, isFriendsOpen: false, isSettingsOpen: false }),
+
+  closeFindingOpponent: () =>
+    set({ isFindingOpponentOpen: false }),
 
   showToast: (message) => {
     set({ toastMessage: message });
