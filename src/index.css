@@ -6,6 +6,12 @@
     user-select: none;
     -webkit-user-select: none;
 
+    /* Hardware Safe Area Inset Tokens */
+    --sat: env(safe-area-inset-top, 0px);
+    --sar: env(safe-area-inset-right, 0px);
+    --sab: env(safe-area-inset-bottom, 0px);
+    --sal: env(safe-area-inset-left, 0px);
+
     /* Tavern Material Tokens */
     --wood-light: #4a2e1b;
     --wood-mid: #321d10;
@@ -23,13 +29,32 @@
     --ivory-muted: #cbbba0;
   }
 
-  body {
+  html,
+  body,
+  #root {
+    width: 100dvw;
+    height: 100dvh;
     margin: 0;
     padding: 0;
     overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
     background-color: #140e0a;
     color: #f7eedc;
   }
+}
+
+/* Automatic 90° CSS Landscape Stage Fallback (For Mobile Portrait Mode) */
+.landscape-forced-portrait {
+  position: fixed;
+  top: 0;
+  left: 100vw;
+  width: 100dvh;
+  height: 100dvw;
+  transform: rotate(90deg);
+  transform-origin: top left;
+  overflow: hidden;
 }
 
 /* Custom utility for 3D card flips and tilts */
@@ -49,4 +74,20 @@
 
 .text-letterpress-deep {
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.95), 0 0 2px rgba(0, 0, 0, 0.8);
+}
+
+/* Custom Tavern Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(18, 10, 5, 0.8);
+  border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #6b471d;
+  border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #a07231;
 }

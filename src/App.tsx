@@ -1,102 +1,69 @@
 import { AnimatePresence, motion } from 'motion/react';
-import { ArrowLeft, Sparkles, AlertCircle } from 'lucide-react';
 import { useAppStore } from './store/useAppStore';
-import { useCollectionStore } from './store/useCollectionStore';
 import { MainMenuScreen } from './components/menu/MainMenuScreen';
 import { CollectionScreen } from './components/collection/CollectionScreen';
+import { LandscapeViewportShell } from './components/layout/LandscapeViewportShell';
+import { PlayCrestIcon } from './components/menu/MenuIcons';
 
 export default function App() {
   const currentScreen = useAppStore((s) => s.currentScreen);
-  const navigateTo = useAppStore((s) => s.navigateTo);
-  const getActiveValidDeck = useCollectionStore((s) => s.getActiveValidDeck);
-
-  const activeValidDeck = getActiveValidDeck();
+  const toastMessage = useAppStore((s) => s.toastMessage);
 
   return (
-    <div className="w-screen h-screen overflow-hidden bg-[#140e0a]">
-      <AnimatePresence mode="wait">
-        {currentScreen === 'MAIN_MENU' && (
-          <motion.div
-            key="main-menu"
-            initial={{ opacity: 0, scale: 0.97 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.04 }}
-            transition={{ duration: 0.25 }}
-          >
-            <MainMenuScreen />
-          </motion.div>
-        )}
+    <LandscapeViewportShell>
+      <div className="w-full h-full overflow-hidden bg-[#140e0a] relative">
+        <AnimatePresence mode="wait">
+          {currentScreen === 'MAIN_MENU' && (
+            <motion.div
+              key="main-menu"
+              initial={{ opacity: 0, scale: 0.97 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 1.04 }}
+              transition={{ duration: 0.25 }}
+              className="w-full h-full"
+            >
+              <MainMenuScreen />
+            </motion.div>
+          )}
 
-        {currentScreen === 'COLLECTION' && (
-          <motion.div
-            key="collection"
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 15 }}
-            transition={{ duration: 0.25 }}
-            className="w-screen h-screen"
-          >
-            <CollectionScreen />
-          </motion.div>
-        )}
+          {currentScreen === 'COLLECTION' && (
+            <motion.div
+              key="collection"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 15 }}
+              transition={{ duration: 0.25 }}
+              className="w-full h-full"
+            >
+              <CollectionScreen />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        {currentScreen === 'PLAY_MATCH' && (
-          <motion.div
-            key="play-match"
-            initial={{ opacity: 0, scale: 0.96 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.96 }}
-            transition={{ duration: 0.25 }}
-            className="w-screen h-screen bg-[radial-gradient(ellipse_at_center,_#2c2119_0%,_#120d0a_100%)] text-amber-50 flex flex-col items-center justify-center p-6"
-          >
-            <div className="max-w-lg w-full rounded-3xl bg-stone-900/90 border-2 border-amber-500/40 p-8 text-center shadow-2xl">
-              {activeValidDeck ? (
-                <>
-                  <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-b from-sky-400 to-blue-700 flex items-center justify-center shadow-lg border border-sky-200 mb-4">
-                    <Sparkles className="w-8 h-8 text-white" />
-                  </div>
-                  <h2 className="text-2xl font-black text-amber-100">
-                    Match Arena Ready
-                  </h2>
-                  <p className="text-sm text-amber-200/70 mt-2">
-                    Playing with Active Deck: <strong className="text-amber-300 font-bold">{activeValidDeck.name}</strong> (30/30 Cards).
-                  </p>
-                  <p className="text-xs text-stone-400 mt-1">
-                    The 1v1 Tavern Board &amp; Curved Hand Fan will mount in this view.
-                  </p>
-                </>
-              ) : (
-                <>
-                  <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-b from-rose-500 to-red-800 flex items-center justify-center shadow-lg border border-rose-200 mb-4">
-                    <AlertCircle className="w-8 h-8 text-white" />
-                  </div>
-                  <h2 className="text-2xl font-black text-rose-200">
-                    No Active 30-Card Deck
-                  </h2>
-                  <p className="text-sm text-stone-300 mt-2">
-                    You need a complete 30-card Mage deck to enter the match arena.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => navigateTo('COLLECTION')}
-                    className="mt-4 px-5 py-2.5 rounded-xl bg-gradient-to-b from-amber-500 to-amber-700 text-stone-950 font-black text-sm shadow-lg hover:brightness-110 cursor-pointer"
-                  >
-                    Open My Collection
-                  </button>
-                </>
-              )}
-
-              <button
-                type="button"
-                onClick={() => navigateTo('MAIN_MENU')}
-                className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-b from-[#3a2213] to-[#1c0f06] border border-[#8e6129]/60 text-amber-200 font-extrabold text-sm shadow-lg cursor-pointer hover:text-white"
-              >
-                <ArrowLeft className="w-4 h-4" /> Return to Main Menu
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+        {/* Global Tavern Toast Notification */}
+        <AnimatePresence>
+          {toastMessage && (
+            <motion.div
+              key="tavern-toast"
+              data-testid="tavern-toast"
+              role="status"
+              aria-live="polite"
+              initial={{ opacity: 0, y: -24, scale: 0.94 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.94 }}
+              transition={{ type: 'spring', stiffness: 420, damping: 28 }}
+              className="absolute top-3 sm:top-5 left-1/2 -translate-x-1/2 z-50 pointer-events-none max-w-[90vw] sm:max-w-md"
+            >
+              <div className="px-4 py-2 sm:px-5 sm:py-2.5 rounded-2xl bg-gradient-to-b from-[#2c180d] via-[#1d1007] to-[#120803] border-2 border-[#d4af37] shadow-[0_12px_32px_rgba(0,0,0,0.95),0_0_20px_rgba(212,175,55,0.25)] flex items-center gap-2.5">
+                <PlayCrestIcon className="w-5 h-5 sm:w-6 sm:h-6 shrink-0 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]" />
+                <span className="font-serif text-xs sm:text-sm font-bold text-[#fef3c7] leading-tight drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
+                  {toastMessage}
+                </span>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </LandscapeViewportShell>
   );
 }

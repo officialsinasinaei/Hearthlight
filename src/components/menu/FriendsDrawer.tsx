@@ -6,7 +6,7 @@ export function FriendsDrawer() {
   const isFriendsOpen = useAppStore((s) => s.isFriendsOpen);
   const friends = useAppStore((s) => s.friends);
   const toggleFriends = useAppStore((s) => s.toggleFriends);
-  const navigateTo = useAppStore((s) => s.navigateTo);
+  const showToast = useAppStore((s) => s.showToast);
 
   return (
     <AnimatePresence>
@@ -68,7 +68,7 @@ export function FriendsDrawer() {
                 <button
                   type="button"
                   title="Challenge to a Duel"
-                  onClick={() => navigateTo('PLAY_MATCH')}
+                  onClick={() => showToast('Friendly Duels will be available in a future update!')}
                   className="p-2 rounded-lg bg-amber-500/15 hover:bg-amber-500/30 border border-amber-400/30 text-amber-200 cursor-pointer transition-colors"
                 >
                   <Swords className="w-4 h-4" />

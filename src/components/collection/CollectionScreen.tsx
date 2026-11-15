@@ -11,7 +11,15 @@ export function CollectionScreen() {
   const toastMessage = useCollectionStore((s) => s.toastMessage);
 
   return (
-    <div className="relative w-screen h-screen overflow-hidden bg-[#140b05] text-[#f7eedc] flex select-none">
+    <div
+      className="relative w-full h-full overflow-hidden bg-[#140b05] text-[#f7eedc] flex select-none"
+      style={{
+        paddingTop: 'var(--sat)',
+        paddingRight: 'var(--sar)',
+        paddingBottom: 'var(--sab)',
+        paddingLeft: 'var(--sal)',
+      }}
+    >
       {/* Background Tabletop & Warm Hearth Vignette */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_#3b2214_0%,_#1e1008_60%,_#0d0603_100%)] pointer-events-none" />
       <div
@@ -22,8 +30,8 @@ export function CollectionScreen() {
         }}
       />
 
-      {/* Main Content Area */}
-      <div className="relative z-10 flex-1 flex h-full overflow-hidden">
+      {/* Main Content Area: Proportional Two-Column Split */}
+      <div className="relative z-10 flex-1 flex h-full overflow-hidden min-w-0">
         {/* Left & Center: The Open Collection Tome */}
         <CollectionBookView />
 
@@ -39,6 +47,7 @@ export function CollectionScreen() {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.96 }}
             transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/70 backdrop-blur-xs"
           >
             <HeroSelectView />
           </motion.div>
@@ -53,6 +62,7 @@ export function CollectionScreen() {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
             transition={{ duration: 0.18 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs"
           >
             <CardInspectModal />
           </motion.div>

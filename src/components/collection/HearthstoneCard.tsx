@@ -56,7 +56,7 @@ export const RARITY_CONFIGS: Record<CardRarity, RarityConfig> = {
   },
 };
 
-export function RarityGemIcon({ rarity, size = 12 }: { rarity: CardRarity; size?: number }) {
+export function RarityGemIcon({ rarity, size = 11 }: { rarity: CardRarity; size?: number }) {
   const cfg = RARITY_CONFIGS[rarity] || RARITY_CONFIGS.COMMON;
 
   return (
@@ -96,11 +96,12 @@ export function RarityBadge({ rarity, className = '' }: { rarity: CardRarity; cl
 
   return (
     <div
-      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-[5px] bg-[#1d150f] border border-[#8e6328]/60 shadow-[inset_0_1px_3px_rgba(0,0,0,0.85),0_2px_4px_rgba(0,0,0,0.35)] ${className}`}
+      data-testid="rarity-badge"
+      className={`inline-flex items-center gap-0.5 md:gap-1 px-1 md:px-2 py-[1px] md:py-0.5 rounded-[4px] bg-[#1d150f] border border-[#8e6328]/60 shadow-[inset_0_1px_3px_rgba(0,0,0,0.85),0_1px_2px_rgba(0,0,0,0.35)] max-w-full w-fit whitespace-nowrap ${className}`}
     >
-      <RarityGemIcon rarity={rarity} size={11} />
+      <RarityGemIcon rarity={rarity} size={6.5} />
       <span
-        className="font-serif text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider leading-none drop-shadow-[0_1px_1px_rgba(0,0,0,0.9)]"
+        className="font-serif text-[7px] md:text-[9.5px] font-extrabold uppercase tracking-[0.01em] md:tracking-wider leading-none drop-shadow-[0_1px_1px_rgba(0,0,0,0.9)] whitespace-nowrap"
         style={{ color: cfg.textColor }}
       >
         {cfg.label}
@@ -148,27 +149,40 @@ export function HearthstoneCard({ card, onInspect, onQuickAdd }: HearthstoneCard
   return (
     <div
       data-testid="collection-card"
+      data-capped={isCapped ? 'true' : 'false'}
+      draggable={Boolean(editingDeckId && !isCapped)}
+      onDragStart={(e) => {
+        if (editingDeckId && !isCapped) {
+          e.dataTransfer.setData('text/plain', card.id);
+          e.dataTransfer.setData('application/x-hearthlight-card-id', card.id);
+          e.dataTransfer.effectAllowed = 'copy';
+        }
+      }}
       onClick={handleClick}
-      className={`group relative flex flex-col items-center cursor-pointer transition-transform duration-200 select-none ${
+      className={`group relative flex flex-col items-center justify-center cursor-pointer transition-transform duration-200 select-none w-full h-full min-h-0 min-w-0 max-h-full ${
         isCapped
           ? 'filter saturate-[0.80] brightness-[0.96] hover:scale-102'
           : 'hover:scale-105 hover:z-20'
-      }`}
+      } ${editingDeckId && !isCapped ? 'cursor-grab active:cursor-grabbing' : ''}`}
     >
-      {/* 3D Container */}
-      <div className="relative w-36 sm:w-40 h-52 sm:h-56 flex items-center justify-center">
+      {/* 3D Container with Fluid Aspect Ratio Constraint */}
+      <div
+        className={`relative flex-1 min-h-0 w-auto aspect-[5/7] flex items-center justify-center ${
+          editingDeckId ? 'max-h-[calc(100%-24px)]' : 'max-h-full'
+        }`}
+      >
         {/* Layer 1: Resilient Fallback Card Canvas - ONLY rendered if image is NOT loaded */}
         {imgStatus !== 'loaded' && (
-          <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-[#2a1b12] to-[#120a05] border-2 border-[#8a6027] overflow-hidden flex flex-col p-2.5 justify-between shadow-[0_8px_16px_rgba(0,0,0,0.85)]">
+          <div className="absolute inset-0 rounded-xl bg-gradient-to-b from-[#2a1b12] to-[#120a05] border-2 border-[#8a6027] overflow-hidden flex flex-col p-1.5 sm:p-2.5 justify-between shadow-[0_6px_14px_rgba(0,0,0,0.85)]">
             {/* Mana Oval Fallback */}
-            <div className="w-8 h-8 rounded-full bg-gradient-to-b from-sky-400 to-blue-800 border-2 border-sky-100 flex items-center justify-center text-white font-black text-sm shadow">
+            <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-gradient-to-b from-sky-400 to-blue-800 border border-sky-100 flex items-center justify-center text-white font-black text-xs shadow">
               {card.cost}
             </div>
 
             {/* Center Art SVG Placeholder - Bespoke Arcane Diamond Emblem */}
             <div className="my-auto text-center flex flex-col items-center">
-              <div className="relative w-8 h-8 flex items-center justify-center">
-                <svg className="w-8 h-8 text-[#93c5fd]/80" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <div className="relative w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center">
+                <svg className="w-6 h-6 sm:w-7 sm:h-7 text-[#93c5fd]/80" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                   <polygon points="12,2 22,12 12,22 2,12" stroke="currentColor" strokeWidth="1.2" />
                   <polygon points="12,5 19,12 12,19 5,12" stroke="#60a5fa" strokeWidth="0.8" fill="rgba(59, 130, 246, 0.2)" />
                   <circle cx="12" cy="12" r="2.5" fill="#93c5fd" />
@@ -179,59 +193,56 @@ export function HearthstoneCard({ card, onInspect, onQuickAdd }: HearthstoneCard
                   <line x1="18" y1="12" x2="22" y2="12" stroke="#93c5fd" strokeWidth="1.2" strokeLinecap="round" />
                 </svg>
               </div>
-              <div className="text-xs font-bold text-amber-100 mt-1 line-clamp-1">{card.name}</div>
+              <div className="text-[10px] sm:text-xs font-bold text-amber-100 mt-1 line-clamp-1">{card.name}</div>
             </div>
 
             {/* Rarity & Text */}
-            <div className="text-[10px] text-stone-300 leading-tight line-clamp-3 bg-black/40 rounded p-1">
+            <div className="text-[8px] sm:text-[9px] text-stone-300 leading-tight line-clamp-2 bg-black/40 rounded p-0.5">
               <span dangerouslySetInnerHTML={{ __html: card.text }} />
             </div>
           </div>
         )}
 
-        {/* Layer 2: Official Blizzard CloudFront Card Image - rendered clean with drop shadow and NO background box */}
-        {card.imageUrl && (
-          <img
-            src={card.imageUrl}
-            alt={card.name}
-            loading="lazy"
-            decoding="async"
-            onLoad={() => setImgStatus('loaded')}
-            onError={() => setImgStatus('error')}
-            className={`w-full h-full object-contain pointer-events-none drop-shadow-[0_10px_18px_rgba(0,0,0,0.65)] transition-opacity duration-200 ${
-              imgStatus === 'loaded' ? 'opacity-100' : 'opacity-0 absolute inset-0'
-            }`}
-          />
-        )}
-
-        {/* Legendary Dragon Crown Highlight if applicable */}
-        {card.rarity === 'LEGENDARY' && (
-          <div className="absolute -top-2 left-1/2 -translate-x-1/2 pointer-events-none z-10 flex items-center justify-center">
-            <div className="px-2 py-0.5 rounded-full bg-gradient-to-b from-[#fde68a] via-[#f59e0b] to-[#78350f] border border-[#fef3c7] shadow-[0_2px_6px_rgba(0,0,0,0.85)] text-[10px] font-black text-[#451a03] flex items-center gap-0.5">
-              <span className="text-[#451a03]">★</span>
-              <span className="text-[9px] uppercase tracking-wider font-extrabold text-[#451a03]">Legend</span>
-            </div>
-          </div>
-        )}
+        {/* Layer 2: Official Blizzard Card Image - Local 0ms bundle with CDN fallback */}
+        <img
+          src={`/art/cards/${card.id}.png`}
+          alt={card.name}
+          loading="eager"
+          decoding="sync"
+          onLoad={() => setImgStatus('loaded')}
+          onError={(e) => {
+            if (card.imageUrl && e.currentTarget.src !== card.imageUrl) {
+              e.currentTarget.src = card.imageUrl;
+            } else {
+              setImgStatus('error');
+            }
+          }}
+          className={`w-full h-full object-contain pointer-events-none drop-shadow-[0_8px_14px_rgba(0,0,0,0.65)] transition-opacity duration-200 ${
+            imgStatus === 'loaded' ? 'opacity-100' : 'opacity-0 absolute inset-0'
+          }`}
+        />
       </div>
 
-      {/* Bottom Status / Quick-Add Badging */}
-      <div className="mt-1.5 h-7 flex items-center justify-center">
-        {editingDeckId ? (
-          isAtDeckLimit ? (
+      {/* Bottom Status / Quick-Add Badging (ONLY shown when actively building/editing a deck) */}
+      {editingDeckId && (
+        <div className="mt-0.5 sm:mt-1 h-5 sm:h-6 shrink-0 flex items-center justify-center">
+          {isAtDeckLimit ? (
             /* Clean recessed slate-and-brass status plaque for locked copy limit */
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-[5px] bg-[#1d150f] border border-[#8e6328]/80 shadow-[inset_0_1px_3px_rgba(0,0,0,0.85),0_1px_2px_rgba(0,0,0,0.3)]">
-              {card.rarity === 'LEGENDARY' && (
-                <span className="text-[10px] text-[#f5c451] leading-none">★</span>
-              )}
-              <span className="font-serif text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-[#f5c451] leading-none">
+            <div
+              data-testid="deck-limit-badge"
+              className="inline-flex items-center gap-0.5 md:gap-1 px-1 md:px-1.5 py-[1px] md:py-0.5 rounded-[4px] bg-[#1d150f] border border-[#8e6328]/80 shadow-[inset_0_1px_3px_rgba(0,0,0,0.85),0_1px_2px_rgba(0,0,0,0.3)] max-w-full w-fit whitespace-nowrap"
+            >
+              <span className="font-serif text-[7px] md:text-[9.5px] font-extrabold uppercase tracking-[0.01em] md:tracking-wider text-[#f5c451] leading-none whitespace-nowrap">
                 Deck Limit: {maxCopies}
               </span>
             </div>
           ) : isDeckFull ? (
             /* Recessed slate-and-brass status plaque for deck full */
-            <div className="inline-flex items-center justify-center px-2.5 py-0.5 rounded-[5px] bg-[#1d150f] border border-[#6b5029]/80 shadow-[inset_0_1px_3px_rgba(0,0,0,0.85),0_1px_2px_rgba(0,0,0,0.3)]">
-              <span className="font-serif text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-[#a88d6c] leading-none">
+            <div
+              data-testid="deck-full-badge"
+              className="inline-flex items-center justify-center px-1 md:px-1.5 py-[1px] md:py-0.5 rounded-[4px] bg-[#1d150f] border border-[#6b5029]/80 shadow-[inset_0_1px_3px_rgba(0,0,0,0.85),0_1px_2px_rgba(0,0,0,0.3)] max-w-full w-fit whitespace-nowrap"
+            >
+              <span className="font-serif text-[7px] md:text-[9.5px] font-extrabold uppercase tracking-[0.01em] md:tracking-wider text-[#a88d6c] leading-none whitespace-nowrap">
                 Deck Full
               </span>
             </div>
@@ -239,23 +250,21 @@ export function HearthstoneCard({ card, onInspect, onQuickAdd }: HearthstoneCard
             /* Quick-add '+' pill/button */
             <button
               type="button"
+              data-testid="quick-add-button"
               onClick={handleQuickAdd}
-              className="px-3 py-1 rounded-full bg-gradient-to-b from-[#f7e2a4] via-[#c99a42] to-[#7a4f18] border border-[#fff2c2]/80 text-[#1a0e05] text-xs font-black shadow-[0_2px_6px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.4)] hover:brightness-115 hover:shadow-[0_0_10px_rgba(245,196,81,0.5)] active:scale-95 transition-all flex items-center gap-1 cursor-pointer"
+              className="px-1 md:px-2 py-[1px] md:py-0.5 rounded-full bg-gradient-to-b from-[#f7e2a4] via-[#c99a42] to-[#7a4f18] border border-[#fff2c2]/80 text-[#1a0e05] text-[7.5px] md:text-[9.5px] font-black shadow-[0_2px_4px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.4)] hover:brightness-115 hover:shadow-[0_0_8px_rgba(245,196,81,0.5)] active:scale-95 transition-all flex items-center gap-0.5 md:gap-1 cursor-pointer max-w-full w-fit whitespace-nowrap"
             >
-              <span className="text-sm leading-none font-black">+</span>
-              <span className="text-[10px] uppercase tracking-wider font-extrabold leading-none">Add</span>
+              <span className="text-[9px] md:text-[10px] leading-none font-black">+</span>
+              <span className="text-[7px] md:text-[9px] uppercase tracking-[0.01em] md:tracking-wider font-extrabold leading-none">Add</span>
               {cardCountInDeck > 0 && (
-                <span className="text-[10px] font-mono font-black text-[#3d2008] ml-0.5 leading-none">
+                <span className="text-[7px] md:text-[9px] font-mono font-black text-[#3d2008] ml-0.5 leading-none">
                   ({cardCountInDeck}/{maxCopies})
                 </span>
               )}
             </button>
-          )
-        ) : (
-          /* View Mode: Dark recessed walnut/slate badge with faceted gemstone */
-          <RarityBadge rarity={card.rarity} />
-        )}
-      </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

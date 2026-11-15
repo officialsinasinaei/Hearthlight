@@ -33,3 +33,4 @@ test_*.png
 
 # Visual verification screenshots and artifacts
 screenshots/
+.verification/

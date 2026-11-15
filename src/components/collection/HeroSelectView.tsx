@@ -252,12 +252,12 @@ const HERO_CLASSES: HeroClassInfo[] = [
 // 3. MAIN HERO SELECT VIEW COMPONENT
 // ==========================================
 
-// Official asset endpoints (supports pure illustration art with official render fallbacks)
-const JAINA_ART_URL = 'https://art.hearthstonejson.com/v1/512x/HERO_08.jpg';
-const JAINA_RENDER_FALLBACK = 'https://art.hearthstonejson.com/v1/render/latest/enUS/512x/HERO_08.png';
+// Official asset endpoints (pure portrait & hero power illustration art)
+const JAINA_PORTRAIT_URL = '/art/HERO_08.jpg';
+const JAINA_RENDER_FALLBACK = 'https://art.hearthstonejson.com/v1/512x/HERO_08.jpg';
 
-const FIREBLAST_ART_URL = 'https://art.hearthstonejson.com/v1/512x/CS2_034.jpg';
-const FIREBLAST_RENDER_FALLBACK = 'https://art.hearthstonejson.com/v1/render/latest/enUS/512x/CS2_034.png';
+const FIREBLAST_ART_URL = '/art/CS2_034.jpg';
+const FIREBLAST_ART_FALLBACK = 'https://art.hearthstonejson.com/v1/512x/CS2_034.jpg';
 
 export function HeroSelectView() {
   const setHeroSelectOpen = useCollectionStore((s) => s.setHeroSelectOpen);
@@ -265,8 +265,6 @@ export function HeroSelectView() {
   const showToast = useCollectionStore((s) => s.showToast);
 
   const [shakeClass, setShakeClass] = useState<string | null>(null);
-  const [jainaLoaded, setJainaLoaded] = useState(false);
-  const [fireblastLoaded, setFireblastLoaded] = useState(false);
 
   function handleHeroClick(hero: HeroClassInfo) {
     if (!hero.isPlayable) {
@@ -281,26 +279,29 @@ export function HeroSelectView() {
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 select-none">
-      {/* Outer Carved Wood Chamber */}
-      <div className="relative w-full max-w-5xl h-[88vh] max-h-[700px] rounded-3xl bg-gradient-to-b from-[#3a2213] via-[#24130a] to-[#140b05] border-4 border-[#8e6129] shadow-[0_25px_80px_rgba(0,0,0,0.95)] flex overflow-hidden">
+    <div
+      data-testid="hero-select-modal"
+      className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 select-none"
+    >
+      {/* Outer Carved Wood Chamber: Responsive Viewport Fit */}
+      <div className="relative w-full max-w-5xl h-[min(94dvh,640px)] rounded-2xl sm:rounded-3xl bg-gradient-to-b from-[#3a2213] via-[#24130a] to-[#140b05] border-3 sm:border-4 border-[#8e6129] shadow-[0_25px_80px_rgba(0,0,0,0.95)] flex overflow-hidden">
         
         {/* ========================================================= */}
         {/* LEFT SECTION: 3x3 CHOOSE YOUR HERO GRID                   */}
         {/* ========================================================= */}
-        <div className="flex-1 flex flex-col justify-between p-6 sm:p-8 border-r-4 border-[#8e6129]/60">
+        <div className="flex-1 min-w-0 h-full flex flex-col justify-between p-2.5 sm:p-5 border-r-3 sm:border-r-4 border-[#8e6129]/60 overflow-hidden">
           
           {/* Top Plaque Header: "Choose Your Hero" */}
-          <div className="flex items-center justify-center">
-            <div className="px-10 py-2.5 rounded-xl bg-gradient-to-b from-[#2b180d] via-[#1c0e07] to-[#120803] border-2 border-[#a2845c] shadow-[0_6px_16px_rgba(0,0,0,0.8),inset_0_1px_2px_rgba(255,255,255,0.2)]">
-              <h2 className="text-xl sm:text-2xl font-black text-[#fae6a2] tracking-wider uppercase font-serif text-letterpress">
+          <div className="flex items-center justify-center shrink-0 mb-1">
+            <div className="px-5 sm:px-8 py-1 sm:py-2 rounded-xl bg-gradient-to-b from-[#2b180d] via-[#1c0e07] to-[#120803] border-2 border-[#a2845c] shadow-[0_4px_12px_rgba(0,0,0,0.8),inset_0_1px_2px_rgba(255,255,255,0.2)]">
+              <h2 className="text-sm sm:text-xl font-black text-[#fae6a2] tracking-wider uppercase font-serif text-letterpress leading-tight">
                 Choose Your Hero
               </h2>
             </div>
           </div>
 
-          {/* 3x3 Grid of Hero Cards */}
-          <div className="grid grid-cols-3 gap-3.5 sm:gap-5 my-auto max-w-lg mx-auto w-full">
+          {/* 3x3 Grid of Hero Cards: Fluid Height Sizing */}
+          <div className="grid grid-cols-3 gap-1.5 sm:gap-3.5 my-auto max-w-lg mx-auto w-full flex-1 min-h-0 py-1">
             {HERO_CLASSES.map((hero) => {
               const isSelectedMage = hero.id === 'mage';
               const isShaking = shakeClass === hero.id;
@@ -312,22 +313,28 @@ export function HeroSelectView() {
                     key={hero.id}
                     whileHover={{ scale: 1.04 }}
                     transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                    className="relative h-28 sm:h-32 rounded-2xl p-[2.5px] cursor-pointer transition-all duration-200 bg-gradient-to-b from-[#fce399] via-[#c8983e] to-[#59390e] shadow-[0_8px_24px_rgba(0,0,0,0.85),inset_0_1px_2px_rgba(255,255,255,0.7)] scale-[1.03]"
+                    className="relative h-[clamp(58px,17dvh,110px)] rounded-xl sm:rounded-2xl p-[2px] cursor-pointer transition-all duration-200 bg-gradient-to-b from-[#fce399] via-[#c8983e] to-[#59390e] shadow-[0_6px_18px_rgba(0,0,0,0.85),inset_0_1px_2px_rgba(255,255,255,0.7)] scale-[1.02]"
                   >
                     {/* Inlaid Joinery Channel */}
-                    <div className="w-full h-full rounded-[13px] p-[1.5px] bg-[#140b05]">
+                    <div className="w-full h-full rounded-[10px] sm:rounded-[13px] p-[1.5px] bg-[#140b05]">
                       {/* Royal Indigo Enamel Card Face with Inlaid Brass Frame */}
-                      <div className="relative w-full h-full rounded-[11px] overflow-hidden flex flex-col items-center justify-between p-2 bg-[radial-gradient(ellipse_at_center,_#1d3566_0%,_#122346_60%,_#0b152d_100%)] border border-[#fae6a2]/40 shadow-[inset_0_1px_3px_rgba(255,255,255,0.3),inset_0_-4px_10px_rgba(0,0,0,0.8)]">
+                      <div
+                        data-testid="hero-tile-mage"
+                        className="relative w-full h-full rounded-[8px] sm:rounded-[11px] overflow-hidden flex flex-col items-center justify-center gap-1 px-1.5 py-1 bg-[radial-gradient(ellipse_at_center,_#1d3566_0%,_#122346_60%,_#0b152d_100%)] border border-[#fae6a2]/40 shadow-[inset_0_1px_3px_rgba(255,255,255,0.3),inset_0_-4px_10px_rgba(0,0,0,0.8)]"
+                      >
                         {/* Specular Inner Highlight Arc */}
-                        <div className="absolute -top-8 -left-8 w-24 h-24 rounded-full bg-white/10 blur-sm pointer-events-none" />
+                        <div className="absolute -top-8 -left-8 w-20 h-20 rounded-full bg-white/10 blur-sm pointer-events-none" />
 
                         {/* Bespoke Mage Class Crest */}
-                        <div className="my-auto relative z-10">
-                          <BespokeMageCrest className="w-11 h-11 sm:w-12 sm:h-12 drop-shadow-[0_4px_8px_rgba(0,0,0,0.85)]" />
+                        <div className="relative z-10 shrink-0">
+                          <BespokeMageCrest className="w-5 h-5 sm:w-6 sm:h-6 drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)]" />
                         </div>
 
                         {/* Inlaid Brushed Gold Class Banner */}
-                        <div className="w-full py-0.5 rounded text-center text-xs font-black tracking-wider uppercase bg-gradient-to-b from-[#fce399] via-[#dca84c] to-[#7a4e13] text-[#1b0f04] shadow-[0_2px_4px_rgba(0,0,0,0.8)] border border-[#fffae0]/70 text-letterpress relative z-10">
+                        <div
+                          data-testid="mage-tile-banner"
+                          className="w-full py-0.5 rounded text-center text-[8.5px] font-black tracking-wider uppercase bg-gradient-to-b from-[#fce399] via-[#dca84c] to-[#7a4e13] text-[#1b0f04] shadow border border-[#fffae0]/70 text-letterpress relative z-10 leading-none shrink-0"
+                        >
                           {hero.name}
                         </div>
                       </div>
@@ -344,24 +351,24 @@ export function HeroSelectView() {
                   animate={isShaking ? { x: [-5, 5, -3, 3, 0] } : {}}
                   transition={{ duration: 0.35 }}
                   onClick={() => handleHeroClick(hero)}
-                  className="relative h-28 sm:h-32 rounded-2xl p-[2px] cursor-pointer transition-all duration-200 bg-gradient-to-b from-[#3a281c] via-[#24170f] to-[#120a06] border border-[#503724] hover:border-[#7a5436] opacity-85 hover:opacity-100 shadow-[0_4px_12px_rgba(0,0,0,0.6)]"
+                  className="relative h-[clamp(58px,17dvh,110px)] rounded-xl sm:rounded-2xl p-[1.5px] cursor-pointer transition-all duration-200 bg-gradient-to-b from-[#3a281c] via-[#24170f] to-[#120a06] border border-[#503724] hover:border-[#7a5436] opacity-85 hover:opacity-100 shadow"
                 >
-                  <div className="relative w-full h-full rounded-xl overflow-hidden flex flex-col items-center justify-between p-2 bg-gradient-to-b from-[#221710] via-[#160d09] to-[#0d0705] border border-[#3d291b]">
+                  <div className="relative w-full h-full rounded-[9px] sm:rounded-xl overflow-hidden flex flex-col items-center justify-between p-1 sm:p-2 bg-gradient-to-b from-[#221710] via-[#160d09] to-[#0d0705] border border-[#3d291b]">
                     {/* Subtle Engraved Class-Crest Watermark */}
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-45 overflow-hidden text-[#c89d46]">
-                      {hero.renderWatermark('w-20 h-20 text-[#c89d46] drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]')}
+                      {hero.renderWatermark('w-14 h-14 sm:w-20 sm:h-20 text-[#c89d46] drop-shadow')}
                     </div>
 
                     {/* Bespoke Wrought-Iron & Brass Lock Clasp + Quiet Coming Soon Badge */}
-                    <div className="relative z-10 flex flex-col items-center justify-center my-auto gap-1">
-                      <WroughtIronBrassLock className="w-7 h-7 sm:w-8 sm:h-8 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]" />
-                      <span className="px-2 py-0.5 rounded bg-[#130b06]/95 border border-[#523b26] text-[9px] font-extrabold text-[#c89d46] uppercase tracking-wider shadow">
+                    <div className="relative z-10 flex flex-col items-center justify-center my-auto gap-0.5">
+                      <WroughtIronBrassLock className="w-5 h-5 sm:w-7 sm:h-7 drop-shadow" />
+                      <span className="px-1.5 py-0.5 rounded bg-[#130b06]/95 border border-[#523b26] text-[8px] sm:text-[9px] font-extrabold text-[#c89d46] uppercase tracking-wider shadow">
                         Coming Soon
                       </span>
                     </div>
 
-                    {/* Single Clean Class Title (No Duplicated Ghosted Names) */}
-                    <div className="w-full py-0.5 rounded text-center text-xs font-black tracking-wider uppercase bg-[#140b07] text-[#9f8b78] border border-[#3d291b] shadow-inner relative z-10">
+                    {/* Single Clean Class Title */}
+                    <div className="w-full py-0.5 rounded text-center text-[10px] sm:text-xs font-black tracking-wider uppercase bg-[#140b07] text-[#9f8b78] border border-[#3d291b] shadow-inner relative z-10 leading-tight">
                       {hero.name}
                     </div>
                   </div>
@@ -371,72 +378,59 @@ export function HeroSelectView() {
           </div>
 
           {/* Bottom Balance Spacer */}
-          <div className="h-2" />
+          <div className="h-1" />
         </div>
 
         {/* ========================================================= */}
         {/* RIGHT SECTION: JAINA SHOWCASE & CHOOSE MEDALLION          */}
         {/* ========================================================= */}
-        <div className="w-80 sm:w-96 bg-[radial-gradient(ellipse_at_center,_#3e1814_0%,_#260d09_55%,_#130504_100%)] p-6 sm:p-7 flex flex-col items-center justify-center gap-4 sm:gap-5 relative overflow-hidden">
+        <div className="w-[clamp(210px,28vw,340px)] shrink-0 h-full bg-[radial-gradient(ellipse_at_center,_#3e1814_0%,_#260d09_55%,_#130504_100%)] p-2.5 sm:p-5 flex flex-col items-center justify-between relative overflow-hidden">
           
           {/* Subtle Warm Drape Vignette */}
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,_rgba(244,63,94,0.12),_transparent_75%)] pointer-events-none" />
 
           {/* Top Section: Hero Pedestal (Portrait + Cleanly Docked Companion Hero Power Medallion) */}
-          <div className="relative w-full flex flex-col items-center mt-1">
+          <div className="relative w-full flex flex-col items-center mt-0.5">
             
             {/* Side-by-Side Portrait & Docked Companion Medallion (Never Overlapping!) */}
-            <div className="flex items-center justify-center gap-3 sm:gap-4 w-full">
+            <div className="flex items-center justify-center gap-2 sm:gap-4 w-full">
               
               {/* 1. Dedicated Ornate Gilded Arch Medallion for Jaina Portrait */}
               <div className="relative">
                 {/* Arch Keystone Apex */}
-                <div className="absolute -top-2 left-1/2 -translate-x-1/2 z-20 flex items-center justify-center">
-                  <div className="w-4 h-4 rotate-45 bg-gradient-to-b from-[#fce399] via-[#c8983e] to-[#59390e] border border-[#2d1c06] shadow flex items-center justify-center">
-                    <div className="w-1.5 h-1.5 rounded-full bg-[#4785ff] shadow-inner" />
+                <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 z-20 flex items-center justify-center">
+                  <div className="w-3 sm:w-4 h-3 sm:h-4 rotate-45 bg-gradient-to-b from-[#fce399] via-[#c8983e] to-[#59390e] border border-[#2d1c06] shadow flex items-center justify-center">
+                    <div className="w-1 sm:w-1.5 h-1 sm:h-1.5 rounded-full bg-[#4785ff] shadow-inner" />
                   </div>
                 </div>
 
                 {/* Outer Sculpted Heavy Brass Arch Frame */}
-                <div className="relative w-36 h-48 sm:w-40 sm:h-52 rounded-t-full rounded-b-2xl p-[3px] bg-gradient-to-b from-[#fce399] via-[#c8983e] to-[#4e320c] shadow-[0_12px_30px_rgba(0,0,0,0.9),inset_0_2px_4px_rgba(255,255,255,0.7)] border border-[#fae6a2]/50">
+                <div className="relative w-[clamp(80px,18dvh,130px)] h-[clamp(105px,24dvh,170px)] rounded-t-full rounded-b-2xl p-[2px] sm:p-[3px] bg-gradient-to-b from-[#fce399] via-[#c8983e] to-[#4e320c] shadow-[0_8px_20px_rgba(0,0,0,0.9),inset_0_2px_4px_rgba(255,255,255,0.7)] border border-[#fae6a2]/50">
                   
                   {/* Inlaid Dark Channel */}
-                  <div className="w-full h-full rounded-t-full rounded-b-[14px] p-[2px] bg-gradient-to-b from-[#180e07] to-[#2c170a]">
+                  <div className="w-full h-full rounded-t-full rounded-b-[14px] p-[1.5px] bg-gradient-to-b from-[#180e07] to-[#2c170a]">
                     
                     {/* Vault Face */}
                     <div className="relative w-full h-full rounded-t-full rounded-b-xl overflow-hidden bg-[#0d162d] border border-[#fae6a2]/30 flex items-center justify-center shadow-[inset_0_2px_8px_rgba(0,0,0,0.8)]">
-                      {/* Jaina Official Portrait Artwork (Cleanly Cropped, Zero Stray Card Gems or Frame Artifacts) */}
                       <img
-                        src={JAINA_ART_URL}
+                        data-testid="jaina-portrait"
+                        src={JAINA_PORTRAIT_URL}
                         alt="Jaina Proudmoore"
-                        onLoad={() => setJainaLoaded(true)}
+                        loading="eager"
+                        decoding="sync"
                         onError={(e) => {
                           if (e.currentTarget.src !== JAINA_RENDER_FALLBACK) {
                             e.currentTarget.src = JAINA_RENDER_FALLBACK;
-                            e.currentTarget.className = 'w-full h-full object-cover scale-[2.1] object-[50%_25%] transition-opacity duration-200 opacity-100';
-                          } else {
-                            e.currentTarget.style.display = 'none';
-                            setJainaLoaded(false);
                           }
                         }}
-                        className={`w-full h-full object-cover object-[50%_18%] scale-105 transition-opacity duration-200 ${
-                          jainaLoaded ? 'opacity-100' : 'opacity-0'
-                        }`}
+                        className="w-full h-full object-cover object-[50%_18%] scale-110"
                       />
-
-                      {/* Silhouette Fallback */}
-                      {!jainaLoaded && (
-                        <div className="absolute inset-0 flex flex-col items-center justify-center p-3 text-center bg-gradient-to-b from-[#101b38] to-[#070c1a]">
-                          <BespokeMageCrest className="w-14 h-14 drop-shadow" />
-                          <span className="text-xs font-bold text-sky-200 mt-2">Jaina Proudmoore</span>
-                        </div>
-                      )}
                     </div>
                   </div>
 
                   {/* Base Corner Rivets */}
-                  <span className="absolute bottom-1 left-2 w-1.5 h-1.5 rounded-full bg-gradient-to-b from-[#fffae0] to-[#59390e] border border-[#2b1807]" />
-                  <span className="absolute bottom-1 right-2 w-1.5 h-1.5 rounded-full bg-gradient-to-b from-[#fffae0] to-[#59390e] border border-[#2b1807]" />
+                  <span className="absolute bottom-1 left-1.5 w-1 h-1 rounded-full bg-gradient-to-b from-[#fffae0] to-[#59390e] border border-[#2b1807]" />
+                  <span className="absolute bottom-1 right-1.5 w-1 h-1 rounded-full bg-gradient-to-b from-[#fffae0] to-[#59390e] border border-[#2b1807]" />
                 </div>
               </div>
 
@@ -446,53 +440,36 @@ export function HeroSelectView() {
                 className="flex flex-col items-center group cursor-help select-none"
               >
                 {/* Companion Dial Socket */}
-                <div className="relative w-16 h-16 sm:w-18 sm:h-18 rounded-full p-[2.5px] bg-gradient-to-b from-[#2a170d] to-[#120803] shadow-[0_8px_20px_rgba(0,0,0,0.85)] border border-[#523315] flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
-                  
-                  {/* Sculpted Heavy Brass Bezel */}
+                <div className="relative w-12 h-12 sm:w-16 sm:h-16 rounded-full p-[2px] bg-gradient-to-b from-[#2a170d] to-[#120803] shadow-[0_6px_16px_rgba(0,0,0,0.85)] border border-[#523315] flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
                   <div className="w-full h-full rounded-full p-1 bg-gradient-to-b from-[#fce399] via-[#c8983e] to-[#4e320c] shadow-[inset_0_1px_2px_rgba(255,255,255,0.7)] flex items-center justify-center relative">
-                    
-                    {/* Dark Dial Face */}
                     <div className="w-full h-full rounded-full overflow-hidden bg-[#180a04] border border-[#ff8c00]/60 relative flex items-center justify-center shadow-inner">
-                      {/* Official Fireblast Artwork */}
                       <img
+                        data-testid="fireblast-art"
                         src={FIREBLAST_ART_URL}
                         alt="Fireblast"
-                        onLoad={() => setFireblastLoaded(true)}
+                        loading="eager"
+                        decoding="sync"
                         onError={(e) => {
-                          if (e.currentTarget.src !== FIREBLAST_RENDER_FALLBACK) {
-                            e.currentTarget.src = FIREBLAST_RENDER_FALLBACK;
-                            e.currentTarget.className = 'w-full h-full object-cover scale-[2.2] object-[50%_28%] transition-opacity duration-200 opacity-100';
-                          } else {
-                            e.currentTarget.style.display = 'none';
-                            setFireblastLoaded(false);
+                          if (e.currentTarget.src !== FIREBLAST_ART_FALLBACK) {
+                            e.currentTarget.src = FIREBLAST_ART_FALLBACK;
                           }
                         }}
-                        className={`w-full h-full object-cover scale-[1.35] object-center transition-opacity duration-200 ${
-                          fireblastLoaded ? 'opacity-100' : 'opacity-0'
-                        }`}
+                        className="w-full h-full object-cover scale-110 object-center"
                       />
-
-                      {/* Arcane Flame SVG fallback */}
-                      {!fireblastLoaded && (
-                        <svg className="w-7 h-7 text-amber-400" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M12 2C8 6 6 9 6 13a6 6 0 0012 0c0-4-2-7-6-11zm0 15a3 3 0 01-3-3c0-1.5 1-3 3-5 2 2 3 3.5 3 5a3 3 0 01-3 3z" />
-                        </svg>
-                      )}
                     </div>
-
                     {/* Sculpted 2-Mana Blue Crystal Gem docked at top center */}
-                    <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gradient-to-b from-[#38bdf8] via-[#1d4ed8] to-[#0c1a38] border-2 border-[#e0f2fe] text-white font-black text-[10px] sm:text-xs flex items-center justify-center shadow-[0_2px_6px_rgba(0,0,0,0.9)] z-20">
+                    <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-4 sm:w-5 h-4 sm:h-5 rounded-full bg-gradient-to-b from-[#38bdf8] via-[#1d4ed8] to-[#0c1a38] border border-[#e0f2fe] text-white font-black text-[9px] sm:text-[10px] flex items-center justify-center shadow z-20">
                       2
                     </div>
                   </div>
                 </div>
 
                 {/* Hero Power Plaque underneath companion dial */}
-                <div className="mt-1.5 px-2.5 py-0.5 rounded bg-gradient-to-b from-[#25150c] to-[#100703] border border-[#8e6129]/60 shadow text-center">
-                  <div className="text-[10px] sm:text-[11px] font-black text-[#fae6a2] uppercase tracking-wider text-letterpress">
+                <div className="mt-1 px-2 py-0.5 rounded bg-gradient-to-b from-[#25150c] to-[#100703] border border-[#8e6129]/60 shadow text-center">
+                  <div className="text-[9px] sm:text-[10px] font-black text-[#fae6a2] uppercase tracking-wider text-letterpress leading-tight">
                     Fireblast
                   </div>
-                  <div className="text-[8px] sm:text-[9px] font-extrabold text-[#c89d46] uppercase">
+                  <div className="text-[7px] sm:text-[8px] font-extrabold text-[#c89d46] uppercase leading-none">
                     2 Mana
                   </div>
                 </div>
@@ -500,83 +477,57 @@ export function HeroSelectView() {
             </div>
 
             {/* Beveled 'Jaina Proudmoore — Mage Hero' Nameplate */}
-            <div className="mt-3.5 w-full max-w-[270px] rounded-lg p-[1.5px] bg-gradient-to-b from-[#fce399] via-[#c8983e] to-[#4e320c] shadow-[0_4px_12px_rgba(0,0,0,0.7)]">
-              <div className="w-full rounded-[6px] py-1.5 px-4 bg-gradient-to-b from-[#27150a] via-[#170c05] to-[#201107] border border-[#e5b450]/30 flex flex-col items-center justify-center text-center relative overflow-hidden">
-                {/* Specular sheen line */}
+            <div className="mt-2 w-full max-w-[220px] rounded-lg p-[1.5px] bg-gradient-to-b from-[#fce399] via-[#c8983e] to-[#4e320c] shadow">
+              <div className="w-full rounded-[6px] py-1 px-2.5 bg-gradient-to-b from-[#27150a] via-[#170c05] to-[#201107] border border-[#e5b450]/30 flex flex-col items-center justify-center text-center relative overflow-hidden">
                 <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#fae6a2]/60 to-transparent" />
-                
-                <h3 className="text-sm sm:text-base font-black text-[#fae6a2] tracking-wider uppercase font-serif text-letterpress">
+                <h3 className="text-xs sm:text-sm font-black text-[#fae6a2] tracking-wider uppercase font-serif text-letterpress leading-tight">
                   Jaina Proudmoore
                 </h3>
-                <span className="text-[10px] font-extrabold text-[#cbbba0] tracking-[0.2em] uppercase">
+                <span className="text-[8px] sm:text-[9px] font-extrabold text-[#cbbba0] tracking-[0.18em] uppercase leading-none">
                   Mage Hero
                 </span>
-
-                {/* Tiny brass corner rivets */}
-                <span className="absolute left-1.5 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-gradient-to-b from-[#fae6a2] to-[#6a4212] border border-[#2d1b06]" />
-                <span className="absolute right-1.5 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-gradient-to-b from-[#fae6a2] to-[#6a4212] border border-[#2d1b06]" />
               </div>
             </div>
           </div>
 
           {/* Bottom Action Section: Tactile Choose Medallion Button & Quiet Back Button */}
-          <div className="w-full flex flex-col items-center gap-3">
+          <div className="w-full flex flex-col items-center gap-2 mt-auto">
             {/* Tactile Choose Medallion Button matching Main Menu Play Medallion styling */}
             <div className="relative flex items-center justify-center select-none">
-              {/* Outer Recessed Socket */}
-              <div className="relative w-32 h-32 sm:w-36 sm:h-36 rounded-full p-2.5 bg-gradient-to-b from-[#2a1a0f] via-[#1a0f08] to-[#3a2414] shadow-[inset_0_8px_20px_rgba(0,0,0,0.95),0_6px_20px_rgba(0,0,0,0.7)] border-2 border-[#573919]/60 flex items-center justify-center">
-                
-                {/* Tier 1: Brushed Heavy Brass Bezel Ring */}
-                <div className="w-full h-full rounded-full p-2 bg-gradient-to-b from-[#f7e49e] via-[#c6973e] to-[#59390e] shadow-[0_6px_16px_rgba(0,0,0,0.75),inset_0_2px_3px_rgba(255,255,255,0.75)] flex items-center justify-center">
-                  
-                  {/* Tier 2: Recessed Dark Joinery Channel */}
-                  <div className="w-full h-full rounded-full p-1 bg-gradient-to-b from-[#180f08] to-[#301c0d] shadow-[inset_0_2px_5px_rgba(0,0,0,0.9)] flex items-center justify-center">
-                    
-                    {/* Main Interactive Enamel & Brass Dial */}
+              <div className="relative w-[clamp(96px,24dvh,132px)] h-[clamp(96px,24dvh,132px)] rounded-full p-1 sm:p-1.5 bg-gradient-to-b from-[#2a1a0f] via-[#1a0f08] to-[#3a2414] shadow-[inset_0_6px_16px_rgba(0,0,0,0.95),0_4px_14px_rgba(0,0,0,0.7)] border-2 border-[#573919]/60 flex items-center justify-center">
+                <div className="w-full h-full rounded-full p-1 bg-gradient-to-b from-[#f7e49e] via-[#c6973e] to-[#59390e] shadow flex items-center justify-center">
+                  <div className="w-full h-full rounded-full p-0.5 bg-gradient-to-b from-[#180f08] to-[#301c0d] shadow-inner flex items-center justify-center">
                     <motion.button
                       type="button"
+                      data-testid="choose-hero-button"
                       whileHover={{ scale: 1.03 }}
-                      whileTap={{ scale: 0.97, y: 2 }}
+                      whileTap={{ scale: 0.97, y: 1 }}
                       transition={{ type: 'spring', stiffness: 450, damping: 28 }}
                       onClick={handleChooseJaina}
-                      className="group relative w-full h-full rounded-full overflow-hidden cursor-pointer focus:outline-none shadow-[inset_0_3px_10px_rgba(255,255,255,0.3),inset_0_-8px_20px_rgba(0,0,0,0.8),0_10px_24px_rgba(0,0,0,0.65)] border border-[#e8c068]/60"
+                      className="group relative w-full h-full rounded-full overflow-hidden cursor-pointer focus:outline-none shadow border border-[#e8c068]/60 flex items-center justify-center"
                     >
-                      {/* Deep Royal-Indigo Concave Enamel Core */}
-                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,_#213c75_0%,_#14244a_48%,_#0c152d_82%,_#060a16_100%)] transition-transform duration-500 group-hover:scale-105" />
-
-                      {/* Inlaid Delicate Brass Runic Compass Circles */}
-                      <div className="absolute inset-2 sm:inset-2.5 rounded-full border border-dashed border-[#f5df96]/25 pointer-events-none" />
-                      <div className="absolute inset-4 sm:inset-5 rounded-full border border-[#f5df96]/20 pointer-events-none" />
-
-                      {/* Glass / Enamel Specular Highlight Arc */}
-                      <div className="absolute -top-1/2 -left-1/4 w-[150%] h-full rounded-full bg-gradient-to-b from-white/20 to-transparent rotate-[-12deg] pointer-events-none" />
-
-                      {/* Centerpiece Content */}
-                      <div className="relative z-10 flex flex-col items-center justify-center h-full px-2 text-center">
-                        <span className="text-base sm:text-lg font-black tracking-wide uppercase text-[#f7eedc] text-letterpress-deep font-serif leading-tight">
+                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,_#213c75_0%,_#14244a_48%,_#0c152d_82%,_#060a16_100%)]" />
+                      <div className="relative z-10 flex flex-col items-center justify-center px-1 text-center">
+                        <span className="text-[clamp(0.72rem,2.2dvh,1.05rem)] font-black tracking-wide uppercase text-[#f7eedc] text-letterpress-deep font-serif leading-tight">
                           Choose
                         </span>
-                        <span className="mt-0.5 text-[9px] sm:text-[10px] font-extrabold tracking-[0.18em] uppercase text-[#cbbba0]/85">
+                        <span className="text-[clamp(0.5rem,1.3dvh,0.72rem)] font-extrabold tracking-wider uppercase text-[#cbbba0]/90 leading-none mt-0.5">
                           Start Deck
                         </span>
                       </div>
                     </motion.button>
                   </div>
                 </div>
-
-                {/* 4 Compass Brass Rivets on the Medallion Frame */}
-                <span className="w-2 h-2 rounded-full bg-gradient-to-b from-[#fffae0] via-[#c8983e] to-[#4e320c] border border-[#301c05] shadow absolute top-1 left-1/2 -translate-x-1/2" />
-                <span className="w-2 h-2 rounded-full bg-gradient-to-b from-[#fffae0] via-[#c8983e] to-[#4e320c] border border-[#301c05] shadow absolute bottom-1 left-1/2 -translate-x-1/2" />
-                <span className="w-2 h-2 rounded-full bg-gradient-to-b from-[#fffae0] via-[#c8983e] to-[#4e320c] border border-[#301c05] shadow absolute left-1 top-1/2 -translate-y-1/2" />
-                <span className="w-2 h-2 rounded-full bg-gradient-to-b from-[#fffae0] via-[#c8983e] to-[#4e320c] border border-[#301c05] shadow absolute right-1 top-1/2 -translate-y-1/2" />
               </div>
             </div>
 
             {/* Quiet Back Button */}
             <button
               type="button"
+              data-testid="hero-select-back-button"
               onClick={() => setHeroSelectOpen(false)}
-              className="px-8 py-1.5 rounded-xl bg-gradient-to-b from-[#2b180d] to-[#120803] border border-[#8e6129]/60 text-[#f5e2b3] font-bold text-xs uppercase tracking-widest hover:text-white hover:border-[#fae6a2] transition-colors cursor-pointer shadow active:translate-y-0.5"
+              className="px-6 py-1 rounded-xl bg-gradient-to-b from-[#2b180d] to-[#120803] border border-[#8e6129]/60 text-[#f5e2b3] font-bold text-xs uppercase tracking-widest hover:text-white hover:border-[#fae6a2] transition-colors cursor-pointer shadow active:translate-y-0.5"
+              style={{ minHeight: '36px' }}
             >
               Back
             </button>

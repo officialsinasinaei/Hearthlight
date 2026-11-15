@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-export type AppScreen = 'MAIN_MENU' | 'PLAY_MATCH' | 'COLLECTION';
+export type AppScreen = 'MAIN_MENU' | 'COLLECTION';
 
 export interface FriendEntry {
   id: string;
@@ -27,6 +27,7 @@ interface AppStoreState {
   isFriendsOpen: boolean;
   isSettingsOpen: boolean;
   settings: GameSettings;
+  toastMessage: string | null;
 
   // Actions
   navigateTo: (screen: AppScreen) => void;
@@ -34,6 +35,7 @@ interface AppStoreState {
   toggleSettings: (force?: boolean) => void;
   updateSettings: (partial: Partial<GameSettings>) => void;
   addGold: (amount: number) => void;
+  showToast: (message: string) => void;
 }
 
 const INITIAL_FRIENDS: FriendEntry[] = [
@@ -76,6 +78,14 @@ export const useAppStore = create<AppStoreState>((set) => ({
     sfxVolume: 90,
     enableScreenShake: true,
     highContrastCards: false,
+  },
+  toastMessage: null,
+
+  showToast: (message) => {
+    set({ toastMessage: message });
+    setTimeout(() => {
+      set((state) => (state.toastMessage === message ? { toastMessage: null } : {}));
+    }, 3500);
   },
 
   navigateTo: (screen) => {

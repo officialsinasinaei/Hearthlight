@@ -10,11 +10,11 @@ import { HearthstoneCard } from './HearthstoneCard';
 function BrassFiligreeDivider({ flip = false }: { flip?: boolean }) {
   return (
     <svg
-      width="64"
-      height="18"
+      width="48"
+      height="14"
       viewBox="0 0 64 18"
       fill="none"
-      className={`shrink-0 drop-shadow-[0_1px_1px_rgba(0,0,0,0.6)] ${flip ? 'scale-x-[-1]' : ''}`}
+      className={`shrink-0 drop-shadow-[0_1px_1px_rgba(0,0,0,0.6)] sm:w-16 sm:h-[18px] ${flip ? 'scale-x-[-1]' : ''}`}
       aria-hidden="true"
     >
       <defs>
@@ -76,25 +76,25 @@ function CarvedBookLatchTab({
       aria-label={isPrev ? 'Previous Page' : 'Next Page'}
       className={`absolute top-1/2 -translate-y-1/2 z-30 flex items-center justify-center transition-all ${
         isPrev
-          ? '-left-3 sm:-left-3.5 rounded-r-xl border-y-2 border-r-2'
-          : '-right-3 sm:-right-3.5 rounded-l-xl border-y-2 border-l-2'
+          ? '-left-2.5 sm:-left-3.5 rounded-r-xl border-y-2 border-r-2'
+          : '-right-2.5 sm:-right-3.5 rounded-l-xl border-y-2 border-l-2'
       } ${
         disabled
           ? 'opacity-30 cursor-not-allowed filter grayscale-[40%]'
           : 'cursor-pointer hover:brightness-125 hover:shadow-[0_0_12px_rgba(245,196,81,0.5)] active:scale-95'
-      } w-8 sm:w-10 h-18 sm:h-22 bg-gradient-to-b from-[#2e190d] via-[#1d1007] to-[#120803] border-[#a0742a] shadow-[0_6px_16px_rgba(0,0,0,0.85),inset_0_1px_0_rgba(255,255,255,0.2)] group`}
+      } w-6 sm:w-10 h-14 sm:h-20 bg-gradient-to-b from-[#2e190d] via-[#1d1007] to-[#120803] border-[#a0742a] shadow-[0_6px_16px_rgba(0,0,0,0.85),inset_0_1px_0_rgba(255,255,255,0.2)] group`}
     >
       {/* Top and Bottom Brass Rivet Heads */}
-      <div className="absolute top-2 w-1.5 h-1.5 rounded-full bg-gradient-to-b from-[#fffae0] to-[#b3842c] border border-[#5a3915] shadow-xs" />
-      <div className="absolute bottom-2 w-1.5 h-1.5 rounded-full bg-gradient-to-b from-[#fffae0] to-[#b3842c] border border-[#5a3915] shadow-xs" />
+      <div className="absolute top-1.5 w-1 sm:w-1.5 h-1 sm:h-1.5 rounded-full bg-gradient-to-b from-[#fffae0] to-[#b3842c] border border-[#5a3915] shadow-xs" />
+      <div className="absolute bottom-1.5 w-1 sm:w-1.5 h-1 sm:h-1.5 rounded-full bg-gradient-to-b from-[#fffae0] to-[#b3842c] border border-[#5a3915] shadow-xs" />
 
       {/* Carved Brass Chevron SVG */}
       <svg
-        width="16"
-        height="22"
+        width="12"
+        height="18"
         viewBox="0 0 16 22"
         fill="none"
-        className={`transition-transform drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] ${
+        className={`transition-transform sm:w-4 sm:h-[22px] drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] ${
           isPrev ? 'group-hover:-translate-x-0.5' : 'group-hover:translate-x-0.5'
         }`}
       >
@@ -146,13 +146,13 @@ function FacetedManaCrystalButton({
     <button
       type="button"
       onClick={onClick}
-      className={`relative w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center transition-all cursor-pointer ${
+      className={`relative w-6 h-6 min-w-[24px] min-h-[24px] flex items-center justify-center transition-all cursor-pointer ${
         isActive
           ? 'scale-115 z-10 drop-shadow-[0_0_12px_rgba(56,189,248,0.95)]'
           : 'hover:scale-105 opacity-85 hover:opacity-100'
       }`}
       aria-pressed={isActive}
-      aria-label={`Filter by ${label} Mana`}
+      aria-label={`${label} Mana`}
     >
       <svg viewBox="0 0 36 36" className="w-full h-full" fill="none">
         <defs>
@@ -241,7 +241,7 @@ function FacetedManaCrystalButton({
       {/* Number / ALL Typography */}
       <span
         className={`absolute font-black ${
-          isAll ? 'text-[9px] tracking-tight' : 'text-xs'
+          isAll ? 'text-[8px] sm:text-[9px] tracking-tight' : 'text-[11px] sm:text-xs'
         } select-none leading-none ${
           isActive
             ? 'text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]'
@@ -260,8 +260,8 @@ function FacetedManaCrystalButton({
 function BespokeMagnifyingGlass() {
   return (
     <svg
-      width="17"
-      height="17"
+      width="15"
+      height="15"
       viewBox="0 0 20 20"
       fill="none"
       className="shrink-0 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]"
@@ -402,19 +402,19 @@ export function CollectionBookView() {
   }
 
   return (
-    <div className="relative flex-1 h-full flex flex-col items-center justify-between p-2.5 sm:p-3 select-none overflow-hidden">
+    <div className="relative flex-1 h-full min-h-0 min-w-0 flex flex-col items-center justify-between p-1.5 sm:p-2.5 select-none overflow-hidden">
       {/* THE OPEN TOME (WALNUT & VELLUM COLLECTOR'S GRIMOIRE) */}
-      <div className="relative w-full max-w-4xl flex-1 rounded-[22px] bg-gradient-to-b from-[#3a2213] via-[#24140a] to-[#160b05] p-2.5 sm:p-3.5 border-4 border-[#8e6129] shadow-[0_24px_60px_rgba(0,0,0,0.95)] flex flex-col justify-between overflow-visible">
+      <div className="relative w-full max-w-5xl flex-1 min-h-0 rounded-[18px] sm:rounded-[22px] bg-gradient-to-b from-[#3a2213] via-[#24140a] to-[#160b05] p-1.5 sm:p-2.5 border-3 sm:border-4 border-[#8e6129] shadow-[0_20px_50px_rgba(0,0,0,0.95)] flex flex-col justify-between overflow-hidden">
         
-        {/* Top Header Plaque: "Mage" with Clean Engraved Brass Filigree Dividers (No Generic Sparkles) */}
-        <div className="relative z-10 flex items-center justify-center -mt-1 mb-2">
-          <div className="relative px-6 sm:px-10 py-1.5 rounded-b-xl bg-gradient-to-b from-[#2e190d] via-[#201007] to-[#120803] border-x-2 border-b-2 border-[#94682a] shadow-[0_6px_16px_rgba(0,0,0,0.7),inset_0_1px_0_rgba(255,255,255,0.15)] flex items-center gap-3">
+        {/* Top Header Plaque: "Mage" with Clean Engraved Brass Filigree Dividers */}
+        <div className="relative z-10 flex items-center justify-center mb-1 shrink-0">
+          <div className="relative px-4 sm:px-8 py-0.5 sm:py-1 rounded-b-xl bg-gradient-to-b from-[#2e190d] via-[#201007] to-[#120803] border-x-2 border-b-2 border-[#94682a] shadow-[0_4px_12px_rgba(0,0,0,0.7),inset_0_1px_0_rgba(255,255,255,0.15)] flex items-center gap-2 sm:gap-3">
             <BrassFiligreeDivider />
             <div className="flex flex-col items-center">
-              <span className="text-lg sm:text-2xl font-black tracking-[0.25em] uppercase font-serif drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] bg-gradient-to-b from-[#fff2c2] via-[#e2b755] to-[#a07421] bg-clip-text text-transparent">
+              <span className="text-base sm:text-xl font-black tracking-[0.22em] uppercase font-serif drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] bg-gradient-to-b from-[#fff2c2] via-[#e2b755] to-[#a07421] bg-clip-text text-transparent leading-tight">
                 Mage
               </span>
-              <span className="text-[9px] uppercase tracking-[0.3em] text-[#a8824b] font-bold -mt-0.5 leading-none">
+              <span className="text-[8px] sm:text-[9px] uppercase tracking-[0.25em] text-[#a8824b] font-bold leading-none">
                 Arcane Tome
               </span>
             </div>
@@ -423,54 +423,53 @@ export function CollectionBookView() {
         </div>
 
         {/* The Two-Page Open Book Interior */}
-        <div className="relative flex-1 rounded-[14px] bg-[#eadecb] shadow-[inset_0_0_40px_rgba(0,0,0,0.38)] border border-[#a2845c] p-3 sm:p-4 flex gap-4 overflow-hidden">
+        <div className="relative flex-1 min-h-0 rounded-[12px] sm:rounded-[14px] bg-[#eadecb] shadow-[inset_0_0_35px_rgba(0,0,0,0.38)] border border-[#a2845c] p-1.5 sm:p-2.5 flex gap-2 sm:gap-3 overflow-hidden">
           
           {/* Subtle Page Watermark Texture */}
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_45%,_rgba(110,80,45,0.18)_100%)] pointer-events-none" />
 
           {/* Layered Paper-Edge Lines along Left Outer Margin (Stacked Vellum Pages) */}
-          <div className="absolute inset-y-0 left-0 w-3 flex flex-row pointer-events-none z-10" aria-hidden="true">
+          <div className="absolute inset-y-0 left-0 w-2.5 flex flex-row pointer-events-none z-10" aria-hidden="true">
             <div className="w-[1.5px] h-full bg-[#8c6f44] opacity-80" />
             <div className="w-[1px] h-full bg-[#d9c49e] opacity-90 ml-[1px]" />
             <div className="w-[1px] h-full bg-[#a8895b] opacity-75 ml-[1px]" />
-            <div className="w-[1.5px] h-full bg-[#f2e2c4] opacity-80 ml-[1px]" />
-            <div className="w-[1px] h-full bg-[#7a5e35] opacity-60 ml-[1px]" />
-            <div className="w-1.5 h-full bg-gradient-to-r from-black/25 to-transparent" />
+            <div className="w-1 h-full bg-gradient-to-r from-black/25 to-transparent" />
           </div>
 
           {/* Layered Paper-Edge Lines along Right Outer Margin (Stacked Vellum Pages) */}
-          <div className="absolute inset-y-0 right-0 w-3 flex flex-row-reverse pointer-events-none z-10" aria-hidden="true">
+          <div className="absolute inset-y-0 right-0 w-2.5 flex flex-row-reverse pointer-events-none z-10" aria-hidden="true">
             <div className="w-[1.5px] h-full bg-[#8c6f44] opacity-80" />
             <div className="w-[1px] h-full bg-[#d9c49e] opacity-90 mr-[1px]" />
             <div className="w-[1px] h-full bg-[#a8895b] opacity-75 mr-[1px]" />
-            <div className="w-[1.5px] h-full bg-[#f2e2c4] opacity-80 mr-[1px]" />
-            <div className="w-[1px] h-full bg-[#7a5e35] opacity-60 mr-[1px]" />
-            <div className="w-1.5 h-full bg-gradient-to-l from-black/25 to-transparent" />
+            <div className="w-1 h-full bg-gradient-to-l from-black/25 to-transparent" />
           </div>
 
           {/* Recessed Dark-Leather Spine Crease with Realistic Inner Page-Curl Shadows Flanking Both Sides */}
           <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 flex items-center justify-center pointer-events-none z-20">
             {/* Left Page-Curl Shadow */}
-            <div className="w-12 sm:w-16 h-full bg-gradient-to-l from-black/45 via-black/15 to-transparent" />
+            <div className="w-8 sm:w-14 h-full bg-gradient-to-l from-black/40 via-black/15 to-transparent" />
 
             {/* Recessed Dark Leather Spine Crease */}
-            <div className="w-5 sm:w-6 h-full bg-gradient-to-r from-[#0d0602] via-[#1f1107] to-[#0d0602] shadow-[inset_0_0_8px_rgba(0,0,0,0.95)] border-x border-[#3b220d]/80 flex flex-col items-center justify-between py-2">
+            <div
+              data-testid="book-spine"
+              className="w-4 sm:w-5 h-full bg-gradient-to-r from-[#0d0602] via-[#1f1107] to-[#0d0602] shadow-[inset_0_0_6px_rgba(0,0,0,0.95)] border-x border-[#3b220d]/80 flex flex-col items-center justify-between py-2"
+            >
               {/* Dashed Brass Thread Stitch Line */}
               <div className="w-[1px] h-full border-r border-dashed border-[#b88c38]/40" />
             </div>
 
             {/* Right Page-Curl Shadow */}
-            <div className="w-12 sm:w-16 h-full bg-gradient-to-r from-black/45 via-black/15 to-transparent" />
+            <div className="w-8 sm:w-14 h-full bg-gradient-to-r from-black/40 via-black/15 to-transparent" />
           </div>
 
           {/* The Two-Page Open Book Content */}
           {filteredCards.length === 0 ? (
             <>
               {/* Left Page (Empty Tome Arcane Inscription & Seal) */}
-              <div className="flex-1 flex flex-col items-center justify-center relative z-10 px-6 sm:px-10 text-center select-none">
+              <div className="flex-1 flex flex-col items-center justify-center relative z-10 px-4 sm:px-8 text-center select-none">
                 {/* Arcane Mage Crest Watermark */}
-                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full p-2.5 bg-gradient-to-b from-[#fae6a2]/40 to-transparent border border-[#b88c38]/60 shadow-[inset_0_2px_6px_rgba(0,0,0,0.15)] flex items-center justify-center mb-3">
-                  <svg className="w-10 h-10 sm:w-12 sm:h-12 text-[#8c672b]" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full p-2 bg-gradient-to-b from-[#fae6a2]/40 to-transparent border border-[#b88c38]/60 shadow-[inset_0_2px_6px_rgba(0,0,0,0.15)] flex items-center justify-center mb-2">
+                  <svg className="w-8 h-8 sm:w-10 sm:h-10 text-[#8c672b]" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <polygon points="12,2 22,12 12,22 2,12" stroke="currentColor" strokeWidth="1.2" />
                     <polygon points="12,5 19,12 12,19 5,12" stroke="#b88c38" strokeWidth="0.8" fill="rgba(184, 140, 56, 0.15)" />
                     <circle cx="12" cy="12" r="3" fill="#8c672b" />
@@ -484,18 +483,18 @@ export function CollectionBookView() {
                 <h4 className="text-xs sm:text-sm font-black font-serif uppercase tracking-widest text-[#7a572a]">
                   Arcane Archives
                 </h4>
-                <p className="text-[11px] sm:text-xs italic font-serif text-[#8f6d42] mt-1.5 max-w-[210px] leading-relaxed">
+                <p className="text-[10px] sm:text-xs italic font-serif text-[#8f6d42] mt-1 max-w-[190px] leading-relaxed">
                   "The library remains still. No spells or allies answer this query."
                 </p>
               </div>
 
               {/* Right Page (Empty State Status, Filter Details & Tactile Reset Button) */}
-              <div className="flex-1 flex flex-col items-center justify-center relative z-10 px-6 sm:px-10 text-center select-none">
-                <h3 className="text-base sm:text-xl font-black text-[#422910] font-serif uppercase tracking-wider drop-shadow-xs">
+              <div className="flex-1 flex flex-col items-center justify-center relative z-10 px-4 sm:px-8 text-center select-none">
+                <h3 className="text-sm sm:text-lg font-black text-[#422910] font-serif uppercase tracking-wider drop-shadow-xs">
                   No Cards Found
                 </h3>
 
-                <p className="text-xs sm:text-sm text-[#6e502d] mt-2 max-w-xs font-serif leading-relaxed">
+                <p className="text-[11px] sm:text-xs text-[#6e502d] mt-1 max-w-xs font-serif leading-relaxed">
                   {manaFilter !== null && searchQuery ? (
                     <>
                       No Mage cards match <span className="font-bold text-[#422910]">"{searchQuery}"</span> at{' '}
@@ -522,7 +521,7 @@ export function CollectionBookView() {
                     setManaFilter(null);
                     setSearchQuery('');
                   }}
-                  className="mt-4 px-4 py-1.5 rounded-xl bg-gradient-to-b from-[#f7e0a3] via-[#cda043] to-[#7e5118] text-stone-950 font-serif font-black text-xs uppercase tracking-wider border-t border-[#fffbe6] border-b-2 border-[#54330a] shadow-[0_3px_8px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.7)] hover:brightness-110 active:translate-y-0.5 cursor-pointer transition-all"
+                  className="mt-3 px-3 py-1 rounded-xl bg-gradient-to-b from-[#f7e0a3] via-[#cda043] to-[#7e5118] text-stone-950 font-serif font-black text-[10px] sm:text-xs uppercase tracking-wider border-t border-[#fffbe6] border-b-2 border-[#54330a] shadow hover:brightness-110 active:translate-y-0.5 cursor-pointer transition-all"
                 >
                   Reset Filters
                 </button>
@@ -531,7 +530,7 @@ export function CollectionBookView() {
           ) : (
             <>
               {/* Left Page (2x2 Grid) */}
-              <div className="flex-1 grid grid-cols-2 grid-rows-2 gap-2 sm:gap-3 items-center justify-items-center relative z-10 pl-2">
+              <div className="flex-1 h-full min-h-0 min-w-0 grid grid-cols-2 grid-rows-2 gap-1 sm:gap-2 items-center justify-items-stretch relative z-10 px-2.5 sm:px-3 md:px-5">
                 {leftPageCards.map((card) => (
                   <HearthstoneCard
                     key={card.id}
@@ -543,12 +542,12 @@ export function CollectionBookView() {
                 {/* Empty slot filler if needed */}
                 {leftPageCards.length < 4 &&
                   Array.from({ length: 4 - leftPageCards.length }).map((_, i) => (
-                    <div key={`empty-left-${i}`} className="w-36 h-52 opacity-0 pointer-events-none" />
+                    <div key={`empty-left-${i}`} className="w-full h-full opacity-0 pointer-events-none" />
                   ))}
               </div>
 
               {/* Right Page (2x2 Grid) */}
-              <div className="flex-1 grid grid-cols-2 grid-rows-2 gap-2 sm:gap-3 items-center justify-items-center relative z-10 pr-2">
+              <div className="flex-1 h-full min-h-0 min-w-0 grid grid-cols-2 grid-rows-2 gap-1 sm:gap-2 items-center justify-items-stretch relative z-10 px-2.5 sm:px-3 md:px-5">
                 {rightPageCards.map((card) => (
                   <HearthstoneCard
                     key={card.id}
@@ -560,7 +559,7 @@ export function CollectionBookView() {
                 {/* Empty slot filler */}
                 {rightPageCards.length < 4 &&
                   Array.from({ length: 4 - rightPageCards.length }).map((_, i) => (
-                    <div key={`empty-right-${i}`} className="w-36 h-52 opacity-0 pointer-events-none" />
+                    <div key={`empty-right-${i}`} className="w-full h-full opacity-0 pointer-events-none" />
                   ))}
               </div>
             </>
@@ -581,20 +580,22 @@ export function CollectionBookView() {
         </div>
 
         {/* Book Footer: Page Indicator */}
-        <div className="flex items-center justify-center gap-2 mt-2">
-          <div className="w-8 h-[1px] bg-gradient-to-r from-transparent to-[#b88c38]/60" />
-          <span className="text-xs font-serif font-bold text-[#f5e2b3] tracking-widest uppercase drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+        <div className="flex items-center justify-center gap-2 mt-0.5 sm:mt-1 shrink-0">
+          <div className="w-6 sm:w-8 h-[1px] bg-gradient-to-r from-transparent to-[#b88c38]/60" />
+          <span className="text-[10px] sm:text-xs font-serif font-bold text-[#f5e2b3] tracking-widest uppercase drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
             Page {activePage} of {totalPages}
           </span>
-          <div className="w-8 h-[1px] bg-gradient-to-l from-transparent to-[#b88c38]/60" />
+          <div className="w-6 sm:w-8 h-[1px] bg-gradient-to-l from-transparent to-[#b88c38]/60" />
         </div>
       </div>
 
       {/* BOTTOM CONTROL TRAY: FACETED MANA CRYSTALS & RECESSED SEARCH BAR */}
-      <div className="relative mt-2.5 w-full max-w-4xl px-3 sm:px-4 py-2 rounded-2xl bg-gradient-to-b from-[#2b180d] to-[#140b05] border-2 border-[#8e6129]/70 shadow-[0_8px_20px_rgba(0,0,0,0.85),inset_0_1px_0_rgba(255,255,255,0.1)] flex items-center justify-between gap-3 sm:gap-4">
-        
+      <div
+        data-testid="mana-tray"
+        className="relative mt-1 sm:mt-1.5 w-full max-w-5xl px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-gradient-to-b from-[#2b180d] to-[#140b05] border border-[#8e6129]/70 shadow-[0_6px_16px_rgba(0,0,0,0.85),inset_0_1px_0_rgba(255,255,255,0.1)] flex items-center justify-between gap-2 shrink-0"
+      >
         {/* Centered Mana Crystal Filter Tray */}
-        <div className="flex items-center gap-1 sm:gap-2">
+        <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
           {manaCrystals.map((val) => {
             const isAll = val === 'All';
             const crystalNum = isAll ? null : (val as number);
@@ -611,21 +612,25 @@ export function CollectionBookView() {
           })}
         </div>
 
-        {/* Live Search Input: Recessed Leather-and-Wood Trough with Bespoke Magnifying Glass */}
-        <div className="relative flex items-center px-3 py-1.5 rounded-xl bg-gradient-to-b from-[#120803] via-[#1a0e05] to-[#0f0602] border border-[#6b4c25] shadow-[inset_0_2px_6px_rgba(0,0,0,0.9),0_1px_1px_rgba(255,255,255,0.06)] focus-within:border-[#e2b755] focus-within:shadow-[inset_0_2px_6px_rgba(0,0,0,0.9),0_0_8px_rgba(226,183,85,0.35)] transition-all">
+        {/* Live Search Input: Compact Recessed Leather-and-Wood Trough with Bespoke Magnifying Glass */}
+        <div
+          data-testid="collection-search"
+          className="relative flex items-center px-2 py-0.5 rounded-lg bg-gradient-to-b from-[#120803] via-[#1a0e05] to-[#0f0602] border border-[#6b4c25] shadow-[inset_0_2px_6px_rgba(0,0,0,0.9),0_1px_1px_rgba(255,255,255,0.06)] focus-within:border-[#e2b755] focus-within:shadow-[inset_0_2px_6px_rgba(0,0,0,0.9),0_0_8px_rgba(226,183,85,0.35)] transition-all shrink-0 w-[118px] md:w-36"
+        >
           <BespokeMagnifyingGlass />
           <input
+            data-testid="collection-search-input"
             type="text"
-            placeholder="Search Mage cards..."
+            placeholder="Search..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-36 sm:w-48 ml-2 text-xs bg-transparent text-[#f5e2b3] placeholder-[#8e7557] focus:outline-none font-medium selection:bg-[#7a5118]"
+            className="w-full ml-1 text-[10px] sm:text-xs bg-transparent text-[#f5e2b3] placeholder-[#8e7557] focus:outline-none font-medium selection:bg-[#7a5118]"
           />
           {searchQuery && (
             <button
               type="button"
               onClick={() => setSearchQuery('')}
-              className="w-4 h-4 ml-1 rounded-full bg-[#2a170b] border border-[#8e6328]/60 flex items-center justify-center text-[10px] text-[#fae6a2] hover:bg-[#4a2b15] cursor-pointer"
+              className="w-3.5 h-3.5 ml-1 rounded-full bg-[#2a170b] border border-[#8e6328]/60 flex items-center justify-center text-[9px] text-[#fae6a2] hover:bg-[#4a2b15] cursor-pointer"
               aria-label="Clear Search"
             >
               ✕
