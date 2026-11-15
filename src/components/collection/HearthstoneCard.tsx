@@ -1,114 +1,9 @@
-import React, { useState } from 'react';
-import { CardDefinition, CardRarity } from '../../engine/types';
+import React from 'react';
+import { CardDefinition } from '../../engine/types';
 import { useCollectionStore } from '../../store/useCollectionStore';
+import { CardImage, TavernPlaque } from '../ui';
 
-export interface RarityConfig {
-  label: string;
-  textColor: string;
-  facetTopL: string;
-  facetTopR: string;
-  facetBotL: string;
-  facetBotR: string;
-  stroke: string;
-  glow: string;
-}
-
-export const RARITY_CONFIGS: Record<CardRarity, RarityConfig> = {
-  COMMON: {
-    label: 'Common',
-    textColor: '#d6cfc4', // warm pewter
-    facetTopL: '#e6ded4',
-    facetTopR: '#d6cfc4',
-    facetBotL: '#9d9387',
-    facetBotR: '#70685e',
-    stroke: '#423b32',
-    glow: 'rgba(214, 207, 196, 0.45)',
-  },
-  RARE: {
-    label: 'Rare',
-    textColor: '#69b4ff', // sapphire
-    facetTopL: '#9ecaff',
-    facetTopR: '#69b4ff',
-    facetBotL: '#2570e3',
-    facetBotR: '#1148ab',
-    stroke: '#0d3278',
-    glow: 'rgba(105, 180, 255, 0.6)',
-  },
-  EPIC: {
-    label: 'Epic',
-    textColor: '#c58aff', // amethyst
-    facetTopL: '#deb3ff',
-    facetTopR: '#c58aff',
-    facetBotL: '#9438d8',
-    facetBotR: '#5c1696',
-    stroke: '#3b0b63',
-    glow: 'rgba(197, 138, 255, 0.6)',
-  },
-  LEGENDARY: {
-    label: 'Legendary',
-    textColor: '#f5c451', // burnished gold
-    facetTopL: '#ffec9e',
-    facetTopR: '#f5c451',
-    facetBotL: '#d97c11',
-    facetBotR: '#8a4800',
-    stroke: '#5c2d00',
-    glow: 'rgba(245, 196, 81, 0.65)',
-  },
-};
-
-export function RarityGemIcon({ rarity, size = 11 }: { rarity: CardRarity; size?: number }) {
-  const cfg = RARITY_CONFIGS[rarity] || RARITY_CONFIGS.COMMON;
-
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 16 16"
-      fill="none"
-      className="shrink-0"
-      style={{ filter: `drop-shadow(0 0 3px ${cfg.glow})` }}
-      aria-hidden="true"
-    >
-      {/* Outer gem contour */}
-      <polygon
-        points="8,1 14,5.5 8,15 2,5.5"
-        stroke={cfg.stroke}
-        strokeWidth="0.8"
-      />
-      {/* Facet Top-Left */}
-      <polygon points="8,1 2,5.5 8,6.5" fill={cfg.facetTopL} />
-      {/* Facet Top-Right */}
-      <polygon points="8,1 14,5.5 8,6.5" fill={cfg.facetTopR} />
-      {/* Facet Bottom-Left */}
-      <polygon points="2,5.5 8,15 8,6.5" fill={cfg.facetBotL} />
-      {/* Facet Bottom-Right */}
-      <polygon points="14,5.5 8,15 8,6.5" fill={cfg.facetBotR} />
-      {/* Table highlight facet */}
-      <polygon points="8,2.2 11,5.5 8,8.2 5,5.5" fill="rgba(255, 255, 255, 0.45)" />
-      {/* Specular sparkle */}
-      <circle cx="7.2" cy="4.2" r="0.9" fill="#ffffff" fillOpacity="0.85" />
-    </svg>
-  );
-}
-
-export function RarityBadge({ rarity, className = '' }: { rarity: CardRarity; className?: string }) {
-  const cfg = RARITY_CONFIGS[rarity] || RARITY_CONFIGS.COMMON;
-
-  return (
-    <div
-      data-testid="rarity-badge"
-      className={`inline-flex items-center gap-0.5 md:gap-1 px-1 md:px-2 py-[1px] md:py-0.5 rounded-[4px] bg-[#1d150f] border border-[#8e6328]/60 shadow-[inset_0_1px_3px_rgba(0,0,0,0.85),0_1px_2px_rgba(0,0,0,0.35)] max-w-full w-fit whitespace-nowrap ${className}`}
-    >
-      <RarityGemIcon rarity={rarity} size={6.5} />
-      <span
-        className="font-serif text-[7px] md:text-[9.5px] font-extrabold uppercase tracking-[0.01em] md:tracking-wider leading-none drop-shadow-[0_1px_1px_rgba(0,0,0,0.9)] whitespace-nowrap"
-        style={{ color: cfg.textColor }}
-      >
-        {cfg.label}
-      </span>
-    </div>
-  );
-}
+export { RarityGemIcon, RarityBadge } from '../ui';
 
 interface HearthstoneCardProps {
   card: CardDefinition;
@@ -117,7 +12,6 @@ interface HearthstoneCardProps {
 }
 
 export function HearthstoneCard({ card, onInspect, onQuickAdd }: HearthstoneCardProps) {
-  const [imgStatus, setImgStatus] = useState<'loading' | 'loaded' | 'error'>('loading');
   const editingDeckId = useCollectionStore((s) => s.editingDeckId);
   const decks = useCollectionStore((s) => s.decks);
   const addCardToDeck = useCollectionStore((s) => s.addCardToDeck);
@@ -165,89 +59,35 @@ export function HearthstoneCard({ card, onInspect, onQuickAdd }: HearthstoneCard
           : 'hover:scale-105 hover:z-20'
       } ${editingDeckId && !isCapped ? 'cursor-grab active:cursor-grabbing' : ''}`}
     >
-      {/* 3D Container with Fluid Aspect Ratio Constraint */}
       <div
         className={`relative flex-1 min-h-0 w-auto aspect-[5/7] flex items-center justify-center ${
           editingDeckId ? 'max-h-[calc(100%-24px)]' : 'max-h-full'
         }`}
       >
-        {/* Layer 1: Resilient Fallback Card Canvas - ONLY rendered if image is NOT loaded */}
-        {imgStatus !== 'loaded' && (
-          <div className="absolute inset-0 rounded-xl bg-gradient-to-b from-[#2a1b12] to-[#120a05] border-2 border-[#8a6027] overflow-hidden flex flex-col p-1.5 sm:p-2.5 justify-between shadow-[0_6px_14px_rgba(0,0,0,0.85)]">
-            {/* Mana Oval Fallback */}
-            <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-gradient-to-b from-sky-400 to-blue-800 border border-sky-100 flex items-center justify-center text-white font-black text-xs shadow">
-              {card.cost}
-            </div>
-
-            {/* Center Art SVG Placeholder - Bespoke Arcane Diamond Emblem */}
-            <div className="my-auto text-center flex flex-col items-center">
-              <div className="relative w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center">
-                <svg className="w-6 h-6 sm:w-7 sm:h-7 text-[#93c5fd]/80" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <polygon points="12,2 22,12 12,22 2,12" stroke="currentColor" strokeWidth="1.2" />
-                  <polygon points="12,5 19,12 12,19 5,12" stroke="#60a5fa" strokeWidth="0.8" fill="rgba(59, 130, 246, 0.2)" />
-                  <circle cx="12" cy="12" r="2.5" fill="#93c5fd" />
-                  <circle cx="12" cy="12" r="1" fill="#ffffff" />
-                  <line x1="12" y1="2" x2="12" y2="6" stroke="#93c5fd" strokeWidth="1.2" strokeLinecap="round" />
-                  <line x1="12" y1="18" x2="12" y2="22" stroke="#93c5fd" strokeWidth="1.2" strokeLinecap="round" />
-                  <line x1="2" y1="12" x2="6" y2="12" stroke="#93c5fd" strokeWidth="1.2" strokeLinecap="round" />
-                  <line x1="18" y1="12" x2="22" y2="12" stroke="#93c5fd" strokeWidth="1.2" strokeLinecap="round" />
-                </svg>
-              </div>
-              <div className="text-[10px] sm:text-xs font-bold text-amber-100 mt-1 line-clamp-1">{card.name}</div>
-            </div>
-
-            {/* Rarity & Text */}
-            <div className="text-[8px] sm:text-[9px] text-stone-300 leading-tight line-clamp-2 bg-black/40 rounded p-0.5">
-              <span dangerouslySetInnerHTML={{ __html: card.text }} />
-            </div>
-          </div>
-        )}
-
-        {/* Layer 2: Official Blizzard Card Image - Local 0ms bundle with CDN fallback */}
-        <img
-          src={`/art/cards/${card.id}.png`}
-          alt={card.name}
-          loading="eager"
-          decoding="sync"
-          onLoad={() => setImgStatus('loaded')}
-          onError={(e) => {
-            if (card.imageUrl && e.currentTarget.src !== card.imageUrl) {
-              e.currentTarget.src = card.imageUrl;
-            } else {
-              setImgStatus('error');
-            }
-          }}
-          className={`w-full h-full object-contain pointer-events-none drop-shadow-[0_8px_14px_rgba(0,0,0,0.65)] transition-opacity duration-200 ${
-            imgStatus === 'loaded' ? 'opacity-100' : 'opacity-0 absolute inset-0'
-          }`}
-        />
+        <CardImage card={card} />
       </div>
 
-      {/* Bottom Status / Quick-Add Badging (ONLY shown when actively building/editing a deck) */}
       {editingDeckId && (
         <div className="mt-0.5 sm:mt-1 h-5 sm:h-6 shrink-0 flex items-center justify-center">
           {isAtDeckLimit ? (
-            /* Clean recessed slate-and-brass status plaque for locked copy limit */
-            <div
-              data-testid="deck-limit-badge"
-              className="inline-flex items-center gap-0.5 md:gap-1 px-1 md:px-1.5 py-[1px] md:py-0.5 rounded-[4px] bg-[#1d150f] border border-[#8e6328]/80 shadow-[inset_0_1px_3px_rgba(0,0,0,0.85),0_1px_2px_rgba(0,0,0,0.3)] max-w-full w-fit whitespace-nowrap"
+            <TavernPlaque
+              dataTestId="deck-limit-badge"
+              className="px-1 md:px-1.5 py-[1px] md:py-0.5 rounded-[4px] border-[#8e6328]/80"
             >
               <span className="font-serif text-[7px] md:text-[9.5px] font-extrabold uppercase tracking-[0.01em] md:tracking-wider text-[#f5c451] leading-none whitespace-nowrap">
                 Deck Limit: {maxCopies}
               </span>
-            </div>
+            </TavernPlaque>
           ) : isDeckFull ? (
-            /* Recessed slate-and-brass status plaque for deck full */
-            <div
-              data-testid="deck-full-badge"
-              className="inline-flex items-center justify-center px-1 md:px-1.5 py-[1px] md:py-0.5 rounded-[4px] bg-[#1d150f] border border-[#6b5029]/80 shadow-[inset_0_1px_3px_rgba(0,0,0,0.85),0_1px_2px_rgba(0,0,0,0.3)] max-w-full w-fit whitespace-nowrap"
+            <TavernPlaque
+              dataTestId="deck-full-badge"
+              className="px-1 md:px-1.5 py-[1px] md:py-0.5 rounded-[4px] border-[#6b5029]/80"
             >
               <span className="font-serif text-[7px] md:text-[9.5px] font-extrabold uppercase tracking-[0.01em] md:tracking-wider text-[#a88d6c] leading-none whitespace-nowrap">
                 Deck Full
               </span>
-            </div>
+            </TavernPlaque>
           ) : (
-            /* Quick-add '+' pill/button */
             <button
               type="button"
               data-testid="quick-add-button"
@@ -255,7 +95,9 @@ export function HearthstoneCard({ card, onInspect, onQuickAdd }: HearthstoneCard
               className="px-1 md:px-2 py-[1px] md:py-0.5 rounded-full bg-gradient-to-b from-[#f7e2a4] via-[#c99a42] to-[#7a4f18] border border-[#fff2c2]/80 text-[#1a0e05] text-[7.5px] md:text-[9.5px] font-black shadow-[0_2px_4px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.4)] hover:brightness-115 hover:shadow-[0_0_8px_rgba(245,196,81,0.5)] active:scale-95 transition-all flex items-center gap-0.5 md:gap-1 cursor-pointer max-w-full w-fit whitespace-nowrap"
             >
               <span className="text-[9px] md:text-[10px] leading-none font-black">+</span>
-              <span className="text-[7px] md:text-[9px] uppercase tracking-[0.01em] md:tracking-wider font-extrabold leading-none">Add</span>
+              <span className="text-[7px] md:text-[9px] uppercase tracking-[0.01em] md:tracking-wider font-extrabold leading-none">
+                Add
+              </span>
               {cardCountInDeck > 0 && (
                 <span className="text-[7px] md:text-[9px] font-mono font-black text-[#3d2008] ml-0.5 leading-none">
                   ({cardCountInDeck}/{maxCopies})

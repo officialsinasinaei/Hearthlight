@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion } from 'motion/react';
 import { useCollectionStore } from '../../store/useCollectionStore';
+import { HERO_ASSETS } from '../../engine/cards';
+import { TavernButton } from '../ui';
 
 // ==========================================
 // 1. BESPOKE CLASS CREST SVGS & WATERMARKS
@@ -252,12 +255,8 @@ const HERO_CLASSES: HeroClassInfo[] = [
 // 3. MAIN HERO SELECT VIEW COMPONENT
 // ==========================================
 
-// Official asset endpoints (pure portrait & hero power illustration art)
-const JAINA_PORTRAIT_URL = '/art/HERO_08.jpg';
-const JAINA_RENDER_FALLBACK = 'https://art.hearthstonejson.com/v1/512x/HERO_08.jpg';
-
-const FIREBLAST_ART_URL = '/art/CS2_034.jpg';
-const FIREBLAST_ART_FALLBACK = 'https://art.hearthstonejson.com/v1/512x/CS2_034.jpg';
+const JAINA_PORTRAIT_URL = HERO_ASSETS.JAINA_PORTRAIT;
+const FIREBLAST_ART_URL = HERO_ASSETS.FIREBLAST_HERO_POWER;
 
 export function HeroSelectView() {
   const setHeroSelectOpen = useCollectionStore((s) => s.setHeroSelectOpen);
@@ -278,18 +277,33 @@ export function HeroSelectView() {
     createMageDeck();
   }
 
-  return (
-    <div
+  if (typeof document === 'undefined') {
+    return null;
+  }
+
+  return createPortal(
+    <motion.div
+      key="hero-select-modal-backdrop"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.18 }}
       data-testid="hero-select-modal"
-      className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 select-none"
+      className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 select-none"
     >
       {/* Outer Carved Wood Chamber: Responsive Viewport Fit */}
-      <div className="relative w-full max-w-5xl h-[min(94dvh,640px)] rounded-2xl sm:rounded-3xl bg-gradient-to-b from-[#3a2213] via-[#24130a] to-[#140b05] border-3 sm:border-4 border-[#8e6129] shadow-[0_25px_80px_rgba(0,0,0,0.95)] flex overflow-hidden">
-        
+      <motion.div
+        key="hero-select-modal-chamber"
+        initial={{ scale: 0.94, y: 12, opacity: 0 }}
+        animate={{ scale: 1, y: 0, opacity: 1 }}
+        exit={{ scale: 0.94, y: 12, opacity: 0 }}
+        transition={{ type: 'spring', stiffness: 420, damping: 28 }}
+        className="relative w-full max-w-5xl h-[min(94dvh,640px)] rounded-2xl sm:rounded-3xl bg-[#1e1007] bg-gradient-to-b from-[#2a170c] via-[#1d1007] to-[#120803] border-3 sm:border-4 border-[#8e6129] shadow-[0_30px_90px_rgba(0,0,0,0.98)] flex overflow-hidden"
+      >
         {/* ========================================================= */}
         {/* LEFT SECTION: 3x3 CHOOSE YOUR HERO GRID                   */}
         {/* ========================================================= */}
-        <div className="flex-1 min-w-0 h-full flex flex-col justify-between p-2.5 sm:p-5 border-r-3 sm:border-r-4 border-[#8e6129]/60 overflow-hidden">
+        <div className="flex-1 min-w-0 h-full flex flex-col justify-between p-2.5 sm:p-5 border-r-3 sm:border-r-4 border-[#8e6129]/60 overflow-hidden bg-[#180d06] bg-gradient-to-b from-[#221208] via-[#180d06] to-[#100703]">
           
           {/* Top Plaque Header: "Choose Your Hero" */}
           <div className="flex items-center justify-center shrink-0 mb-1">
@@ -384,7 +398,7 @@ export function HeroSelectView() {
         {/* ========================================================= */}
         {/* RIGHT SECTION: JAINA SHOWCASE & CHOOSE MEDALLION          */}
         {/* ========================================================= */}
-        <div className="w-[clamp(210px,28vw,340px)] shrink-0 h-full bg-[radial-gradient(ellipse_at_center,_#3e1814_0%,_#260d09_55%,_#130504_100%)] p-2.5 sm:p-5 flex flex-col items-center justify-between relative overflow-hidden">
+        <div className="w-[clamp(210px,28vw,340px)] shrink-0 h-full bg-[#160605] bg-[radial-gradient(ellipse_at_center,_#3e1814_0%,_#260d09_55%,_#130504_100%)] p-2.5 sm:p-5 flex flex-col items-center justify-between relative overflow-hidden">
           
           {/* Subtle Warm Drape Vignette */}
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,_rgba(244,63,94,0.12),_transparent_75%)] pointer-events-none" />
@@ -418,11 +432,6 @@ export function HeroSelectView() {
                         alt="Jaina Proudmoore"
                         loading="eager"
                         decoding="sync"
-                        onError={(e) => {
-                          if (e.currentTarget.src !== JAINA_RENDER_FALLBACK) {
-                            e.currentTarget.src = JAINA_RENDER_FALLBACK;
-                          }
-                        }}
                         className="w-full h-full object-cover object-[50%_18%] scale-110"
                       />
                     </div>
@@ -449,11 +458,6 @@ export function HeroSelectView() {
                         alt="Fireblast"
                         loading="eager"
                         decoding="sync"
-                        onError={(e) => {
-                          if (e.currentTarget.src !== FIREBLAST_ART_FALLBACK) {
-                            e.currentTarget.src = FIREBLAST_ART_FALLBACK;
-                          }
-                        }}
                         className="w-full h-full object-cover scale-110 object-center"
                       />
                     </div>
@@ -521,19 +525,19 @@ export function HeroSelectView() {
               </div>
             </div>
 
-            {/* Quiet Back Button */}
-            <button
-              type="button"
+            <TavernButton
+              variant="secondary"
+              size="sm"
               data-testid="hero-select-back-button"
               onClick={() => setHeroSelectOpen(false)}
-              className="px-6 py-1 rounded-xl bg-gradient-to-b from-[#2b180d] to-[#120803] border border-[#8e6129]/60 text-[#f5e2b3] font-bold text-xs uppercase tracking-widest hover:text-white hover:border-[#fae6a2] transition-colors cursor-pointer shadow active:translate-y-0.5"
-              style={{ minHeight: '36px' }}
+              className="px-6 py-1 tracking-widest"
             >
               Back
-            </button>
+            </TavernButton>
           </div>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>,
+    document.body
   );
 }

@@ -9,7 +9,7 @@
     "cardClass": "MAGE",
     "text": "<b>Freeze</b> an enemy. Get a random Frost spell.",
     "flavorText": "Oh snappers!",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/d067e2647ec47550b4ccd4bd7cd16b067f2ce1cf66597e0b14e0fcdde67105e5.png",
+    "imageUrl": "/art/cards/126356.png",
     "artEmoji": "✨",
     "artGradient": "from-stone-500 via-slate-600 to-stone-800",
     "keywords": []
@@ -24,7 +24,7 @@
     "cardClass": "MAGE",
     "text": "Deal 2 damage to a minion. Add a Second Flame to your hand.",
     "flavorText": "You never forget your first love: fire.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/d6879be347e76be21ab93a0bc52acbe0c739cbd676a652cb3e86e8ae37c55a17.png",
+    "imageUrl": "/art/cards/126227.png",
     "artEmoji": "✨",
     "artGradient": "from-sky-400 via-blue-600 to-indigo-900",
     "keywords": []
@@ -40,7 +40,7 @@
     "cardClass": "MAGE",
     "text": "Spend all your Mana. Cast a random spell that costs that much.",
     "flavorText": "Telling me not to use something just makes me want to use it more.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/b863a152239bc809b74f0d76374ef702412cf1ebb80af2a09fecae955799b7d6.png",
+    "imageUrl": "/art/cards/114293.png",
     "artEmoji": "✨",
     "artGradient": "from-stone-500 via-slate-600 to-stone-800",
     "keywords": []
@@ -55,7 +55,7 @@
     "cardClass": "MAGE",
     "text": "Summon a 0/4 minion with <b>Taunt</b>. If you are holding a Dragon, summon another.",
     "flavorText": "Also summons two 4/0s.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/fa8397f052a973b8b17b9c8fb00877350f2e595e0903b75501f1fa59160c8665.png",
+    "imageUrl": "/art/cards/119541.png",
     "artEmoji": "✨",
     "artGradient": "from-stone-500 via-slate-600 to-stone-800",
     "keywords": []
@@ -72,7 +72,7 @@
     "cardClass": "MAGE",
     "text": "<b>Battlecry:</b> <b>Discover</b> a card with Cost equal to your remaining Mana Crystals.",
     "flavorText": "\"One second, I'm stashing this Ultragigasaur in my little satchel.\"",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/4031b36ca57b0a327dda794df1c3cc54ef24e493ea53d027b24ca86d39c7d181.png",
+    "imageUrl": "/art/cards/118192.png",
     "artEmoji": "🧙",
     "artGradient": "from-stone-500 via-slate-600 to-stone-800",
     "keywords": []
@@ -87,7 +87,7 @@
     "cardClass": "MAGE",
     "text": "Deal 2 damage. Deal 1 damage to a random enemy minion.",
     "flavorText": "Pocket snow!",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/acb1068711bae32371c27f5e1a18da73fcef761d897c4a0a40a9083cdc38fb47.png",
+    "imageUrl": "/art/cards/123410.png",
     "artEmoji": "✨",
     "artGradient": "from-stone-500 via-slate-600 to-stone-800",
     "keywords": []
@@ -102,7 +102,7 @@
     "cardClass": "MAGE",
     "text": "<b>Choose One - </b><b>Discover</b> a Mage spell; or <b>Discover</b> a Druid spell.",
     "flavorText": "Just don't spark that life too close to the World Tree.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/c3b06409be90ab8f3d5f94fd8439478003034072a14ed5def481689e81192a04.png",
+    "imageUrl": "/art/cards/116977.png",
     "artEmoji": "✨",
     "artGradient": "from-sky-400 via-blue-600 to-indigo-900",
     "keywords": []
@@ -117,7 +117,7 @@
     "cardClass": "MAGE",
     "text": "<b>Quest:</b> <b>Discover</b> 8 cards. <b>Reward:</b> The Origin Stone.",
     "flavorText": "Day 9. We were not welcomed with open arms, but with spears! Fortunately, Chief Esho took pity on us and called off the guards. Learning of Elise's expertise, a Titanographer whisked her away to the library. Umbra disappeared in the twisting streets...",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/3425fb55a2b4c2828dd5e31af658f24532508b9de207353279783b850e90d11f.png",
+    "imageUrl": "/art/cards/118183.png",
     "artEmoji": "✨",
     "artGradient": "from-amber-400 via-yellow-500 to-amber-700",
     "keywords": []
@@ -132,7 +132,7 @@
     "cardClass": "MAGE",
     "text": "<b>Discover</b> a spell, or refresh your options <i>(20% chance to take 5 damage each refresh!)</i>",
     "flavorText": "The skeleton belongs to the person who last tried to use it.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/05cbe3ff045f37014f84590a285cf916e4223fca06c5d86d58cc05108dbaed46.png",
+    "imageUrl": "/art/cards/126116.png",
     "artEmoji": "✨",
     "artGradient": "from-amber-400 via-yellow-500 to-amber-700",
     "keywords": []
@@ -149,7 +149,7 @@
     "cardClass": "MAGE",
     "text": "Has <b>Spell Damage +2</b> while damaged.",
     "flavorText": "They should really get some glasses for that.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/34ded8cfdfbd167297900049f4a6d4761e2d5711c3f2e0133198111884d39996.png",
+    "imageUrl": "/art/cards/121174.png",
     "artEmoji": "🧙",
     "artGradient": "from-stone-500 via-slate-600 to-stone-800",
     "keywords": []
@@ -166,7 +166,7 @@
     "cardClass": "MAGE",
     "text": "<b>Deathrattle:</b> Add an 'Arcane Missiles' spell to your hand.",
     "flavorText": "A bird in the hand is worth three missiles in the grave.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/7744aee92de7a306b2a62395df01dc1930cb48236b2438bf1512ad1b95019eaf.png",
+    "imageUrl": "/art/cards/120971.png",
     "artEmoji": "🧙",
     "artGradient": "from-stone-500 via-slate-600 to-stone-800",
     "keywords": []
@@ -183,7 +183,7 @@
     "cardClass": "MAGE",
     "text": "<b>Battlecry:</b> <b>Discover</b> a 1-Cost spell from any class.",
     "flavorText": "It's important to explore other classes while learning to spread your wings!",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/a870639efd8a3cde206d8986b97c0a288e8f97771769b6a6da5d863edee390ee.png",
+    "imageUrl": "/art/cards/123398.png",
     "artEmoji": "🧙",
     "artGradient": "from-stone-500 via-slate-600 to-stone-800",
     "keywords": []
@@ -200,7 +200,7 @@
     "cardClass": "MAGE",
     "text": "<b>Battlecry:</b> <b>Discover</b> a spell to put on top of your deck. It costs (2) less.",
     "flavorText": "Always complains about getting topdecked.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/eab64964f8e7262b15bbc5923326cd21d6c775d5e591eeff89f5400a565a4bef.png",
+    "imageUrl": "/art/cards/130441.png",
     "artEmoji": "🧙",
     "artGradient": "from-stone-500 via-slate-600 to-stone-800",
     "keywords": []
@@ -215,7 +215,7 @@
     "cardClass": "MAGE",
     "text": "Choose a friendly minion. Summon a random minion of the same Cost.",
     "flavorText": "Constellar spam calls about installing astral energy panels became an annoyance all throughout the cosmos.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/6af723790691f0057872dd033c8cf05fc7d7ff1b9bc4fa1c830d40321bf16198.png",
+    "imageUrl": "/art/cards/129788.png",
     "artEmoji": "✨",
     "artGradient": "from-sky-400 via-blue-600 to-indigo-900",
     "keywords": []
@@ -230,7 +230,7 @@
     "cardClass": "MAGE",
     "text": "Get 3 Arcane Missiles.",
     "flavorText": "The cake is a lie.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/26c712a81bf5b33b9517647f8c6feb9dfb83ad5066487ee1adf65dda91553c4f.png",
+    "imageUrl": "/art/cards/126109.png",
     "artEmoji": "✨",
     "artGradient": "from-stone-500 via-slate-600 to-stone-800",
     "keywords": []
@@ -245,7 +245,7 @@
     "cardClass": "MAGE",
     "text": "Move all spells in your deck to the top. You can pick to draw from the top or bottom each turn.",
     "flavorText": "Finally, SOMEONE who uses a coaster.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/ddc855a8baf895967a1ceab8e752960d900ef0404ee0292cd70a7cd9718b34ac.png",
+    "imageUrl": "/art/cards/129112.png",
     "artEmoji": "✨",
     "artGradient": "from-amber-400 via-yellow-500 to-amber-700",
     "keywords": []
@@ -260,7 +260,7 @@
     "cardClass": "MAGE",
     "text": "Destroy a friendly Wisp to draw 3 cards.",
     "flavorText": "Stop! It's already dead!",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/6b753a598dc88b8cee3959d0bbd0019004692e5e1375a5da426b615baef49268.png",
+    "imageUrl": "/art/cards/114012.png",
     "artEmoji": "✨",
     "artGradient": "from-sky-400 via-blue-600 to-indigo-900",
     "keywords": []
@@ -277,7 +277,7 @@
     "cardClass": "MAGE",
     "text": "<b>Battlecry:</b> Look at 2 random <b>Secrets</b>. Pick one to cast for yourself. The other casts for your opponent.",
     "flavorText": "I only share secrets with my most intimate friends and enemies.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/0eefb0387ee15c94578a18946ae21b6f52889a83103a6e1d6e25c72521754c26.png",
+    "imageUrl": "/art/cards/119740.png",
     "artEmoji": "🧙",
     "artGradient": "from-purple-500 via-indigo-600 to-slate-900",
     "keywords": []
@@ -292,7 +292,7 @@
     "cardClass": "MAGE",
     "text": "Deal 3 damage to a character and <b>Freeze</b> it.",
     "flavorText": "It is customary to yell \"Chill out!\" or \"Freeze!\" or \"Ice ice, baby!\" when you play this card.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/449bb3b63b5f70db0a43f2b210775129faa40769dcae775406a986c6ca0e0153.png",
+    "imageUrl": "/art/cards/111365.png",
     "artEmoji": "✨",
     "artGradient": "from-stone-500 via-slate-600 to-stone-800",
     "keywords": []
@@ -309,7 +309,7 @@
     "cardClass": "MAGE",
     "text": "Your cards that summon minions summon twice as many.",
     "flavorText": "\"What do you call two minions summoned at once? Twinions, haha! Wait... where are you going?\"",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/1c8f43e983eff83f370b491e3ce3c1c0ec5366f6110d9246a9ff8cda871b9cdf.png",
+    "imageUrl": "/art/cards/126975.png",
     "artEmoji": "🧙",
     "artGradient": "from-amber-400 via-yellow-500 to-amber-700",
     "keywords": []
@@ -324,7 +324,7 @@
     "cardClass": "MAGE",
     "text": "Draw a card. It costs (1) less.",
     "flavorText": "Sometimes I just paint purple lines on the ground and call it a Leyline.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/7df149410a537cb135ede1227533bf3b13ccf2157d01a3fdda14567699505367.png",
+    "imageUrl": "/art/cards/123508.png",
     "artEmoji": "✨",
     "artGradient": "from-stone-500 via-slate-600 to-stone-800",
     "keywords": []
@@ -341,7 +341,7 @@
     "cardClass": "MAGE",
     "text": "<b>Elusive</b> <b>Battlecry:</b> Increase the effects of your Leylines by 1 this game.",
     "flavorText": "And the cat came back, the very next ley.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/08d07300e7c3202d9dae049a3b9ec2e81d67f82aec39c955b3cadac43f34ed19.png",
+    "imageUrl": "/art/cards/123515.png",
     "artEmoji": "🧙",
     "artGradient": "from-stone-500 via-slate-600 to-stone-800",
     "keywords": []
@@ -358,7 +358,7 @@
     "cardClass": "MAGE",
     "text": "The first time you deal damage with a spell each turn, gain +2 Attack.",
     "flavorText": "I bless the rains down in Nazjatar...",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/786fd4742e777a54a8b48fc0d15620a6f1a59b7a3c5a266d1e231d84469b46fe.png",
+    "imageUrl": "/art/cards/123419.png",
     "artEmoji": "🧙",
     "artGradient": "from-sky-400 via-blue-600 to-indigo-900",
     "keywords": []
@@ -373,7 +373,7 @@
     "cardClass": "MAGE",
     "text": "Deal 2 damage. <b>Discover</b> a spell.",
     "flavorText": "The most dangerous Winter Veil ornament.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/7c1c9830f4d3f801dd975afcd3ecdc328b1be7b9c7f45f106c398aea0a2c1c19.png",
+    "imageUrl": "/art/cards/126982.png",
     "artEmoji": "✨",
     "artGradient": "from-stone-500 via-slate-600 to-stone-800",
     "keywords": []
@@ -388,7 +388,7 @@
     "cardClass": "MAGE",
     "text": "<b>Rewind</b> Add a random minion to your hand. It costs (3) less.",
     "flavorText": "Portal technology has advanced so much! We're down to spending only 29% of GDP on upkeep.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/afcbada9dc2b2ec1545242a784c3768f8a7a701f3b1bef8893c5767e9fc87ce7.png",
+    "imageUrl": "/art/cards/118636.png",
     "artEmoji": "✨",
     "artGradient": "from-sky-400 via-blue-600 to-indigo-900",
     "keywords": []
@@ -403,7 +403,7 @@
     "cardClass": "MAGE",
     "text": "Draw 1 (card, cards). <i>(Upgrades each turn, but discards after 3!)</i>",
     "flavorText": "To be clear, the grove is not SUPPOSED to be smoldering.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/9178c9fc2e0cbd448fe4cdf47e1251160ca397b57c9efd386df7ea711702d0b4.png",
+    "imageUrl": "/art/cards/115635.png",
     "artEmoji": "✨",
     "artGradient": "from-sky-400 via-blue-600 to-indigo-900",
     "keywords": []
@@ -420,7 +420,7 @@
     "cardClass": "MAGE",
     "text": "<b>Battlecry:</b> Get a Wisp. <b>Imbue</b> your Hero Power.",
     "flavorText": "They call him the Wisp Whisperer.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/4fca14909f2352cb749fb6ce44ebae4ba91f9c6d20e9354b23ca4b1114424331.png",
+    "imageUrl": "/art/cards/116462.png",
     "artEmoji": "🧙",
     "artGradient": "from-purple-500 via-indigo-600 to-slate-900",
     "keywords": []
@@ -435,7 +435,7 @@
     "cardClass": "MAGE",
     "text": "Get a Moonfire and a Starfire. Give them <b>Spell Damage +1</b>.",
     "flavorText": "Famously, Moonfire and Starfire are about equal in power.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/cc9b9a0af8ef86aa0965bddca4f9aa67e126ceae633129662a19600e0dee2e70.png",
+    "imageUrl": "/art/cards/116980.png",
     "artEmoji": "✨",
     "artGradient": "from-purple-500 via-indigo-600 to-slate-900",
     "keywords": []
@@ -450,7 +450,7 @@
     "cardClass": "MAGE",
     "text": "Reduce the Cost of cards in your hand that didn't start in your deck by (1).",
     "flavorText": "\"...and then a lot of people got mad.\"",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/fe9f3f9343d242a0946d754f6d2bc0d90df31cce8a40bd7f68b2432f9e58dd5e.png",
+    "imageUrl": "/art/cards/118265.png",
     "artEmoji": "✨",
     "artGradient": "from-sky-400 via-blue-600 to-indigo-900",
     "keywords": []
@@ -465,7 +465,7 @@
     "cardClass": "MAGE",
     "text": "<b>Assemble</b> a Mage minion. At the end of your turns, reduce its Cost by (1).",
     "flavorText": "Ah shoot I forgot to take the minion out of the freezer.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/7fe325510ad3e5958177dd436f8276b35a66e255846f1e587fa7d8bc2d13dffe.png",
+    "imageUrl": "/art/cards/129801.png",
     "artEmoji": "✨",
     "artGradient": "from-purple-500 via-indigo-600 to-slate-900",
     "keywords": []
@@ -480,7 +480,7 @@
     "cardClass": "MAGE",
     "text": "Summon a random 2-Cost minion. If you've <b><b>Discover</b>ed</b> this turn, summon a random 4-Cost minion instead.",
     "flavorText": "The Tortollans live so long they're unearthing their OWN artifacts!",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/2cbc306a31c2c35a56fd7b49a545eb9296f95115759a61640d54cd9b526747e9.png",
+    "imageUrl": "/art/cards/118199.png",
     "artEmoji": "✨",
     "artGradient": "from-purple-500 via-indigo-600 to-slate-900",
     "keywords": []
@@ -495,7 +495,7 @@
     "cardClass": "MAGE",
     "text": "Deal 3 damage to an enemy and 2 damage to two other random ones.",
     "flavorText": "Arrrrrr I got me cane and I'm gonna barrage you with it!",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/853101c80d3edb39d66b54627e60a0978ee0ce6af4ab02cc1328d684705908b3.png",
+    "imageUrl": "/art/cards/119528.png",
     "artEmoji": "✨",
     "artGradient": "from-stone-500 via-slate-600 to-stone-800",
     "keywords": []
@@ -510,7 +510,7 @@
     "cardClass": "MAGE",
     "text": "Draw 2 cards.",
     "flavorText": "Playing this card makes you SMARTER. And let's face it: we could all stand to be a little smarter.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/f5ae41efa9f2f58bd8ca83060f29a8d857a00939cdd9bd8e8a5efcd6b043a710.png",
+    "imageUrl": "/art/cards/69500.png",
     "artEmoji": "✨",
     "artGradient": "from-stone-500 via-slate-600 to-stone-800",
     "keywords": []
@@ -527,7 +527,7 @@
     "cardClass": "MAGE",
     "text": "<b>Battlecry:</b> Add 2 random Mage spells to your hand.",
     "flavorText": "Babbling Bookcase is quickly becoming one of my favorite cards. It's just so positive and generous. Practically costs nothing at all at three mana you drop him on the board and that chill guy gives you two spells to use later in the game.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/4ea9ff569ab591425a775908d3024c66b3bcee386e6e52e8ae732792f27a2db5.png",
+    "imageUrl": "/art/cards/117307.png",
     "artEmoji": "🧙",
     "artGradient": "from-sky-400 via-blue-600 to-indigo-900",
     "keywords": []
@@ -544,7 +544,7 @@
     "cardClass": "MAGE",
     "text": "<b>Battlecry:</b> Choose a spell in your hand. Split it into two random spells of the same Cost.",
     "flavorText": "Specialist is a very polite way of saying she only knows one spell.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/7c3896d16887cf702e60199b819235227e842f244f35e3067998faac98b02bdf.png",
+    "imageUrl": "/art/cards/123848.png",
     "artEmoji": "🧙",
     "artGradient": "from-purple-500 via-indigo-600 to-slate-900",
     "keywords": []
@@ -561,7 +561,7 @@
     "cardClass": "MAGE",
     "text": "<b>Deathrattle:</b> Draw a spell. <b>Kindred:</b> Summon a copy of this.",
     "flavorText": "In charge of cleaning up after the Library Rager.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/903faf7af78a679f054be0868b75c9e7febb5b3abf1761bd4a3333727d03215d.png",
+    "imageUrl": "/art/cards/117535.png",
     "artEmoji": "🧙",
     "artGradient": "from-purple-500 via-indigo-600 to-slate-900",
     "keywords": []
@@ -577,7 +577,7 @@
     "cardClass": "MAGE",
     "text": "Draw a card. If it's not a minion, refresh two Mana Crystals.",
     "flavorText": "You can be my Cosmic Spriiinnnngggssss.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/93f5e415fc65785fe79a07cc80664aa9902fe851028c5176ed8cffc56eab11b1.png",
+    "imageUrl": "/art/cards/129787.png",
     "artEmoji": "✨",
     "artGradient": "from-stone-500 via-slate-600 to-stone-800",
     "keywords": []
@@ -592,7 +592,7 @@
     "cardClass": "MAGE",
     "text": "<b>Secret:</b> When your opponent casts a spell, <b>Counter</b> it.",
     "flavorText": "What's the difference between a mage playing with Counterspell and a mage who isn't? The mage who isn't is getting Pyroblasted in the face.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/b8930aa56b2f2af97c900cbe778cee475288ee10041d4a56ba08bbf335b45ec6.png",
+    "imageUrl": "/art/cards/69607.png",
     "artEmoji": "✨",
     "artGradient": "from-sky-400 via-blue-600 to-indigo-900",
     "keywords": []
@@ -607,7 +607,7 @@
     "cardClass": "MAGE",
     "text": "<b>Lifesteal</b> Deal 3 damage to a minion. If it dies, return this to your hand at the end of your turn.",
     "flavorText": "Did I forget to turn off the Eternal Oven?",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/52d819f09a15b7754fdba90431aa6b6fb39fa7af3adcc848d346601c08230777.png",
+    "imageUrl": "/art/cards/121188.png",
     "artEmoji": "✨",
     "artGradient": "from-stone-500 via-slate-600 to-stone-800",
     "keywords": []
@@ -622,7 +622,7 @@
     "cardClass": "MAGE",
     "text": "<b>Secret:</b> After your opponent plays a minion, deal 6 damage to it and any excess to their hero.",
     "flavorText": "Sometimes it's safer NOT to read the warning signs.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/d0e6f38802089550847e51acd0bef6298eef224fb084849ce12156616e19f93c.png",
+    "imageUrl": "/art/cards/86235.png",
     "artEmoji": "✨",
     "artGradient": "from-sky-400 via-blue-600 to-indigo-900",
     "keywords": []
@@ -637,7 +637,7 @@
     "cardClass": "MAGE",
     "text": "<b>Secret:</b> When your enemy's turn ends, deal INFINITE damage to their highest Health minion.",
     "flavorText": "This card is total overkill.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/4608e8e9c29a2bacf8c8e5bdc758b7221448643013423a8c84d32e925b3d6f09.png",
+    "imageUrl": "/art/cards/121187.png",
     "artEmoji": "✨",
     "artGradient": "from-stone-500 via-slate-600 to-stone-800",
     "keywords": []
@@ -652,7 +652,7 @@
     "cardClass": "MAGE",
     "text": "<b>Freeze</b> an enemy. Summon a random 5-Cost minion and <b>Freeze</b> it.",
     "flavorText": "More like Fiveboding Freeze.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/0cd009494c6000ee5636238bc0cad41533fbcf2a996a4320d5d4386355939d52.png",
+    "imageUrl": "/art/cards/131200.png",
     "artEmoji": "✨",
     "artGradient": "from-sky-400 via-blue-600 to-indigo-900",
     "keywords": []
@@ -667,7 +667,7 @@
     "cardClass": "MAGE",
     "text": "<b>Secret:</b> When your hero is attacked, gain 8 Armor.",
     "flavorText": "This is Rank 1. Rank 2 is Chocolate Milk Barrier.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/5b18ad8e2f66a05ac3966a1bb73e81082472b2bc3bcfb889b243dfc257d57d49.png",
+    "imageUrl": "/art/cards/69608.png",
     "artEmoji": "✨",
     "artGradient": "from-stone-500 via-slate-600 to-stone-800",
     "keywords": []
@@ -684,7 +684,7 @@
     "cardClass": "MAGE",
     "text": "<b>Battlecry:</b> Your Leylines cost (1) less this game. <b>Deathrattle:</b> Get a random Leyline.",
     "flavorText": "Ley! I'm walkin' here!",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/6a85f7d4ce7474a20ed25ef038a014d24e5b963c0437376c0014515bc7d1411d.png",
+    "imageUrl": "/art/cards/123496.png",
     "artEmoji": "🧙",
     "artGradient": "from-purple-500 via-indigo-600 to-slate-900",
     "keywords": []
@@ -699,7 +699,7 @@
     "cardClass": "MAGE",
     "text": "<b>Secret:</b> When an enemy minion attacks, transform it into a 1/1 Sheep.",
     "flavorText": "\"Knock knock.\" \"Who's there?\" \"Distracting Sheep.\" \"Distracting sheep wh- BAAAHHHH!\"",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/c02d7ad2eefaf69f18c5537e9e885eb642fa0de528afb687a19c0905d6b10d8a.png",
+    "imageUrl": "/art/cards/126113.png",
     "artEmoji": "✨",
     "artGradient": "from-sky-400 via-blue-600 to-indigo-900",
     "keywords": []
@@ -714,7 +714,7 @@
     "cardClass": "MAGE",
     "text": "<b>Secret:</b> When a friendly minion is attacked, summon a 3/6 Water Elemental.",
     "flavorText": "As gentle as a bellyflop.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/2f372503c0c70dbae7e332283cfca88fbb3f50946b194e2b458a91324a4f8a71.png",
+    "imageUrl": "/art/cards/120392.png",
     "artEmoji": "✨",
     "artGradient": "from-stone-500 via-slate-600 to-stone-800",
     "keywords": []
@@ -731,7 +731,7 @@
     "cardClass": "MAGE",
     "text": "<b>Battlecry:</b> <b>Discover</b> a spell. Choose to keep it or put it on top of your opponent's deck.",
     "flavorText": "\"Where did Sarge go? Anyone seen Sarge?\" - Harth",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/d358af1590a612e15675195d83fdf836607fb22ded6441d4284ad50aa1ca6662.png",
+    "imageUrl": "/art/cards/114287.png",
     "artEmoji": "🧙",
     "artGradient": "from-amber-400 via-yellow-500 to-amber-700",
     "keywords": []
@@ -746,7 +746,7 @@
     "cardClass": "MAGE",
     "text": "Deal 3 damage. Discard a random Fire spell to deal 3 more.",
     "flavorText": "It's like the old saying goes: where there's smoke, there's often fire... and where there's fire, there's often more fire.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/6f4b78866a830ca56fe22f2b59e6bd043f1cd9757aead634df3075ac56de94ba.png",
+    "imageUrl": "/art/cards/115634.png",
     "artEmoji": "✨",
     "artGradient": "from-sky-400 via-blue-600 to-indigo-900",
     "keywords": []
@@ -763,7 +763,7 @@
     "cardClass": "MAGE",
     "text": "<b>Battlecry:</b> Reveal a spell in your deck. If it costs (5) or more, deal 5 damage split among enemy minions.",
     "flavorText": "One does not simply walk out of The Violet Hold. Its gates are guarded by more than just Boulderfist Ogres. There is evil there that does not sleep, and Spire Security's great eye is ever watchful.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/a34ee5255389df39924a59babc5ae145ce26164d7c120b72414fa7df4156be30.png",
+    "imageUrl": "/art/cards/126355.png",
     "artEmoji": "🧙",
     "artGradient": "from-stone-500 via-slate-600 to-stone-800",
     "keywords": []
@@ -778,7 +778,7 @@
     "cardClass": "MAGE",
     "text": "Deal damage to a minion. <i>(Improved by each friendly minion that died this game.)</i>",
     "flavorText": "\"The stars urge you to DIE.\"",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/8c7cbc0eed8c98c7b179fbade42ca5ad1e765951088c9fa02c38383222637c81.png",
+    "imageUrl": "/art/cards/115866.png",
     "artEmoji": "✨",
     "artGradient": "from-stone-500 via-slate-600 to-stone-800",
     "keywords": []
@@ -793,7 +793,7 @@
     "cardClass": "MAGE",
     "text": "Deal 3 damage to a minion. Costs (0) if you've <b>Discovered</b> this turn.",
     "flavorText": "Flip and file! Mix and shuffle! Sort and swap! Do the Storage Scuffle!",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/ab0bb5dd15479981c5f1736f17f798ea59bb89c8f82ed064178b2737ec24b85c.png",
+    "imageUrl": "/art/cards/118266.png",
     "artEmoji": "✨",
     "artGradient": "from-sky-400 via-blue-600 to-indigo-900",
     "keywords": []
@@ -810,7 +810,7 @@
     "cardClass": "MAGE",
     "text": "<b>Battlecry:</b> Get 3 random spells from the past. When you play ALL 3, get another Timelooper Toki.",
     "flavorText": "Well this loop's a wash. Let's meditate until the next one.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/aa3587cbda3ee2cd2ccd1812fef8f359686d6bc25845f1a95db46a67a7f64cd8.png",
+    "imageUrl": "/art/cards/119741.png",
     "artEmoji": "🧙",
     "artGradient": "from-amber-400 via-yellow-500 to-amber-700",
     "keywords": []
@@ -827,7 +827,7 @@
     "cardClass": "MAGE",
     "text": "After you <b>Discover</b> a card, reduce its Cost by (1).",
     "flavorText": "I've already told him 3 times to PUSH.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/200dcdae68b353c4a4d9c29c39bcd5f2de9c80b4d2269311b8deba7e8d39e3ab.png",
+    "imageUrl": "/art/cards/120582.png",
     "artEmoji": "🧙",
     "artGradient": "from-stone-500 via-slate-600 to-stone-800",
     "keywords": []
@@ -842,7 +842,7 @@
     "cardClass": "MAGE",
     "text": "<b>Discover</b> two Arcane spells from the past. They cost (2) less.",
     "flavorText": "Spells from the past and future are adjusted for inflation.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/5496b8d201746df27249042ea05b811dfc1813b2e3081c4fc1baa4ba396b2ed9.png",
+    "imageUrl": "/art/cards/119633.png",
     "artEmoji": "✨",
     "artGradient": "from-sky-400 via-blue-600 to-indigo-900",
     "keywords": []
@@ -857,7 +857,7 @@
     "cardClass": "MAGE",
     "text": "<b>Shatter</b> Deal 4 damage. Deal 2 damage to all enemies. Deal 4 damage. Deal 2 damage to all enemies.",
     "flavorText": "Super excited to combo this with ERROR MISPLACED CARD",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/ec085f554e82a3feed27e1c80728acac31a892d3ff9e8c3321e16c6272488f1d.png",
+    "imageUrl": "/art/cards/123692.png",
     "artEmoji": "✨",
     "artGradient": "from-sky-400 via-blue-600 to-indigo-900",
     "keywords": []
@@ -874,7 +874,7 @@
     "cardClass": "MAGE",
     "text": "<b>Battlecry:</b> Give all spells in your hand and deck <b>Spell Damage +1.</b>",
     "flavorText": "Kalec comes, Kalec goes.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/8f7bc5438808fed5a1a1d790e6e805e1c02e3bdfe4295491fd88a37347b90ac0.png",
+    "imageUrl": "/art/cards/122632.png",
     "artEmoji": "🧙",
     "artGradient": "from-amber-400 via-yellow-500 to-amber-700",
     "keywords": []
@@ -889,7 +889,7 @@
     "cardClass": "MAGE",
     "text": "Deal 2 damage to a random enemy minion, five times.",
     "flavorText": "Some stay dry and others feel the pain.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/ba2c256f4ea4079d39a40d0a25f8b694850cd76b46e655962eeb7df5330291d6.png",
+    "imageUrl": "/art/cards/129811.png",
     "artEmoji": "✨",
     "artGradient": "from-stone-500 via-slate-600 to-stone-800",
     "keywords": []
@@ -904,7 +904,7 @@
     "cardClass": "MAGE",
     "text": "Deal 4 damage to a random enemy minion. Excess damage hits the enemy hero.",
     "flavorText": "When you gotta go, you gotta go.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/984bf1d6d8db5c5ee8982f739e6ebc5a2816ef3e39b18df65481cb1250881d16.png",
+    "imageUrl": "/art/cards/123495.png",
     "artEmoji": "✨",
     "artGradient": "from-purple-500 via-indigo-600 to-slate-900",
     "keywords": []
@@ -919,7 +919,7 @@
     "cardClass": "MAGE",
     "text": "Deal 6 damage.",
     "flavorText": "This spell is useful for burning things. If you're looking for spells that toast things, or just warm them a little, you're in the wrong place.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/2a456057d5948336e9e3d78da6c557a8ec9c8cb9f2bde31f991e22989becd131.png",
+    "imageUrl": "/art/cards/69501.png",
     "artEmoji": "✨",
     "artGradient": "from-stone-500 via-slate-600 to-stone-800",
     "keywords": []
@@ -936,7 +936,7 @@
     "cardClass": "MAGE",
     "text": "After you cast a spell on a minion, draw a card.",
     "flavorText": "This is how much it cares.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/87ede6b7255a88480b1b63518f4af267b558311a575864776c5a513aefc24ca9.png",
+    "imageUrl": "/art/cards/121189.png",
     "artEmoji": "🧙",
     "artGradient": "from-sky-400 via-blue-600 to-indigo-900",
     "keywords": []
@@ -953,7 +953,7 @@
     "cardClass": "MAGE",
     "text": "After you cast a Fire spell, get a random Elemental and reduce its Cost by (3).",
     "flavorText": "Poor Inferno Herald, why so blue?",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/944de3cf37b0489da810c53a71ae6383ade69e951792706bdd00e1f5ea07d672.png",
+    "imageUrl": "/art/cards/115637.png",
     "artEmoji": "🧙",
     "artGradient": "from-stone-500 via-slate-600 to-stone-800",
     "keywords": []
@@ -970,7 +970,7 @@
     "cardClass": "MAGE",
     "text": "At the end of your turn, gain Armor. <i>(Improved by Wisps you control!)</i>",
     "flavorText": "Merry Wispmas!",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/b3fc8bac073d71e3cd27f14fa021dcd6cb267a5c8891b708eda1116438decd87.png",
+    "imageUrl": "/art/cards/115805.png",
     "artEmoji": "🧙",
     "artGradient": "from-sky-400 via-blue-600 to-indigo-900",
     "keywords": []
@@ -985,7 +985,7 @@
     "cardClass": "MAGE",
     "text": "Set a minion's stats to 1/1 and give it \"<b>Deathrattle:</b> Deal 2 damage to all minions.\"",
     "flavorText": "Baa, Baa, Bomb Sheep",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/b7711c20c8d3df700dc0d90aba6cbc000bfe1138a1197f7f02073844dec24df7.png",
+    "imageUrl": "/art/cards/118651.png",
     "artEmoji": "✨",
     "artGradient": "from-sky-400 via-blue-600 to-indigo-900",
     "keywords": []
@@ -1002,7 +1002,7 @@
     "cardClass": "MAGE",
     "text": "<b>Battlecry:</b> Your Leylines trigger an additional time this game.",
     "flavorText": "Scalpel... Tweezers... Surge Needle... I said Surge Needle!",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/e277d8a1992f6600ea11201262da3f54c450db6e3a80be93e6d2f43a02985501.png",
+    "imageUrl": "/art/cards/123507.png",
     "artEmoji": "🧙",
     "artGradient": "from-sky-400 via-blue-600 to-indigo-900",
     "keywords": []
@@ -1019,7 +1019,7 @@
     "cardClass": "MAGE",
     "text": "<b>Spell Damage +1</b> <b>Battlecry:</b> If you dealt damage with a spell this turn, summon a copy of this.",
     "flavorText": "1, 2, 3, 4, I declare a spell war.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/0521e90d22980e561c920012c0fe8486a860cbcb1d94f696219ba82cecafe1de.png",
+    "imageUrl": "/art/cards/123351.png",
     "artEmoji": "🧙",
     "artGradient": "from-purple-500 via-indigo-600 to-slate-900",
     "keywords": []
@@ -1036,7 +1036,7 @@
     "cardClass": "MAGE",
     "text": "After you summon an Elemental, deal 3 damage to a random enemy.",
     "flavorText": "This story will blow you away.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/11b2f69a83ce0523b9d9ad21e395e23e91249333b0b5b63119d28a0d8721b02c.png",
+    "imageUrl": "/art/cards/117531.png",
     "artEmoji": "🧙",
     "artGradient": "from-stone-500 via-slate-600 to-stone-800",
     "keywords": []
@@ -1053,7 +1053,7 @@
     "cardClass": "MAGE",
     "text": "<b>Spell Damage +2</b>",
     "flavorText": "For my first lesson, spell \"damage.\"",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/0a7b8ececcdd934701cb5414ca333407ac38ad6a6df618e21071179958b238e3.png",
+    "imageUrl": "/art/cards/119632.png",
     "artEmoji": "🧙",
     "artGradient": "from-stone-500 via-slate-600 to-stone-800",
     "keywords": []
@@ -1070,7 +1070,7 @@
     "cardClass": "MAGE",
     "text": "<b>Battlecry and Deathrattle:</b> Cast a random 3-Cost spell.",
     "flavorText": "Alright teams let's get out there and have ourselves a fair Cosmic War and remember, have fun!",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/fe13c9be5ed9cf414f3dc53d7b2eb66cf817bf098240d8351f70df3719c7f6f2.png",
+    "imageUrl": "/art/cards/129798.png",
     "artEmoji": "🧙",
     "artGradient": "from-sky-400 via-blue-600 to-indigo-900",
     "keywords": []
@@ -1087,7 +1087,7 @@
     "cardClass": "MAGE",
     "text": "<b>Fabled</b> If you control another Dragon, your Arcane spells cost (2) less.",
     "flavorText": "Once Malygos' beloved mate, Sindragosa was among the first to suspect the corruption that had overtaken Neltharion. She came to regret not trusting her suspicions.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/2a023289d3e11f33da5675eaa5c4379ec14dff2ac6fa41d6ede2608d02c814f8.png",
+    "imageUrl": "/art/cards/119524.png",
     "artEmoji": "🧙",
     "artGradient": "from-amber-400 via-yellow-500 to-amber-700",
     "keywords": []
@@ -1102,7 +1102,7 @@
     "cardClass": "MAGE",
     "text": "<b>Freeze</b> a minion and its neighbors. Destroy any that are damaged.",
     "flavorText": "Also comes in Sweet, Salty, Sour, and Umami.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/d6dd38b2317bfa6a1b0b077de5ff4fff65a4c27e847743b7e311ff909255d852.png",
+    "imageUrl": "/art/cards/121176.png",
     "artEmoji": "✨",
     "artGradient": "from-sky-400 via-blue-600 to-indigo-900",
     "keywords": []
@@ -1119,7 +1119,7 @@
     "cardClass": "MAGE",
     "text": "<b>Battlecry:</b> Choose a card in your hand. Transform it into a spell that costs (5) more <i>(keeps its original Cost).</i>",
     "flavorText": "Careful! This potion has a bit of a KICK to it!",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/5f1a5d53d58005de49347a46bc141fe4c37184448910160c704385d9a75fdebf.png",
+    "imageUrl": "/art/cards/126111.png",
     "artEmoji": "🧙",
     "artGradient": "from-sky-400 via-blue-600 to-indigo-900",
     "keywords": []
@@ -1136,7 +1136,7 @@
     "cardClass": "MAGE",
     "text": "<b>Battlecry:</b> <b>Discover</b> a spell that costs (5) or more. It casts twice when played.",
     "flavorText": "Oh nah, these aren't maps! It's... uh... just arcane hopscotch!",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/3ff3831a137babaf69adf4967a65b39e3884448e77818fbe6da6fe5386cf83e0.png",
+    "imageUrl": "/art/cards/126354.png",
     "artEmoji": "🧙",
     "artGradient": "from-sky-400 via-blue-600 to-indigo-900",
     "keywords": []
@@ -1151,7 +1151,7 @@
     "cardClass": "MAGE",
     "text": "Summon a random 6-Cost minion.",
     "flavorText": "This crystal has healing properties.... and this crystal summons an army of minions.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/0e5704f25202aa24cb38a2e22129b64a3cf9e6a13adbdb7f56eb070d32010ec4.png",
+    "imageUrl": "/art/cards/123504.png",
     "artEmoji": "✨",
     "artGradient": "from-sky-400 via-blue-600 to-indigo-900",
     "keywords": []
@@ -1168,7 +1168,7 @@
     "cardClass": "MAGE",
     "text": "<b>Battlecry:</b> Draw two cards. For each that isn't a minion, summon a 3/6 Water Elemental.",
     "flavorText": "Fun fact! Saturn's rings are 95% Water Elemental.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/48a512b27e47c0fd6fda407f5400d6ea672663477c02f8e12e2668d9fce7572b.png",
+    "imageUrl": "/art/cards/129889.png",
     "artEmoji": "🧙",
     "artGradient": "from-purple-500 via-indigo-600 to-slate-900",
     "keywords": []
@@ -1185,7 +1185,7 @@
     "cardClass": "MAGE",
     "text": "<b>Battlecry:</b> After you cast a spell this game, summon a random minion of the same Cost.",
     "flavorText": "“Millhouse Manastorm, I'm coming for you!” His wife’s words haunted him ever since she escaped from Violet Hold. One night, he heard a strange ZAP! as he stepped through a portal, and found himself nearly a decade in the past - Millificent’s cold cell waiting for him.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/41759715471112afb7ea53e78f3ec63a33b75b16e8c9e6652268b6634148bc1f.png",
+    "imageUrl": "/art/cards/126353.png",
     "artEmoji": "🧙",
     "artGradient": "from-amber-400 via-yellow-500 to-amber-700",
     "keywords": []
@@ -1200,7 +1200,7 @@
     "cardClass": "MAGE",
     "text": "Deal 8 damage to a minion. Reduce the Cost of a random card in your hand by the excess damage.",
     "flavorText": "When Sindragosa and her beloved fight side by side, nothing can stand in their way.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/1b2f366f6b1a46db62e6077c56b4c6d11db92ce5b17929e7ea699252a2587130.png",
+    "imageUrl": "/art/cards/123847.png",
     "artEmoji": "✨",
     "artGradient": "from-sky-400 via-blue-600 to-indigo-900",
     "keywords": []
@@ -1215,7 +1215,7 @@
     "cardClass": "MAGE",
     "text": "Choose a minion. Choose a different minion to transform it into.",
     "flavorText": "This is just a tribute.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/3f2b0f4e3db3dc4adb26927be791313c812d98cbf33cded746ca740f49415b98.png",
+    "imageUrl": "/art/cards/118554.png",
     "artEmoji": "✨",
     "artGradient": "from-stone-500 via-slate-600 to-stone-800",
     "keywords": []
@@ -1232,7 +1232,7 @@
     "cardClass": "MAGE",
     "text": "<b>Prepare</b> <b>Battlecry:</b> If you've cast a spell this turn, cast two random Mage <b>Secrets</b>.",
     "flavorText": "Welcome to Dalaran, where the spells are made up and the points don't matter!",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/8dede9bd50be3791e2f16c2b990e982c805b2ad7b71089125b9fb922c418a331.png",
+    "imageUrl": "/art/cards/126253.png",
     "artEmoji": "🧙",
     "artGradient": "from-purple-500 via-indigo-600 to-slate-900",
     "keywords": []
@@ -1249,7 +1249,7 @@
     "cardClass": "MAGE",
     "text": "<b>Battlecry:</b> <b>Imbue</b> your Hero Power, then trigger it.",
     "flavorText": "\"I surf dead people.\"",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/155746d44980f4c9ffe4f1baff79c4a14b5a386744602533668a7cef8e9222e8.png",
+    "imageUrl": "/art/cards/114292.png",
     "artEmoji": "🧙",
     "artGradient": "from-stone-500 via-slate-600 to-stone-800",
     "keywords": []
@@ -1264,7 +1264,7 @@
     "cardClass": "MAGE",
     "text": "Draw 2 spells. Refresh 6 Mana Crystals. You can only play spells for the rest of the turn.",
     "flavorText": "\"Hey guys check this out, they just lost their fifth game in a row!\"",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/74a6f84ba09fc66c77789050f84796f591d9424014ca5d6132e12b13f38f7dc7.png",
+    "imageUrl": "/art/cards/132671.png",
     "artEmoji": "✨",
     "artGradient": "from-purple-500 via-indigo-600 to-slate-900",
     "keywords": []
@@ -1279,7 +1279,7 @@
     "cardClass": "MAGE",
     "text": "Deal 2 damage to all enemy minions and <b>Freeze</b> them.",
     "flavorText": "This spell can be very Entertaining.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/b73c7e2e63d09b57bacac9be233c495b968166cd67e454e14cbe91d01000872b.png",
+    "imageUrl": "/art/cards/76273.png",
     "artEmoji": "✨",
     "artGradient": "from-sky-400 via-blue-600 to-indigo-900",
     "keywords": []
@@ -1296,7 +1296,7 @@
     "cardClass": "MAGE",
     "text": "<b>Battlecry:</b> Summon two 10/10 Constructs. They are <b>Frozen</b> until you spend 15 Mana on spells.",
     "flavorText": "To craft a star from nothing would require tremendous power. Thus, Isiset was created as a font of limitless magic so she may further tend to the celestial garden.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/999695084c5ce0936b19960814e05dc3d9e0741ddba8019d7ed7cba509125257.png",
+    "imageUrl": "/art/cards/129851.png",
     "artEmoji": "🧙",
     "artGradient": "from-amber-400 via-yellow-500 to-amber-700",
     "keywords": []
@@ -1311,7 +1311,7 @@
     "cardClass": "MAGE",
     "text": "Get all 3 Leylines. Choose an upgrade for your Leylines.",
     "flavorText": "Pondering my Orb.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/36b929e0d28e634f18b998b57c6789ef61822b20abf5cac144e96d247dda223e.png",
+    "imageUrl": "/art/cards/123514.png",
     "artEmoji": "✨",
     "artGradient": "from-amber-400 via-yellow-500 to-amber-700",
     "keywords": []
@@ -1328,7 +1328,7 @@
     "cardClass": "MAGE",
     "text": "Gains a random <b>Titan</b> ability in your hand that changes each turn.",
     "flavorText": "Look at this Titangraph.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/e9d30a2f1ceca7cf66cef3388dbaa577f60053667d5e06a113d1e5dc54dda6e4.png",
+    "imageUrl": "/art/cards/117956.png",
     "artEmoji": "🧙",
     "artGradient": "from-amber-400 via-yellow-500 to-amber-700",
     "keywords": []
@@ -1343,7 +1343,7 @@
     "cardClass": "MAGE",
     "text": "Summon a random 10 and 1-Cost minion. Scramble their stats.",
     "flavorText": "Only nominally anomalous.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/b003ce4f9628bf3fba954d7854c9c4c2b2c04c159127001b730a129bb0d646a0.png",
+    "imageUrl": "/art/cards/119691.png",
     "artEmoji": "✨",
     "artGradient": "from-purple-500 via-indigo-600 to-slate-900",
     "keywords": []
@@ -1360,7 +1360,7 @@
     "cardClass": "MAGE",
     "text": "Whenever you cast a spell, add a 'Fireball' spell to your hand.",
     "flavorText": "Antonidas was the Grand Magus of the Kirin Tor, and Jaina's mentor. This was a big step up from being Grand Magus of Jelly Donuts.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/812d2ef132365ef7083512c04abd79f4aed5b31e02f2eba07e8f53d36569c740.png",
+    "imageUrl": "/art/cards/120426.png",
     "artEmoji": "🧙",
     "artGradient": "from-amber-400 via-yellow-500 to-amber-700",
     "keywords": []
@@ -1377,7 +1377,7 @@
     "cardClass": "MAGE",
     "text": "<b>Battlecry:</b> Summon a random minion with Cost equal to your hand size.",
     "flavorText": "All signs point to Antonidas.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/fcc52db72e18a2a394b525cd9774c213fc4e1e83329d4b3ba99999dad34d72ea.png",
+    "imageUrl": "/art/cards/129846.png",
     "artEmoji": "🧙",
     "artGradient": "from-purple-500 via-indigo-600 to-slate-900",
     "keywords": []
@@ -1392,7 +1392,7 @@
     "cardClass": "MAGE",
     "text": "<b>Prepare.</b> Summon an 8-Cost minion. If you've cast 3 other spells this turn, do it again. <i>( left!)</i> <i>(Ready!)</i>",
     "flavorText": "Above Code Red but just below Code Ultraviolet.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/817acc89d4f8392d35ecff7b6b64da5c9d10025afa4037595c750710c6122145.png",
+    "imageUrl": "/art/cards/126841.png",
     "artEmoji": "✨",
     "artGradient": "from-purple-500 via-indigo-600 to-slate-900",
     "keywords": []
@@ -1407,7 +1407,7 @@
     "cardClass": "MAGE",
     "text": "<b>Freeze</b> an enemy. Summon two 3/6 Water Elementals.",
     "flavorText": "\"Dancing with the Satyrs… on Ice!\"",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/879bc7559d0dfb7b95992a92fc9291e68f831f118c4b56ab9d4487501ff3a4aa.png",
+    "imageUrl": "/art/cards/126976.png",
     "artEmoji": "✨",
     "artGradient": "from-sky-400 via-blue-600 to-indigo-900",
     "keywords": []
@@ -1422,7 +1422,7 @@
     "cardClass": "MAGE",
     "text": "Deal 5 damage to all enemy minions.",
     "flavorText": "When the ground is on fire, you should <i>not</i> stop, drop, and roll.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/8babc82a65cab49f3aea2615db82edf297cc7aa29337c71856bfe6ca2283147a.png",
+    "imageUrl": "/art/cards/69502.png",
     "artEmoji": "✨",
     "artGradient": "from-purple-500 via-indigo-600 to-slate-900",
     "keywords": []
@@ -1437,7 +1437,7 @@
     "cardClass": "MAGE",
     "text": "<b>Discover</b> a spell from any class that costs (8) or more. It costs (1).",
     "flavorText": "\"Whoa, found a big plate!\"",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/ca078e4bf806bfb9f36bf625c9441f45c5da3c28fb14ea772735c8f6b11e8d4f.png",
+    "imageUrl": "/art/cards/118616.png",
     "artEmoji": "✨",
     "artGradient": "from-sky-400 via-blue-600 to-indigo-900",
     "keywords": []
@@ -1454,7 +1454,7 @@
     "cardClass": "MAGE",
     "text": "<b>Taunt</b>. Costs (1) less for each card you played this game that didn't start in your deck.",
     "flavorText": "The field of dino prosthetics was nearly extinct before the Tortollans came around.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/5f5ca70b94468dc192839b73610d860ebbf9f64cd4d330790a845b42edaedebc.png",
+    "imageUrl": "/art/cards/118485.png",
     "artEmoji": "🧙",
     "artGradient": "from-sky-400 via-blue-600 to-indigo-900",
     "keywords": []
@@ -1471,7 +1471,7 @@
     "cardClass": "MAGE",
     "text": "<b>Battlecry:</b> Deal 5 damage to an enemy minion. Draw cards equal to the excess damage.",
     "flavorText": "Time is a construct. Here it is.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/c0cd2ea825e01909c7966b05cf30e35a2a1f9be5c102aaf1749f690badd87441.png",
+    "imageUrl": "/art/cards/119649.png",
     "artEmoji": "🧙",
     "artGradient": "from-sky-400 via-blue-600 to-indigo-900",
     "keywords": []
@@ -1488,7 +1488,7 @@
     "cardClass": "MAGE",
     "text": "<b>Colossal +2</b> At the end of your turn, deal 3 damage to all other minions.",
     "flavorText": "Determined to see Azeroth aflame, Ragnaros awakened a living volcano to send rivers of lava across the Barrens.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/6465a55858bd225a5ca5934587cdeff6f5949318074c1e0173796570a769505a.png",
+    "imageUrl": "/art/cards/123665.png",
     "artEmoji": "🧙",
     "artGradient": "from-amber-400 via-yellow-500 to-amber-700",
     "keywords": []
@@ -1505,7 +1505,7 @@
     "cardClass": "MAGE",
     "text": "<b>Battlecry:</b> If 20 friendly minions have died this game, deal 20 damage split among all enemies. <i>( left!)</i> <i>(Ready!)</i>",
     "flavorText": "The Mother Wisp is a mysterious figure to most mortals, but to Ysera, she is a dear friend and companion.",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/986c056764547e0c51c6e329dc6004ac5c7852a54e3b37f0acf85af7f3b37b0d.png",
+    "imageUrl": "/art/cards/113700.png",
     "artEmoji": "🧙",
     "artGradient": "from-amber-400 via-yellow-500 to-amber-700",
     "keywords": []
@@ -1520,7 +1520,7 @@
     "cardClass": "MAGE",
     "text": "Summon a 6/6 Dragon. Costs (1) less for each damage you dealt with spells this turn.",
     "flavorText": "Oh you think you're sooOOOOooo smart? *pyroblasts them*",
-    "imageUrl": "https://d15f34w2p8l1cc.cloudfront.net/hearthstone/18cd0902bfbfbccefa56179d640cfbb6d6c9a8d9a073266475cc90ab579be5f4.png",
+    "imageUrl": "/art/cards/122454.png",
     "artEmoji": "✨",
     "artGradient": "from-stone-500 via-slate-600 to-stone-800",
     "keywords": []

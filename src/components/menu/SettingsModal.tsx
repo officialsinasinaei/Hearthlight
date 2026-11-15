@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'motion/react';
-import { Volume2, Music, Sparkles, X, Coins } from 'lucide-react';
+import { Volume2, Music, Sparkles, Coins } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
+import { TavernButton } from '../ui';
 
 export function SettingsModal() {
   const isSettingsOpen = useAppStore((s) => s.isSettingsOpen);
@@ -33,13 +34,13 @@ export function SettingsModal() {
                 <h2 className="text-xl font-black tracking-wide text-amber-100 uppercase">
                   Game Options
                 </h2>
-                <button
-                  type="button"
+                <TavernButton
+                  variant="icon"
                   onClick={() => toggleSettings(false)}
-                  className="p-1.5 rounded-lg bg-stone-800/80 text-stone-400 hover:text-white cursor-pointer"
+                  aria-label="Close"
                 >
-                  <X className="w-4 h-4" />
-                </button>
+                  ✕
+                </TavernButton>
               </div>
 
               {/* Controls */}
@@ -107,13 +108,14 @@ export function SettingsModal() {
                 </div>
               </div>
 
-              <button
-                type="button"
+              <TavernButton
+                variant="primary"
+                size="lg"
                 onClick={() => toggleSettings(false)}
-                className="mt-6 w-full py-2.5 rounded-xl bg-gradient-to-b from-amber-500 to-amber-700 text-stone-950 font-black text-sm uppercase tracking-wider shadow-lg hover:brightness-110 cursor-pointer"
+                className="mt-6 w-full"
               >
                 Done
-              </button>
+              </TavernButton>
             </div>
           </motion.div>
         </motion.div>

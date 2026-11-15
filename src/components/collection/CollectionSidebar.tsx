@@ -2,8 +2,9 @@ import React, { useState, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useCollectionStore } from '../../store/useCollectionStore';
 import { useAppStore } from '../../store/useAppStore';
-import { MAGE_CARDS } from '../../engine/cards';
+import { MAGE_CARDS, HERO_ASSETS } from '../../engine/cards';
 import { CardDefinition } from '../../engine/types';
+import { TavernButton, TavernPlaque, CardImage, TavernModal } from '../ui';
 
 export function CollectionSidebar() {
   const navigateTo = useAppStore((s) => s.navigateTo);
@@ -103,7 +104,7 @@ export function CollectionSidebar() {
             <h2 className="text-sm sm:text-base font-black text-[#fae6a2] tracking-wider uppercase font-serif drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
               My Decks
             </h2>
-            <div className="px-2 py-0.5 rounded-md bg-[#0f0804] border border-[#4a2e12] shadow-[inset_0_2px_4px_rgba(0,0,0,0.85)] flex items-center gap-1">
+            <TavernPlaque variant="wood" size="sm" className="px-2 py-0.5 rounded-md">
               <span className="text-[11px] sm:text-xs font-black tabular-nums text-[#fae6a2]">
                 {decks.length}
               </span>
@@ -111,7 +112,7 @@ export function CollectionSidebar() {
               <span className="text-[11px] sm:text-xs font-black tabular-nums text-stone-400">
                 9
               </span>
-            </div>
+            </TavernPlaque>
           </div>
 
           {/* Decks Scroll List (Up to 9 slots) */}
@@ -149,15 +150,10 @@ export function CollectionSidebar() {
                           className="w-full h-full rounded-[5px] overflow-hidden bg-[#120a05] border border-[#2d1b0c] flex items-center justify-center relative"
                         >
                           <img
-                            src="/art/HERO_08.jpg"
+                            src={HERO_ASSETS.JAINA_PORTRAIT}
                             alt="Jaina Proudmoore"
                             loading="eager"
                             decoding="sync"
-                            onError={(e) => {
-                              if (e.currentTarget.src !== 'https://art.hearthstonejson.com/v1/512x/HERO_08.jpg') {
-                                e.currentTarget.src = 'https://art.hearthstonejson.com/v1/512x/HERO_08.jpg';
-                              }
-                            }}
                             className="w-full h-full object-cover object-[50%_18%]"
                           />
                         </div>
@@ -232,29 +228,23 @@ export function CollectionSidebar() {
 
           {/* Action Buttons: New Deck & Back to Main Menu */}
           <div className="pt-2 border-t border-[#8e6129]/40 space-y-1.5 shrink-0">
-            <button
-              type="button"
+            <TavernButton
+              variant="primary"
               data-testid="new-deck-button"
               disabled={decks.length >= 9}
               onClick={() => setHeroSelectOpen(true)}
-              className={`w-full py-2 rounded-xl font-black text-xs uppercase tracking-wider shadow flex items-center justify-center cursor-pointer transition-all ${
-                decks.length >= 9
-                  ? 'bg-stone-800 text-stone-500 border border-stone-700 cursor-not-allowed'
-                  : 'bg-gradient-to-b from-[#f7e0a3] via-[#cda043] to-[#7e5118] text-stone-950 border-t border-[#fffbe6] border-b-2 border-[#54330a] hover:brightness-110 active:translate-y-0.5'
-              }`}
-              style={{ minHeight: '36px' }}
+              className="w-full"
             >
               New Deck
-            </button>
+            </TavernButton>
 
-            <button
-              type="button"
+            <TavernButton
+              variant="secondary"
               onClick={() => navigateTo('MAIN_MENU')}
-              className="w-full py-1.5 rounded-xl bg-gradient-to-b from-[#3a2213] to-[#1c0f06] border border-[#8e6129]/60 text-[#f5e2b3] font-bold text-xs uppercase tracking-wider hover:text-white hover:border-[#fae6a2] transition-colors cursor-pointer"
-              style={{ minHeight: '36px' }}
+              className="w-full"
             >
               Back to Main Menu
-            </button>
+            </TavernButton>
           </div>
         </div>
       )}
@@ -316,10 +306,11 @@ export function CollectionSidebar() {
                     </svg>
                   </div>
 
-                  {/* Dark Recessed Counter Badge */}
-                  <div
-                    data-testid="deck-card-count"
-                    className="px-2 py-0.5 rounded-md bg-[#0f0804] border border-[#4a2e12] shadow flex items-center gap-0.5 shrink-0"
+                  <TavernPlaque
+                    dataTestId="deck-card-count"
+                    variant="wood"
+                    size="sm"
+                    className="px-2 py-0.5 rounded-md shrink-0"
                   >
                     <span
                       className={`text-xs font-black tabular-nums ${
@@ -332,7 +323,7 @@ export function CollectionSidebar() {
                     <span className="text-xs font-black tabular-nums text-stone-400">
                       30
                     </span>
-                  </div>
+                  </TavernPlaque>
                 </div>
               )}
             </div>
@@ -345,8 +336,10 @@ export function CollectionSidebar() {
                   <span>Active Deck</span>
                 </div>
               ) : (
-                <button
-                  type="button"
+                <TavernButton
+                  variant="primary"
+                  size="sm"
+                  disabled={!activeDeck.isValid}
                   onClick={() => {
                     if (activeDeck.isValid) {
                       setActiveDeck(activeDeck.id);
@@ -354,14 +347,10 @@ export function CollectionSidebar() {
                       showToast('You must have 30 cards to set as Active Deck');
                     }
                   }}
-                  className={`w-full py-1 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all shadow ${
-                    activeDeck.isValid
-                      ? 'bg-gradient-to-b from-[#f7e0a3] via-[#cda043] to-[#7e5118] text-stone-950 border-t border-[#fffbe6] border-b-2 border-[#54330a] hover:brightness-110 active:translate-y-0.5 cursor-pointer'
-                      : 'bg-stone-900/90 text-stone-500 border border-stone-800 cursor-not-allowed'
-                  }`}
+                  className="w-full text-[11px]"
                 >
                   {activeDeck.isValid ? 'Set as Active Deck' : '30 cards needed'}
-                </button>
+                </TavernButton>
               )}
             </div>
           </div>
@@ -477,37 +466,37 @@ export function CollectionSidebar() {
           {/* Footer Actions: Complete My Deck (Primary), Delete (Secondary Crimson), Done (Confirm Ivory/Brass) */}
           <div className="pt-1.5 border-t border-[#8e6129]/40 space-y-1.5 shrink-0">
             {activeDeck.totalCount < 30 && (
-              <button
-                type="button"
+              <TavernButton
+                variant="primary"
+                size="sm"
                 onClick={autoCompleteDeck}
-                className="w-full py-1.5 rounded-xl bg-gradient-to-b from-[#fbbf24] via-[#d97706] to-[#92400e] text-stone-950 text-[11px] font-black uppercase tracking-wider border-t border-[#fef08a] border-b-2 border-[#78350f] shadow hover:brightness-110 active:translate-y-0.5 cursor-pointer flex items-center justify-center gap-1 transition-all"
-                style={{ minHeight: '36px' }}
+                className="w-full bg-gradient-to-b from-[#fbbf24] via-[#d97706] to-[#92400e] border-b-2 border-[#78350f] text-[11px]"
               >
                 <svg className="w-3 h-3 text-stone-950" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M12 2l2.4 4.8 5.3.8-3.8 3.7.9 5.3-4.8-2.5-4.8 2.5.9-5.3-3.8-3.7 5.3-.8L12 2z" />
                 </svg>
                 <span>Complete My Deck</span>
-              </button>
+              </TavernButton>
             )}
 
             <div className="flex gap-1.5">
-              <button
-                type="button"
+              <TavernButton
+                variant="danger"
+                size="sm"
                 onClick={() => deleteDeck(activeDeck.id)}
-                className="flex-1 py-1.5 rounded-xl bg-gradient-to-b from-[#3d1217] via-[#2c0c10] to-[#1a0709] border-t border-[#7f1d1d]/60 border-b-2 border-[#120406] text-rose-300 text-xs font-bold uppercase tracking-wider hover:text-white hover:border-rose-500/70 shadow active:translate-y-0.5 cursor-pointer transition-all"
-                style={{ minHeight: '36px' }}
+                className="flex-1"
               >
                 Delete
-              </button>
-              <button
-                type="button"
+              </TavernButton>
+              <TavernButton
+                variant="primary"
+                size="sm"
                 data-testid="deck-editor-done-button"
                 onClick={handleDoneClick}
-                className="flex-1 py-1.5 rounded-xl bg-gradient-to-b from-[#fff7e6] via-[#e2ce9f] to-[#aa8447] text-[#1c1106] text-xs font-black uppercase tracking-wider border-t border-white border-b-2 border-[#5c4015] shadow hover:brightness-105 active:translate-y-0.5 cursor-pointer transition-all"
-                style={{ minHeight: '36px' }}
+                className="flex-1 bg-gradient-to-b from-[#fff7e6] via-[#e2ce9f] to-[#aa8447] text-[#1c1106] border-t border-white border-b-2 border-[#5c4015] hover:brightness-105"
               >
                 Done
-              </button>
+              </TavernButton>
             </div>
           </div>
         </div>
@@ -525,74 +514,50 @@ export function CollectionSidebar() {
             className="absolute right-[calc(100%+12px)] -translate-y-1/2 pointer-events-none z-50 flex flex-col items-center select-none"
           >
             <div className="relative w-52 sm:w-60 h-[280px] sm:h-[340px] flex items-center justify-center filter drop-shadow-[0_20px_45px_rgba(0,0,0,0.95)]">
-              {hoveredCardInfo.card.imageUrl ? (
-                <img
-                  src={hoveredCardInfo.card.imageUrl}
-                  alt={hoveredCardInfo.card.name}
-                  loading="eager"
-                  className="w-full h-full object-contain pointer-events-none"
-                />
-              ) : (
-                <div className="w-48 rounded-xl bg-gradient-to-b from-[#2a170c] via-[#1a0f07] to-[#120803] border-2 border-[#8e6129] p-3 shadow-2xl flex flex-col justify-between">
-                  <div className="flex items-center justify-between">
-                    <div className="w-7 h-7 rounded-full bg-gradient-to-b from-sky-400 to-blue-800 text-white font-black text-xs flex items-center justify-center border border-sky-100 shadow">
-                      {hoveredCardInfo.card.cost}
-                    </div>
-                    <span className="text-xs font-bold text-amber-200">{hoveredCardInfo.card.name}</span>
-                  </div>
-                </div>
-              )}
+              <CardImage card={hoveredCardInfo.card} size="inspect" />
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* INCOMPLETE DECK WARNING CONFIRMATION MODAL */}
-      <AnimatePresence>
-        {showIncompleteModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-4"
+      <TavernModal
+        isOpen={showIncompleteModal}
+        onClose={() => setShowIncompleteModal(false)}
+        showCloseButton={false}
+        maxWidth="sm"
+        dataTestId="incomplete-deck-modal"
+        backdropClassName="bg-black/85 backdrop-blur-md"
+        className="bg-[#1e1107] bg-gradient-to-b from-[#2e1d11] via-[#1e1107] to-[#120803] border-2 border-[#fae6a2] p-5 text-center shadow-[0_25px_60px_rgba(0,0,0,0.95)]"
+      >
+        <h3 className="text-base font-black text-amber-100 uppercase tracking-wider font-serif">
+          Incomplete Deck
+        </h3>
+        <p className="text-xs text-stone-300 mt-2 leading-relaxed">
+          This deck only contains <strong className="text-amber-300 font-extrabold">{activeDeck?.totalCount}/30</strong> cards. An incomplete deck cannot be used in matches.
+        </p>
+        <div className="mt-5 flex gap-2.5">
+          <TavernButton
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowIncompleteModal(false)}
+            className="flex-1"
           >
-            <motion.div
-              initial={{ scale: 0.92, y: 15 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.92, y: 15 }}
-              className="w-full max-w-sm rounded-2xl bg-gradient-to-b from-[#2e1d11] via-[#1e1107] to-[#120803] border-2 border-[#fae6a2] p-5 shadow-2xl text-center"
-            >
-              <h3 className="text-base font-black text-amber-100 uppercase tracking-wider font-serif">
-                Incomplete Deck
-              </h3>
-              <p className="text-xs text-stone-300 mt-2">
-                This deck only contains <strong className="text-amber-300">{activeDeck?.totalCount}/30</strong> cards. An incomplete deck cannot be used in matches.
-              </p>
-              <div className="mt-4 flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setShowIncompleteModal(false)}
-                  className="flex-1 py-1.5 rounded-xl bg-stone-800 text-stone-300 font-bold text-xs uppercase tracking-wider hover:bg-stone-700 cursor-pointer"
-                  style={{ minHeight: '36px' }}
-                >
-                  Keep Editing
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowIncompleteModal(false);
-                    closeDeckEditor();
-                  }}
-                  className="flex-1 py-1.5 rounded-xl bg-gradient-to-b from-amber-500 to-amber-700 text-stone-950 font-black text-xs uppercase tracking-wider shadow hover:brightness-110 cursor-pointer"
-                  style={{ minHeight: '36px' }}
-                >
-                  Exit Anyway
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            Keep Editing
+          </TavernButton>
+          <TavernButton
+            variant="primary"
+            size="sm"
+            onClick={() => {
+              setShowIncompleteModal(false);
+              closeDeckEditor();
+            }}
+            className="flex-1"
+          >
+            Exit Anyway
+          </TavernButton>
+        </div>
+      </TavernModal>
     </aside>
   );
 }

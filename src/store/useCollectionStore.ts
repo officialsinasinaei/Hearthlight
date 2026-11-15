@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { CardDefinition, SavedDeck } from '../engine/types';
 import { MAGE_CARDS, completeDeckSmart, createStarterMageDeck } from '../engine/cards';
+import { useAppStore } from './useAppStore';
 
 interface CollectionState {
   decks: SavedDeck[];
@@ -281,6 +282,7 @@ export const useCollectionStore = create<CollectionState>()(
 
       showToast: (message) => {
         set({ toastMessage: message });
+        useAppStore.getState().showToast(message);
         setTimeout(() => {
           if (get().toastMessage === message) {
             set({ toastMessage: null });

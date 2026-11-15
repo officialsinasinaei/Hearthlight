@@ -3,6 +3,15 @@ import rawMageCards from './mage-cards.json';
 
 export const MAGE_CARDS: CardDefinition[] = rawMageCards as CardDefinition[];
 
+export function getLocalCardArt(id: string): string {
+  return `/art/cards/${id}.png`;
+}
+
+export const HERO_ASSETS = {
+  JAINA_PORTRAIT: '/art/HERO_08.jpg',
+  FIREBLAST_HERO_POWER: '/art/CS2_034.jpg',
+} as const;
+
 // Canonical Starter Card Pool (backward compatibility)
 export const CARD_POOL: CardDefinition[] = MAGE_CARDS.slice(0, 12);
 
