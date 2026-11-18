@@ -1,6 +1,13 @@
-import type { CardDefinition, CardInstance, SavedDeck, Keyword } from './types.ts';
-import { MAGE_CARDS, createStarterMageDeck } from './cards.ts';
+import type {
+  CardDefinition,
+  CardInstance,
+  SavedDeck,
+  ActiveSecretInstance,
+  PendingChoice,
+} from './types.ts';
+import { MAGE_CARDS, createStarterMageDeck, hydrateKeywords } from './cards.ts';
 import { resolveCardEffect } from './cardEffects.ts';
+import { createRng, type Rng } from './rng.ts';
 
 export interface BattleHero {
   id: 'player' | 'opponent';
@@ -21,7 +28,7 @@ export interface BattleHero {
   board: CardInstance[];
   graveyard: CardInstance[];
   fatigueCounter: number;
-  secrets: Array<{ id: string; name: string; text: string }>;
+  secrets: ActiveSecretInstance[];
 }
 
 export interface BattleHistoryEntry {
@@ -50,6 +57,9 @@ export interface BattleState {
   isRopeBurning: boolean;
   mulliganChoiceConfirmed: boolean;
   mulliganOfferedCardIds: string[];
+  seed: number;
+  rngState: number;
+  pendingChoice: PendingChoice | null;
 }
 
 export const THE_COIN_CARD: CardDefinition = {
@@ -71,9 +81,20 @@ export function createCardInstance(
 ): CardInstance {
   instanceCounter++;
   const uniqueId = `${card.id}_${ownerId}_${Date.now()}_${instanceCounter}`;
-  const keywords = card.keywords || [];
+  const keywords = hydrateKeywords(card.text || '', card.keywords || []);
   const hasTaunt = keywords.includes('TAUNT');
   const hasDivineShield = keywords.includes('DIVINE_SHIELD');
+  const hasStealth = keywords.includes('STEALTH');
+  const hasRush = keywords.includes('RUSH');
+  const hasCharge = keywords.includes('CHARGE');
+  const hasWindfury = keywords.includes('WINDFURY');
+  const isFrozen = false;
+
+  let spellDamage: number | undefined = undefined;
+  if (keywords.includes('SPELL_DAMAGE')) {
+    const match = (card.text || '').match(/spell damage \+(\d+)/i);
+    spellDamage = match ? parseInt(match[1], 10) : 1;
+  }
 
   return {
     instanceId: uniqueId,
@@ -95,26 +116,32 @@ export function createCardInstance(
     artGradient: card.artGradient || 'from-blue-600 to-indigo-900',
     keywords,
     effects: card.effects,
-    canAttack: false,
+    canAttack: hasCharge,
     attacksPerformedThisTurn: 0,
-    isExhausted: true,
+    isExhausted: !hasCharge,
     hasDivineShield,
     hasTaunt,
+    isFrozen,
+    hasStealth,
+    hasRush,
+    hasCharge,
+    hasWindfury,
+    spellDamage,
   };
 }
 
-export function shuffleDeck<T>(array: T[]): T[] {
-  const result = [...array];
-  for (let i = result.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [result[i], result[j]] = [result[j], result[i]];
+export function shuffleDeck<T>(array: T[], rng?: Rng): T[] {
+  if (rng) {
+    return rng.shuffle(array);
   }
-  return result;
+  const fallback = createRng();
+  return fallback.shuffle(array);
 }
 
 export function buildDeckInstances(
   savedDeck: SavedDeck | null | undefined,
-  ownerId: 'player' | 'opponent'
+  ownerId: 'player' | 'opponent',
+  rng?: Rng
 ): CardInstance[] {
   const cardMap = new Map<string, CardDefinition>();
   for (const c of MAGE_CARDS) {
@@ -133,23 +160,29 @@ export function buildDeckInstances(
     }
   }
 
+  const activeRng = rng || createRng();
+
   // Fallback if less than 30 cards
   while (instances.length < 30) {
-    const randomCard = MAGE_CARDS[Math.floor(Math.random() * MAGE_CARDS.length)];
+    const randomCard = activeRng.pick(MAGE_CARDS);
     instances.push(createCardInstance(randomCard, ownerId));
   }
 
-  return shuffleDeck(instances);
+  return shuffleDeck(instances, activeRng);
 }
 
 export function initBattleState(options?: {
   playerDeck?: SavedDeck | null;
   opponentDeck?: SavedDeck | null;
   playerFirst?: boolean;
+  seed?: number;
 }): BattleState {
+  const seed = options?.seed !== undefined ? options.seed : (Date.now() | 0);
+  const rng = createRng(seed);
+
   const playerFirst = options?.playerFirst ?? true;
-  const playerDeckList = buildDeckInstances(options?.playerDeck, 'player');
-  const opponentDeckList = buildDeckInstances(options?.opponentDeck, 'opponent');
+  const playerDeckList = buildDeckInstances(options?.playerDeck, 'player', rng);
+  const opponentDeckList = buildDeckInstances(options?.opponentDeck, 'opponent', rng);
 
   // Player starting hand for mulligan: 3 if 1st, 4 if 2nd
   const playerHandCount = playerFirst ? 3 : 4;
@@ -226,6 +259,9 @@ export function initBattleState(options?: {
     isRopeBurning: false,
     mulliganChoiceConfirmed: false,
     mulliganOfferedCardIds: playerHand.map((c) => c.instanceId),
+    seed,
+    rngState: rng.getState(),
+    pendingChoice: null,
   };
 }
 
@@ -258,9 +294,10 @@ export function confirmMulligan(state: BattleState, replacedIds: string[]): Batt
     }
   }
 
-  // Put replaced cards back and shuffle
+  // Put replaced cards back and shuffle deterministically
   playerDeck.push(...cardsToShuffleBack);
-  const shuffledDeck = shuffleDeck(playerDeck);
+  const rng = createRng(state.rngState);
+  const shuffledDeck = shuffleDeck(playerDeck, rng);
 
   const finalHand = [...keptCards, ...newDrawn];
 
@@ -279,6 +316,7 @@ export function confirmMulligan(state: BattleState, replacedIds: string[]): Batt
     ...state,
     phase: 'ACTION',
     mulliganChoiceConfirmed: true,
+    rngState: rng.getState(),
     player: {
       ...state.player,
       hand: finalHand,
@@ -308,18 +346,35 @@ export function startTurn(state: BattleState, activePlayer: 'player' | 'opponent
 
   const isPlayer = activePlayer === 'player';
   const hero = isPlayer ? state.player : state.opponent;
-  const newTurnNumber = isPlayer ? state.turnNumber + 1 : state.turnNumber;
 
+  const newTurnNumber = state.turnNumber + 1;
   const newMaxMana = Math.min(10, hero.maxMana + 1);
   const newMana = newMaxMana;
 
-  // Un-exhaust board minions
-  const refreshedBoard = hero.board.map((m) => ({
-    ...m,
-    isExhausted: false,
-    attacksPerformedThisTurn: 0,
-    canAttack: (m.attack > 0) && !m.keywords.includes('RUSH' as Keyword), // normal attack ready
-  }));
+  // Un-exhaust board minions and handle thawing
+  const refreshedBoard = hero.board.map((m) => {
+    let isFrozen = m.isFrozen;
+    let canAttack = false;
+    let isExhausted = false;
+
+    if (isFrozen) {
+      // Frozen minion misses attack, thaws at turn start
+      isFrozen = false;
+      canAttack = false;
+      isExhausted = true;
+    } else {
+      canAttack = m.attack > 0;
+      isExhausted = false;
+    }
+
+    return {
+      ...m,
+      isFrozen,
+      isExhausted,
+      attacksPerformedThisTurn: 0,
+      canAttack,
+    };
+  });
 
   let deck = [...hero.deck];
   let hand = [...hero.hand];
@@ -346,13 +401,14 @@ export function startTurn(state: BattleState, activePlayer: 'player' | 'opponent
         id: `draw_${Date.now()}`,
         type: 'PLAY_CARD',
         ownerId: activePlayer,
-        sourceName: 'Draw Card',
+        sourceName: drawn.name,
         sourceCardId: drawn.definitionId,
         description: `${isPlayer ? 'You drew' : 'Opponent drew'} ${drawn.name}.`,
         timestamp: Date.now(),
       });
     } else {
-      // Overdraw!
+      // Overdraw! Excess drawn card burned to graveyard
+      hero.graveyard.push(drawn);
       newHistory.unshift({
         id: `overdraw_${Date.now()}`,
         type: 'PLAY_CARD',
@@ -416,22 +472,67 @@ export function endTurn(state: BattleState): BattleState {
 }
 
 /**
- * Calculates current Spell Damage bonus on the board for a player
+ * Calculates current Spell Damage bonus on the board for a player.
+ * Supports passing either BattleState (with optional playerSide) or CardInstance[] board.
  */
-export function getSpellDamageBonus(board: CardInstance[]): number {
+export function getSpellDamageBonus(
+  targetOrBoard: BattleState | CardInstance[],
+  playerSide?: 'player' | 'opponent'
+): number {
+  let board: CardInstance[];
+  if (Array.isArray(targetOrBoard)) {
+    board = targetOrBoard;
+  } else {
+    const side = playerSide || targetOrBoard.activePlayer;
+    board = side === 'player' ? targetOrBoard.player.board : targetOrBoard.opponent.board;
+  }
+
   let bonus = 0;
   for (const m of board) {
-    const textLower = m.text.toLowerCase();
-    const match = textLower.match(/spell damage \+(\d+)/);
-    if (match) {
-      bonus += parseInt(match[1], 10);
+    if (m.spellDamage !== undefined && m.spellDamage > 0) {
+      bonus += m.spellDamage;
+    } else {
+      const match = m.text.toLowerCase().match(/spell damage \+(\d+)/);
+      if (match) {
+        bonus += parseInt(match[1], 10);
+      }
     }
   }
   return bonus;
 }
 
 /**
- * Valid target resolution
+ * Dynamically calculates card mana cost based on active board/hand auras
+ * (e.g. Sorcerer's Apprentice reducing spell cost by 1, min 0).
+ */
+export function getEffectiveCardCost(
+  state: BattleState,
+  playerSide: 'player' | 'opponent',
+  card: CardInstance
+): number {
+  let cost = card.cost;
+  const board = playerSide === 'player' ? state.player.board : state.opponent.board;
+
+  for (const minion of board) {
+    const textLower = minion.text.toLowerCase();
+    const nameLower = minion.name.toLowerCase();
+
+    // Sorcerer's Apprentice / spell cost reduction aura
+    if (card.type === 'SPELL') {
+      if (nameLower.includes("sorcerer's apprentice") || /your spells cost \(?(\d+)\)? less/i.test(textLower)) {
+        const match = textLower.match(/your spells cost \(?(\d+)\)? less/i);
+        const reduction = match ? parseInt(match[1], 10) : 1;
+        cost -= reduction;
+      }
+    }
+  }
+
+  return Math.max(0, cost);
+}
+
+/**
+ * Valid target resolution for attackers.
+ * Enforces Taunt, and excludes Stealthed enemy minions.
  */
 export function getValidTargetsForAttacker(state: BattleState, attackerId: string): string[] {
   const isPlayer = state.activePlayer === 'player';
@@ -439,18 +540,19 @@ export function getValidTargetsForAttacker(state: BattleState, attackerId: strin
     (m) => m.instanceId === attackerId
   );
 
-  if (!attacker || attacker.isExhausted || attacker.attack <= 0) return [];
+  if (!attacker || attacker.isExhausted || attacker.attack <= 0 || attacker.isFrozen) return [];
 
   const opponent = isPlayer ? state.opponent : state.player;
-  const tauntMinions = opponent.board.filter((m) => m.hasTaunt && m.health > 0);
+  const targetableMinions = opponent.board.filter((m) => !m.hasStealth && m.health > 0);
+  const tauntMinions = targetableMinions.filter((m) => m.hasTaunt);
 
   // If opponent has Taunt minions, attacker MUST target one of the Taunt minions!
   if (tauntMinions.length > 0) {
     return tauntMinions.map((m) => m.instanceId);
   }
 
-  // Otherwise, can target any enemy minion or opponent hero
-  return [...opponent.board.map((m) => m.instanceId), opponent.id];
+  // Otherwise, can target any non-stealthed enemy minion or opponent hero
+  return [...targetableMinions.map((m) => m.instanceId), opponent.id];
 }
 
 export function getValidTargetsForHeroPower(state: BattleState): string[] {
@@ -480,18 +582,21 @@ export function getValidTargetsForSpell(state: BattleState, cardInstanceId: stri
   const opponent = isPlayer ? state.opponent : state.player;
   const player = isPlayer ? state.player : state.opponent;
 
+  // Stealthed enemy minions cannot be targeted by enemy spells
+  const targetableEnemyMinions = opponent.board.filter((m) => !m.hasStealth);
+
   if (effect.targetType === 'ANY' || effect.targetType === 'ENEMY_CHAR') {
     targets.push(opponent.id);
-    opponent.board.forEach((m) => targets.push(m.instanceId));
+    targetableEnemyMinions.forEach((m) => targets.push(m.instanceId));
     if (effect.targetType === 'ANY') {
       targets.push(player.id);
       player.board.forEach((m) => targets.push(m.instanceId));
     }
   } else if (effect.targetType === 'ENEMY_MINION') {
-    opponent.board.forEach((m) => targets.push(m.instanceId));
+    targetableEnemyMinions.forEach((m) => targets.push(m.instanceId));
   } else if (effect.targetType === 'ANY_MINION') {
     player.board.forEach((m) => targets.push(m.instanceId));
-    opponent.board.forEach((m) => targets.push(m.instanceId));
+    targetableEnemyMinions.forEach((m) => targets.push(m.instanceId));
   } else if (effect.targetType === 'FRIENDLY_MINION') {
     player.board.forEach((m) => targets.push(m.instanceId));
   }
@@ -500,7 +605,227 @@ export function getValidTargetsForSpell(state: BattleState, cardInstanceId: stri
 }
 
 /**
- * Minion combat attack resolution
+ * Triggers a Deathrattle hook for a minion that died.
+ */
+function triggerDeathrattle(
+  state: BattleState,
+  minion: CardInstance,
+  ownerId: 'player' | 'opponent'
+): BattleState {
+  const isPlayer = ownerId === 'player';
+  const friendly = isPlayer ? state.player : state.opponent;
+  const textLower = minion.text.toLowerCase();
+
+  // Violet Spellwing: Add an 'Arcane Missiles' spell to hand
+  if (textLower.includes('arcane missiles')) {
+    const missilesDef = MAGE_CARDS.find((c) => c.name.toLowerCase() === 'arcane missiles') || {
+      id: 'EX1_277',
+      name: 'Arcane Missiles',
+      cost: 1,
+      type: 'SPELL' as const,
+      rarity: 'COMMON' as const,
+      text: 'Deal 3 damage randomly split among all enemies.',
+      artEmoji: '✨',
+      artGradient: 'from-purple-600 to-indigo-900',
+      keywords: [],
+    };
+
+    if (friendly.hand.length < 10) {
+      const cardInst = createCardInstance(missilesDef, ownerId);
+      const updatedHero = {
+        ...friendly,
+        hand: [...friendly.hand, cardInst],
+      };
+      return {
+        ...state,
+        player: isPlayer ? updatedHero : state.player,
+        opponent: isPlayer ? state.opponent : updatedHero,
+        history: [
+          {
+            id: `dr_${Date.now()}`,
+            type: 'PLAY_CARD',
+            ownerId,
+            sourceName: minion.name,
+            description: `Deathrattle: Added Arcane Missiles to ${friendly.name}'s hand.`,
+            timestamp: Date.now(),
+          },
+          ...state.history,
+        ],
+      };
+    }
+  }
+
+  // Sheep Mask: Deal 2 damage to all minions
+  if (textLower.includes('deal 2 damage to all minions')) {
+    const hitAllMinions = (board: CardInstance[]): CardInstance[] =>
+      board.map((m) => {
+        if (m.hasDivineShield) {
+          return { ...m, hasDivineShield: false };
+        }
+        return { ...m, health: m.health - 2 };
+      });
+
+    return {
+      ...state,
+      player: {
+        ...state.player,
+        board: hitAllMinions(state.player.board),
+      },
+      opponent: {
+        ...state.opponent,
+        board: hitAllMinions(state.opponent.board),
+      },
+      history: [
+        {
+          id: `dr_${Date.now()}`,
+          type: 'PLAY_CARD',
+          ownerId,
+          sourceName: minion.name,
+          description: `Deathrattle: Dealt 2 damage to all minions!`,
+          timestamp: Date.now(),
+        },
+        ...state.history,
+      ],
+    };
+  }
+
+  // Conjured Bookkeeper: Draw a spell
+  if (textLower.includes('draw a spell')) {
+    const deck = [...friendly.deck];
+    const spellIdx = deck.findIndex((c) => c.type === 'SPELL');
+    if (spellIdx !== -1 && friendly.hand.length < 10) {
+      const [drawnSpell] = deck.splice(spellIdx, 1);
+      const updatedHero = {
+        ...friendly,
+        deck,
+        hand: [...friendly.hand, drawnSpell],
+      };
+      return {
+        ...state,
+        player: isPlayer ? updatedHero : state.player,
+        opponent: isPlayer ? state.opponent : updatedHero,
+        history: [
+          {
+            id: `dr_${Date.now()}`,
+            type: 'PLAY_CARD',
+            ownerId,
+            sourceName: minion.name,
+            description: `Deathrattle: Drew a spell (${drawnSpell.name}).`,
+            timestamp: Date.now(),
+          },
+          ...state.history,
+        ],
+      };
+    }
+  }
+
+  // Ley Walker: Get a random Leyline
+  if (textLower.includes('get a random leyline')) {
+    const leylineCard = MAGE_CARDS.find((c) => c.name.toLowerCase().includes('leyline')) || MAGE_CARDS[0];
+    if (friendly.hand.length < 10) {
+      const cardInst = createCardInstance(leylineCard, ownerId);
+      const updatedHero = {
+        ...friendly,
+        hand: [...friendly.hand, cardInst],
+      };
+      return {
+        ...state,
+        player: isPlayer ? updatedHero : state.player,
+        opponent: isPlayer ? state.opponent : updatedHero,
+      };
+    }
+  }
+
+  return state;
+}
+
+/**
+ * Iterative FIFO Death Resolution Phase:
+ * Collects mortally wounded minions (health <= 0), removes them from board to graveyard,
+ * and executes Deathrattles in FIFO play order. Repeats iteratively until no dead minions remain.
+ */
+export function resolveDeaths(state: BattleState): BattleState {
+  let curState = { ...state };
+  let hadDeaths = true;
+  let iterations = 0;
+  const MAX_DEATH_ITERATIONS = 20;
+
+  while (hadDeaths && iterations < MAX_DEATH_ITERATIONS) {
+    iterations++;
+    hadDeaths = false;
+
+    const deadPlayerMinions = curState.player.board.filter((m) => m.health <= 0);
+    const deadOpponentMinions = curState.opponent.board.filter((m) => m.health <= 0);
+
+    if (deadPlayerMinions.length === 0 && deadOpponentMinions.length === 0) {
+      break;
+    }
+
+    hadDeaths = true;
+
+    // FIFO dead minions order
+    const deaths: { minion: CardInstance; owner: 'player' | 'opponent' }[] = [];
+    deadPlayerMinions.forEach((m) => deaths.push({ minion: m, owner: 'player' }));
+    deadOpponentMinions.forEach((m) => deaths.push({ minion: m, owner: 'opponent' }));
+
+    const deadPlayerIds = new Set(deadPlayerMinions.map((m) => m.instanceId));
+    const deadOpponentIds = new Set(deadOpponentMinions.map((m) => m.instanceId));
+
+    const deathHistory: BattleHistoryEntry[] = deaths.map(({ minion, owner }) => ({
+      id: `death_${Date.now()}_${minion.instanceId}`,
+      type: 'DEATH',
+      ownerId: owner,
+      sourceName: minion.name,
+      sourceCardId: minion.definitionId,
+      description: `${minion.name} was destroyed.`,
+      timestamp: Date.now(),
+    }));
+
+    curState = {
+      ...curState,
+      player: {
+        ...curState.player,
+        board: curState.player.board.filter((m) => !deadPlayerIds.has(m.instanceId)),
+        graveyard: [...curState.player.graveyard, ...deadPlayerMinions],
+      },
+      opponent: {
+        ...curState.opponent,
+        board: curState.opponent.board.filter((m) => !deadOpponentIds.has(m.instanceId)),
+        graveyard: [...curState.opponent.graveyard, ...deadOpponentMinions],
+      },
+      history: [...deathHistory, ...curState.history],
+    };
+
+    // Execute Deathrattles in FIFO order
+    for (const { minion, owner } of deaths) {
+      if (minion.keywords.includes('DEATHRATTLE') || minion.text.toLowerCase().includes('deathrattle:')) {
+        curState = triggerDeathrattle(curState, minion, owner);
+      }
+    }
+  }
+
+  // Hero death check
+  let winner = curState.winner;
+  if (!winner) {
+    if (curState.player.hp <= 0 && curState.opponent.hp <= 0) {
+      winner = 'opponent';
+    } else if (curState.player.hp <= 0) {
+      winner = 'opponent';
+    } else if (curState.opponent.hp <= 0) {
+      winner = 'player';
+    }
+  }
+
+  return {
+    ...curState,
+    winner,
+    phase: winner ? 'GAME_OVER' : curState.phase,
+  };
+}
+
+/**
+ * Minion combat attack resolution with Event Bus, Secret triggers,
+ * and post-interrupt re-validation.
  */
 export function attackWithMinion(
   state: BattleState,
@@ -509,24 +834,201 @@ export function attackWithMinion(
 ): BattleState {
   if (state.phase !== 'ACTION') return state;
   const isPlayer = state.activePlayer === 'player';
-  const friendly = isPlayer ? state.player : state.opponent;
-  const enemy = isPlayer ? state.opponent : state.player;
+  const friendly = isPlayer ? { ...state.player } : { ...state.opponent };
+  const enemy = isPlayer ? { ...state.opponent } : { ...state.player };
 
-  const attacker = friendly.board.find((m) => m.instanceId === attackerId);
-  if (!attacker || attacker.isExhausted || attacker.attack <= 0) return state;
+  let attacker = friendly.board.find((m) => m.instanceId === attackerId);
+  if (!attacker || attacker.isExhausted || attacker.attack <= 0 || attacker.isFrozen) return state;
 
   const validTargets = getValidTargetsForAttacker(state, attackerId);
   if (!validTargets.includes(targetId)) return state;
 
-  let nextEnemy = { ...enemy };
-  let nextFriendly = { ...friendly };
-  let nextWinner = state.winner;
+  let currentTargetId = targetId;
   const history = [...state.history];
+  const defendingSecrets = [...enemy.secrets];
+  const remainingSecrets: ActiveSecretInstance[] = [];
 
-  if (targetId === enemy.id) {
-    // Attack opponent hero
-    let enemyArmor = nextEnemy.armor;
-    let enemyHp = nextEnemy.hp;
+  // Evaluate active defending secrets in FIFO order
+  for (const secret of defendingSecrets) {
+    const secText = secret.text.toLowerCase();
+    const secName = secret.name.toLowerCase();
+
+    // 1. Mystic Misdirection: When an enemy minion attacks, transform it into a 1/1 Sheep
+    if (secName.includes('mystic misdirection') || secText.includes('transform it into a 1/1 sheep')) {
+      attacker = {
+        ...attacker,
+        name: 'Sheep',
+        definitionId: 'sheep_token',
+        text: '',
+        cost: 1,
+        baseCost: 1,
+        attack: 1,
+        baseAttack: 1,
+        health: 1,
+        baseHealth: 1,
+        maxHealth: 1,
+        tribe: 'Beast',
+        keywords: [],
+        artEmoji: '🐑',
+        artGradient: 'from-amber-200 to-yellow-400',
+        hasTaunt: false,
+        hasDivineShield: false,
+        hasStealth: false,
+        hasRush: false,
+        hasCharge: false,
+        hasWindfury: false,
+        isFrozen: false,
+        spellDamage: undefined,
+        isExhausted: false,
+        canAttack: true,
+      };
+
+      friendly.board = friendly.board.map((m) => (m.instanceId === attackerId ? attacker! : m));
+
+      history.unshift({
+        id: `sec_${Date.now()}_${secret.id}`,
+        type: 'PLAY_CARD',
+        ownerId: enemy.id,
+        sourceName: secret.name,
+        description: `${enemy.name}'s Secret ${secret.name} triggered! Transformed attacker into a 1/1 Sheep.`,
+        timestamp: Date.now(),
+      });
+      continue;
+    }
+
+    // 2. Oasis Ally: When a friendly minion is attacked, summon a 3/6 Water Elemental
+    if (
+      (secName.includes('oasis ally') || secText.includes('when a friendly minion is attacked')) &&
+      currentTargetId !== enemy.id
+    ) {
+      if (enemy.board.length < 7) {
+        const waterElemental: CardInstance = {
+          instanceId: `water_elemental_${Date.now()}_${++instanceCounter}`,
+          definitionId: 'water_elemental_token',
+          ownerId: enemy.id,
+          name: 'Water Elemental',
+          cost: 4,
+          baseCost: 4,
+          attack: 3,
+          baseAttack: 3,
+          health: 6,
+          baseHealth: 6,
+          maxHealth: 6,
+          type: 'MINION',
+          rarity: 'COMMON',
+          tribe: 'Elemental',
+          text: '<b>Freeze</b> any character damaged by this minion.',
+          artEmoji: '💧',
+          artGradient: 'from-cyan-400 to-blue-600',
+          keywords: ['FREEZE'],
+          canAttack: false,
+          attacksPerformedThisTurn: 0,
+          isExhausted: true,
+          hasDivineShield: false,
+          hasTaunt: false,
+          isFrozen: false,
+          hasStealth: false,
+          hasRush: false,
+          hasCharge: false,
+          hasWindfury: false,
+          spellDamage: undefined,
+        };
+        enemy.board = [...enemy.board, waterElemental];
+        currentTargetId = waterElemental.instanceId;
+      }
+
+      history.unshift({
+        id: `sec_${Date.now()}_${secret.id}`,
+        type: 'PLAY_CARD',
+        ownerId: enemy.id,
+        sourceName: secret.name,
+        description: `${enemy.name}'s Secret ${secret.name} triggered! Summoned a 3/6 Water Elemental and redirected attack to it.`,
+        timestamp: Date.now(),
+      });
+      continue;
+    }
+
+    // 3. Ice Barrier: When your hero is attacked, gain 8 Armor
+    if (
+      (secName.includes('ice barrier') || secText.includes('when your hero is attacked')) &&
+      currentTargetId === enemy.id
+    ) {
+      enemy.armor += 8;
+
+      history.unshift({
+        id: `sec_${Date.now()}_${secret.id}`,
+        type: 'PLAY_CARD',
+        ownerId: enemy.id,
+        sourceName: secret.name,
+        description: `${enemy.name}'s Secret ${secret.name} triggered! Gained 8 Armor.`,
+        timestamp: Date.now(),
+      });
+      continue;
+    }
+
+    // 4. Vaporize: When a minion attacks your hero, destroy it
+    if (
+      (secName.includes('vaporize') || (secText.includes('attacks your hero') && secText.includes('destroy'))) &&
+      currentTargetId === enemy.id
+    ) {
+      attacker.health = 0;
+      friendly.board = friendly.board.map((m) => (m.instanceId === attackerId ? attacker! : m));
+
+      history.unshift({
+        id: `sec_${Date.now()}_${secret.id}`,
+        type: 'PLAY_CARD',
+        ownerId: enemy.id,
+        sourceName: secret.name,
+        description: `${enemy.name}'s Secret ${secret.name} triggered! Destroyed the attacking minion.`,
+        timestamp: Date.now(),
+      });
+      continue;
+    }
+
+    remainingSecrets.push(secret);
+  }
+
+  enemy.secrets = remainingSecrets;
+
+  // Post-interrupt re-validation: abort cleanly if attacker is destroyed, frozen, or attack <= 0
+  if (attacker.health <= 0 || attacker.isFrozen || attacker.attack <= 0) {
+    attacker.isExhausted = true;
+    attacker.canAttack = false;
+    friendly.board = friendly.board.map((m) => (m.instanceId === attackerId ? attacker! : m));
+
+    const intermediateState: BattleState = {
+      ...state,
+      player: isPlayer ? friendly : enemy,
+      opponent: isPlayer ? enemy : friendly,
+      history,
+    };
+    return resolveDeaths(intermediateState);
+  }
+
+  // Validate defender existence
+  let targetMinion: CardInstance | undefined;
+  if (currentTargetId !== enemy.id) {
+    targetMinion = enemy.board.find((m) => m.instanceId === currentTargetId);
+    if (!targetMinion || targetMinion.health <= 0) {
+      attacker.isExhausted = true;
+      attacker.canAttack = false;
+      friendly.board = friendly.board.map((m) => (m.instanceId === attackerId ? attacker! : m));
+
+      const intermediateState: BattleState = {
+        ...state,
+        player: isPlayer ? friendly : enemy,
+        opponent: isPlayer ? enemy : friendly,
+        history,
+      };
+      return resolveDeaths(intermediateState);
+    }
+  }
+
+  // Combat damage execution
+  if (currentTargetId === enemy.id) {
+    // Attack enemy hero
+    let enemyArmor = enemy.armor;
+    let enemyHp = enemy.hp;
     let remainingDmg = attacker.attack;
 
     if (enemyArmor > 0) {
@@ -540,50 +1042,56 @@ export function attackWithMinion(
     }
     enemyHp -= remainingDmg;
 
+    // Lifesteal
+    if (attacker.keywords.includes('LIFESTEAL') && attacker.attack > 0) {
+      friendly.hp = Math.min(friendly.maxHp, friendly.hp + attacker.attack);
+    }
+
     history.unshift({
       id: `atk_${Date.now()}`,
       type: 'ATTACK',
       ownerId: state.activePlayer,
       sourceName: attacker.name,
       sourceCardId: attacker.definitionId,
-      targetName: nextEnemy.name,
+      targetName: enemy.name,
       amount: attacker.attack,
-      description: `${attacker.name} attacked ${nextEnemy.name} for ${attacker.attack} damage!`,
+      description: `${attacker.name} attacked ${enemy.name} for ${attacker.attack} damage!`,
       timestamp: Date.now(),
     });
 
-    if (enemyHp <= 0) {
-      enemyHp = 0;
-      nextWinner = state.activePlayer;
-    }
-
-    nextEnemy = {
-      ...nextEnemy,
-      hp: enemyHp,
-      armor: enemyArmor,
-    };
-  } else {
-    // Attack enemy minion
-    const targetMinion = enemy.board.find((m) => m.instanceId === targetId);
-    if (!targetMinion) return state;
-
+    enemy.hp = Math.max(0, enemyHp);
+    enemy.armor = enemyArmor;
+  } else if (targetMinion) {
+    // Clash with enemy minion
     let targetShield = targetMinion.hasDivineShield;
     let attackerShield = attacker.hasDivineShield;
     let targetHp = targetMinion.health;
     let attackerHp = attacker.health;
 
-    // Attacker deals damage to target
+    // Attacker deals damage
     if (targetShield) {
       targetShield = false;
     } else {
       targetHp -= attacker.attack;
+      if (attacker.keywords.includes('LIFESTEAL') && attacker.attack > 0) {
+        friendly.hp = Math.min(friendly.maxHp, friendly.hp + attacker.attack);
+      }
+      if (attacker.keywords.includes('FREEZE')) {
+        targetMinion.isFrozen = true;
+      }
     }
 
-    // Target deals damage back to attacker
+    // Defender deals damage back
     if (attackerShield) {
       attackerShield = false;
     } else {
       attackerHp -= targetMinion.attack;
+      if (targetMinion.keywords.includes('LIFESTEAL') && targetMinion.attack > 0) {
+        enemy.hp = Math.min(enemy.maxHp, enemy.hp + targetMinion.attack);
+      }
+      if (targetMinion.keywords.includes('FREEZE')) {
+        attacker.isFrozen = true;
+      }
     }
 
     history.unshift({
@@ -598,64 +1106,90 @@ export function attackWithMinion(
       timestamp: Date.now(),
     });
 
-    // Update target minion
-    const updatedEnemyBoard = enemy.board
-      .map((m) =>
-        m.instanceId === targetId
-          ? { ...m, health: targetHp, hasDivineShield: targetShield }
-          : m
-      )
-      .filter((m) => m.health > 0);
-
-    // Update attacker
-    const updatedFriendlyBoard = friendly.board
-      .map((m) =>
-        m.instanceId === attackerId
-          ? {
-              ...m,
-              health: attackerHp,
-              hasDivineShield: attackerShield,
-              attacksPerformedThisTurn: m.attacksPerformedThisTurn + 1,
-              isExhausted: true,
-              canAttack: false,
-            }
-          : m
-      )
-      .filter((m) => m.health > 0);
-
-    nextEnemy = { ...nextEnemy, board: updatedEnemyBoard };
-    nextFriendly = { ...nextFriendly, board: updatedFriendlyBoard };
-
-    return {
-      ...state,
-      winner: nextWinner,
-      phase: nextWinner ? 'GAME_OVER' : 'ACTION',
-      player: isPlayer ? nextFriendly : nextEnemy,
-      opponent: isPlayer ? nextEnemy : nextFriendly,
-      history,
+    targetMinion = {
+      ...targetMinion,
+      health: targetHp,
+      hasDivineShield: targetShield,
     };
+
+    attacker = {
+      ...attacker,
+      health: attackerHp,
+      hasDivineShield: attackerShield,
+    };
+
+    enemy.board = enemy.board.map((m) => (m.instanceId === currentTargetId ? targetMinion! : m));
   }
 
-  // Update attacker attacks performed
-  const updatedFriendlyBoard = friendly.board.map((m) =>
-    m.instanceId === attackerId
-      ? {
-          ...m,
-          attacksPerformedThisTurn: m.attacksPerformedThisTurn + 1,
-          isExhausted: true,
-          canAttack: false,
-        }
-      : m
-  );
+  // Update attacker swing count & exhaustion
+  attacker.attacksPerformedThisTurn = (attacker.attacksPerformedThisTurn || 0) + 1;
+  const maxAttacks = attacker.hasWindfury || attacker.keywords.includes('WINDFURY') ? 2 : 1;
+  if (attacker.attacksPerformedThisTurn >= maxAttacks) {
+    attacker.isExhausted = true;
+    attacker.canAttack = false;
+  } else {
+    attacker.isExhausted = false;
+    attacker.canAttack = true;
+  }
+  attacker.hasStealth = false;
 
-  nextFriendly = { ...nextFriendly, board: updatedFriendlyBoard };
+  friendly.board = friendly.board.map((m) => (m.instanceId === attackerId ? attacker! : m));
+
+  const postCombatState: BattleState = {
+    ...state,
+    player: isPlayer ? friendly : enemy,
+    opponent: isPlayer ? enemy : friendly,
+    history,
+  };
+
+  return resolveDeaths(postCombatState);
+}
+
+/**
+ * Headless Discover choice resolution:
+ * Resolves a pending 3-choice modal or test selection, adds the selected card
+ * to the owner's hand (respecting 10-card hand cap), and clears pendingChoice.
+ */
+export function resolveChoice(state: BattleState, optionIndex: number): BattleState {
+  if (!state.pendingChoice) return state;
+  const choice = state.pendingChoice;
+  if (optionIndex < 0 || optionIndex >= choice.options.length) return state;
+
+  const selected = choice.options[optionIndex];
+  const isPlayer = choice.ownerId === 'player';
+  const hero = isPlayer ? state.player : state.opponent;
+
+  const cardInstance: CardInstance = 'instanceId' in selected
+    ? selected
+    : createCardInstance(selected, choice.ownerId);
+
+  const nextHand = [...hero.hand];
+  if (nextHand.length < 10) {
+    nextHand.push(cardInstance);
+  }
+
+  const history: BattleHistoryEntry[] = [
+    {
+      id: `discover_${Date.now()}`,
+      type: 'PLAY_CARD',
+      ownerId: choice.ownerId,
+      sourceName: hero.name,
+      description: `${hero.name} discovered ${cardInstance.name}.`,
+      timestamp: Date.now(),
+    },
+    ...state.history,
+  ];
+
+  const nextHero = {
+    ...hero,
+    hand: nextHand,
+  };
 
   return {
     ...state,
-    winner: nextWinner,
-    phase: nextWinner ? 'GAME_OVER' : 'ACTION',
-    player: isPlayer ? nextFriendly : nextEnemy,
-    opponent: isPlayer ? nextEnemy : nextFriendly,
+    pendingChoice: null,
+    player: isPlayer ? nextHero : state.player,
+    opponent: isPlayer ? state.opponent : nextHero,
     history,
   };
 }
@@ -673,9 +1207,8 @@ export function useHeroPower(state: BattleState, targetId: string): BattleState 
   const validTargets = getValidTargetsForHeroPower(state);
   if (!validTargets.includes(targetId)) return state;
 
-  let nextPlayer = { ...state.player };
-  let nextOpponent = { ...state.opponent };
-  let winner = state.winner;
+  const nextPlayer = { ...state.player };
+  const nextOpponent = { ...state.opponent };
   const damage = 1;
   const history = [...state.history];
 
@@ -690,7 +1223,6 @@ export function useHeroPower(state: BattleState, targetId: string): BattleState 
     }
     nextPlayer.armor = pArmor;
     nextPlayer.hp = Math.max(0, pHp);
-    if (nextPlayer.hp <= 0) winner = 'opponent';
   } else if (targetId === 'opponent') {
     let oArmor = nextOpponent.armor;
     let oHp = nextOpponent.hp;
@@ -702,19 +1234,16 @@ export function useHeroPower(state: BattleState, targetId: string): BattleState 
     }
     nextOpponent.armor = oArmor;
     nextOpponent.hp = Math.max(0, oHp);
-    if (nextOpponent.hp <= 0) winner = 'player';
   } else {
-    // Check if target is a minion on either board
+    // Hit minion
     const hitMinion = (board: CardInstance[]): CardInstance[] =>
-      board
-        .map((m) => {
-          if (m.instanceId !== targetId) return m;
-          if (m.hasDivineShield) {
-            return { ...m, hasDivineShield: false };
-          }
-          return { ...m, health: m.health - damage };
-        })
-        .filter((m) => m.health > 0);
+      board.map((m) => {
+        if (m.instanceId !== targetId) return m;
+        if (m.hasDivineShield) {
+          return { ...m, hasDivineShield: false };
+        }
+        return { ...m, health: m.health - damage };
+      });
 
     nextPlayer.board = hitMinion(nextPlayer.board);
     nextOpponent.board = hitMinion(nextOpponent.board);
@@ -739,18 +1268,19 @@ export function useHeroPower(state: BattleState, targetId: string): BattleState 
     timestamp: Date.now(),
   });
 
-  return {
+  const nextState: BattleState = {
     ...state,
     player: nextPlayer,
     opponent: nextOpponent,
-    winner,
-    phase: winner ? 'GAME_OVER' : 'ACTION',
     history,
   };
+
+  return resolveDeaths(nextState);
 }
 
 /**
- * Play a card from hand (Minion or Spell)
+ * Play a card from hand (Minion or Spell).
+ * Evaluates mana cost auras, counterspell interrupts, secrets, and board caps.
  */
 export function playCard(
   state: BattleState,
@@ -766,7 +1296,8 @@ export function playCard(
   if (cardIndex === -1) return state;
 
   const card = hero.hand[cardIndex];
-  if (hero.mana < card.cost) return state;
+  const effectiveCost = getEffectiveCardCost(state, isPlayer ? 'player' : 'opponent', card);
+  if (hero.mana < effectiveCost) return state;
 
   const effect = resolveCardEffect({
     name: card.name,
@@ -778,21 +1309,97 @@ export function playCard(
   if (effect.needsTarget && !targetId) return state;
 
   const nextHand = hero.hand.filter((_, idx) => idx !== cardIndex);
-  let nextMana = hero.mana - card.cost;
-  let nextPlayer = { ...state.player };
-  let nextOpponent = { ...state.opponent };
-  let winner = state.winner;
+  const nextMana = hero.mana - effectiveCost;
+  const nextPlayer = { ...state.player };
+  const nextOpponent = { ...state.opponent };
   const history = [...state.history];
 
+  // 1. Secret Card Play
+  const isSecretCard = card.type === 'SPELL' && (card.keywords.includes('SECRET') || card.text.toLowerCase().includes('secret:'));
+  if (isSecretCard) {
+    const activeHero = isPlayer ? nextPlayer : nextOpponent;
+    if (activeHero.secrets.length >= 5 || activeHero.secrets.some((s) => s.definitionId === card.definitionId || s.name === card.name)) {
+      return state;
+    }
+
+    const secretInstance: ActiveSecretInstance = {
+      id: `secret_${Date.now()}_${++instanceCounter}`,
+      definitionId: card.definitionId,
+      name: card.name,
+      text: card.text,
+      ownerId: isPlayer ? 'player' : 'opponent',
+    };
+
+    activeHero.secrets = [...activeHero.secrets, secretInstance];
+    activeHero.mana = nextMana;
+    activeHero.hand = nextHand;
+
+    history.unshift({
+      id: `play_sec_${Date.now()}`,
+      type: 'PLAY_CARD',
+      ownerId: state.activePlayer,
+      sourceName: card.name,
+      sourceCardId: card.definitionId,
+      description: `${hero.name} cast Secret: ${card.name}!`,
+      timestamp: Date.now(),
+    });
+
+    return {
+      ...state,
+      player: nextPlayer,
+      opponent: nextOpponent,
+      history,
+    };
+  }
+
+  // 2. Spell Card Play - Check Enemy Counterspell (ON_SPELL_CAST Interrupt)
+  if (card.type === 'SPELL') {
+    const enemyHero = isPlayer ? nextOpponent : nextPlayer;
+    const activeHero = isPlayer ? nextPlayer : nextOpponent;
+    activeHero.mana = nextMana;
+    activeHero.hand = nextHand;
+
+    const counterIdx = enemyHero.secrets.findIndex(
+      (s) => s.name.toLowerCase().includes('counterspell') || s.text.toLowerCase().includes('counter')
+    );
+
+    if (counterIdx !== -1) {
+      const [consumedSecret] = enemyHero.secrets.splice(counterIdx, 1);
+      activeHero.graveyard = [...activeHero.graveyard, card];
+
+      history.unshift({
+        id: `counter_${Date.now()}`,
+        type: 'PLAY_CARD',
+        ownerId: enemyHero.id,
+        sourceName: consumedSecret.name,
+        description: `${enemyHero.name}'s Secret Counterspell triggered! Countered ${card.name}.`,
+        timestamp: Date.now(),
+      });
+
+      return {
+        ...state,
+        player: nextPlayer,
+        opponent: nextOpponent,
+        history,
+      };
+    }
+  }
+
+  // 3. Minion Card Play
   if (card.type === 'MINION') {
     const board = isPlayer ? nextPlayer.board : nextOpponent.board;
     if (board.length >= 7) return state; // Board full!
 
+    const hasCharge = card.keywords.includes('CHARGE') || !!card.hasCharge;
+    const hasRush = card.keywords.includes('RUSH') || !!card.hasRush;
+
     const newMinion: CardInstance = {
       ...card,
-      isExhausted: !card.keywords.includes('CHARGE' as Keyword),
+      isExhausted: !hasCharge,
       attacksPerformedThisTurn: 0,
-      canAttack: card.keywords.includes('CHARGE' as Keyword),
+      canAttack: hasCharge,
+      hasCharge,
+      hasRush,
     };
 
     const insertIdx = boardIndex !== undefined ? Math.min(board.length, Math.max(0, boardIndex)) : board.length;
@@ -818,17 +1425,10 @@ export function playCard(
       timestamp: Date.now(),
     });
   } else if (card.type === 'SPELL') {
+    // Execute Spell effects
     const spellDmgBonus = getSpellDamageBonus(isPlayer ? nextPlayer.board : nextOpponent.board);
 
-    if (isPlayer) {
-      nextPlayer.hand = nextHand;
-      nextPlayer.mana = nextMana;
-    } else {
-      nextOpponent.hand = nextHand;
-      nextOpponent.mana = nextMana;
-    }
-
-    // Handle Mana Gain (The Coin)
+    // Mana Gain (The Coin)
     if (effect.manaGain) {
       if (isPlayer) {
         nextPlayer.mana = Math.min(10, nextPlayer.mana + effect.manaGain);
@@ -837,51 +1437,86 @@ export function playCard(
       }
     }
 
-    // Handle Card Draw (Arcane Intellect, etc.)
+    // Card Draw
     if (effect.drawCards && effect.drawCards > 0) {
       const activeHero = isPlayer ? nextPlayer : nextOpponent;
       for (let i = 0; i < effect.drawCards; i++) {
-        if (activeHero.deck.length > 0 && activeHero.hand.length < 10) {
-          activeHero.hand.push(activeHero.deck.shift()!);
+        if (activeHero.deck.length > 0) {
+          const drawn = activeHero.deck.shift()!;
+          if (activeHero.hand.length < 10) {
+            activeHero.hand.push(drawn);
+          } else {
+            activeHero.graveyard.push(drawn);
+          }
         }
       }
     }
 
-    // Handle Direct Target Damage
+    // Direct Damage
     if (effect.damage && targetId) {
       const totalDmg = effect.damage + spellDmgBonus;
       if (targetId === 'opponent') {
-        nextOpponent.hp = Math.max(0, nextOpponent.hp - totalDmg);
-        if (nextOpponent.hp <= 0) winner = 'player';
+        let armor = nextOpponent.armor;
+        let hp = nextOpponent.hp;
+        if (armor >= totalDmg) {
+          armor -= totalDmg;
+        } else {
+          hp -= totalDmg - armor;
+          armor = 0;
+        }
+        nextOpponent.armor = armor;
+        nextOpponent.hp = Math.max(0, hp);
       } else if (targetId === 'player') {
-        nextPlayer.hp = Math.max(0, nextPlayer.hp - totalDmg);
-        if (nextPlayer.hp <= 0) winner = 'opponent';
+        let armor = nextPlayer.armor;
+        let hp = nextPlayer.hp;
+        if (armor >= totalDmg) {
+          armor -= totalDmg;
+        } else {
+          hp -= totalDmg - armor;
+          armor = 0;
+        }
+        nextPlayer.armor = armor;
+        nextPlayer.hp = Math.max(0, hp);
       } else {
         const applySpellToBoard = (board: CardInstance[]) =>
-          board
-            .map((m) => {
-              if (m.instanceId !== targetId) return m;
-              if (m.hasDivineShield) return { ...m, hasDivineShield: false };
-              return { ...m, health: m.health - totalDmg };
-            })
-            .filter((m) => m.health > 0);
+          board.map((m) => {
+            if (m.instanceId !== targetId) return m;
+            if (m.hasDivineShield) return { ...m, hasDivineShield: false };
+            return { ...m, health: m.health - totalDmg };
+          });
 
         nextPlayer.board = applySpellToBoard(nextPlayer.board);
         nextOpponent.board = applySpellToBoard(nextOpponent.board);
       }
     }
 
-    // Handle AoE Damage (Flamestrike, Blizzard, etc.)
+    // AoE Damage
     if (effect.aoeDamage) {
       const aoeDmg = effect.aoeDamage.amount + spellDmgBonus;
       const targetSide = isPlayer ? nextOpponent : nextPlayer;
-      targetSide.board = targetSide.board
-        .map((m) => {
-          if (m.hasDivineShield) return { ...m, hasDivineShield: false };
-          return { ...m, health: m.health - aoeDmg };
-        })
-        .filter((m) => m.health > 0);
+      targetSide.board = targetSide.board.map((m) => {
+        if (m.hasDivineShield) return { ...m, hasDivineShield: false };
+        return { ...m, health: m.health - aoeDmg };
+      });
     }
+
+    // Freeze Target
+    if (effect.freeze && targetId) {
+      const freezeBoard = (board: CardInstance[]) =>
+        board.map((m) => (m.instanceId === targetId ? { ...m, isFrozen: true } : m));
+      nextPlayer.board = freezeBoard(nextPlayer.board);
+      nextOpponent.board = freezeBoard(nextOpponent.board);
+    }
+
+    // Armor Gain
+    if (effect.armor) {
+      const activeHero = isPlayer ? nextPlayer : nextOpponent;
+      activeHero.armor += effect.armor;
+    }
+
+    // Put spell into graveyard
+    const activeHero = isPlayer ? nextPlayer : nextOpponent;
+    activeHero.graveyard.push(card);
 
     history.unshift({
       id: `cast_${Date.now()}`,
@@ -894,14 +1529,33 @@ export function playCard(
     });
   }
 
-  return {
+  // 4. Discover Effect Initiation
+  let pendingChoice = state.pendingChoice;
+  let nextRngState = state.rngState;
+  if (effect.isDiscover || card.keywords.includes('DISCOVER') || card.text.toLowerCase().includes('discover')) {
+    const rng = createRng(state.rngState);
+    const pool = MAGE_CARDS.filter((c) => c.id !== card.definitionId);
+    const shuffled = rng.shuffle(pool);
+    const options = shuffled.slice(0, 3);
+    pendingChoice = {
+      title: 'Discover a card',
+      options,
+      sourceCardId: card.definitionId,
+      ownerId: isPlayer ? 'player' : 'opponent',
+    };
+    nextRngState = rng.getState();
+  }
+
+  const resultingState: BattleState = {
     ...state,
     player: nextPlayer,
     opponent: nextOpponent,
-    winner,
-    phase: winner ? 'GAME_OVER' : 'ACTION',
+    pendingChoice,
+    rngState: nextRngState,
     history,
   };
+
+  return resolveDeaths(resultingState);
 }
 
 export function concede(state: BattleState, playerId: 'player' | 'opponent'): BattleState {

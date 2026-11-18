@@ -1,7 +1,35 @@
-import { CardDefinition, SavedDeck } from './types';
-import rawMageCards from './mage-cards.json';
+import type { CardDefinition, Keyword, SavedDeck } from './types.ts';
+import rawMageCards from './mage-cards.json' with { type: 'json' };
 
-export const MAGE_CARDS: CardDefinition[] = rawMageCards as CardDefinition[];
+/**
+ * Hydrates canonical keywords from card text and HTML tags.
+ * Supports all 12 keywords:
+ * TAUNT, DIVINE_SHIELD, RUSH, WINDFURY, LIFESTEAL, FREEZE, CHARGE, STEALTH, SECRET, DISCOVER, DEATHRATTLE, SPELL_DAMAGE
+ */
+export function hydrateKeywords(text: string, existingKeywords: Keyword[] = []): Keyword[] {
+  const clean = (text || '').replace(/<[^>]+>/g, ' ');
+  const keywords = new Set<Keyword>(existingKeywords);
+
+  if (/\btaunt\b/i.test(clean)) keywords.add('TAUNT');
+  if (/\bdivine shield\b/i.test(clean)) keywords.add('DIVINE_SHIELD');
+  if (/\brush\b/i.test(clean)) keywords.add('RUSH');
+  if (/\bwindfury\b/i.test(clean)) keywords.add('WINDFURY');
+  if (/\blifesteal\b/i.test(clean)) keywords.add('LIFESTEAL');
+  if (/\bfreeze\b|\bfrozen\b/i.test(clean)) keywords.add('FREEZE');
+  if (/\bcharge\b/i.test(clean)) keywords.add('CHARGE');
+  if (/\bstealth\b/i.test(clean)) keywords.add('STEALTH');
+  if (/\bsecret\b|\bsecrets\b/i.test(clean)) keywords.add('SECRET');
+  if (/\bdiscover\b|\bdiscovered\b/i.test(clean)) keywords.add('DISCOVER');
+  if (/\bdeathrattle\b/i.test(clean)) keywords.add('DEATHRATTLE');
+  if (/\bspell damage\b/i.test(clean)) keywords.add('SPELL_DAMAGE');
+
+  return Array.from(keywords);
+}
+
+export const MAGE_CARDS: CardDefinition[] = (rawMageCards as CardDefinition[]).map((card) => ({
+  ...card,
+  keywords: hydrateKeywords(card.text, card.keywords),
+}));
 
 export function getLocalCardArt(id: string): string {
   return `/art/cards/${id}.png`;

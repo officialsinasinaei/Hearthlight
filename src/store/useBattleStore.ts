@@ -12,6 +12,7 @@ import {
   useHeroPower as engineUseHeroPower,
   attackWithMinion as engineAttackWithMinion,
   concede as engineConcede,
+  resolveChoice as engineResolveChoice,
   getValidTargetsForAttacker,
   getValidTargetsForHeroPower,
   getValidTargetsForSpell,
@@ -55,6 +56,7 @@ interface BattleStoreState {
   attackWithMinion: (attackerId: string, targetId: string) => void;
   endTurn: () => void;
   concede: () => void;
+  resolveChoice: (optionIndex: number) => void;
   toggleMenu: (force?: boolean) => void;
 
   // Targeting handlers
@@ -217,6 +219,13 @@ export const useBattleStore = create<BattleStoreState>((set, get) => {
       if (!cur) return;
       const next = engineConcede(cur, 'player');
       set({ battle: next, isMenuOpen: false });
+    },
+
+    resolveChoice: (optionIndex: number) => {
+      const cur = get().battle;
+      if (!cur) return;
+      const next = engineResolveChoice(cur, optionIndex);
+      set({ battle: next });
     },
 
     toggleMenu: (force) => {
@@ -402,6 +411,9 @@ if (typeof window !== 'undefined') {
     getValidTargetsForSpell: (spellId: string) => {
       const b = useBattleStore.getState().battle;
       return b ? getValidTargetsForSpell(b, spellId) : [];
+    },
+    resolveChoice: (index: number) => {
+      useBattleStore.getState().resolveChoice(index);
     },
   };
 }

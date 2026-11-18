@@ -1,6 +1,18 @@
 export type CardRarity = 'COMMON' | 'RARE' | 'EPIC' | 'LEGENDARY';
 export type CardType = 'MINION' | 'SPELL' | 'WEAPON' | 'HERO' | 'LOCATION';
-export type Keyword = 'TAUNT' | 'DIVINE_SHIELD' | 'RUSH' | 'WINDFURY' | 'LIFESTEAL';
+export type Keyword =
+  | 'TAUNT'
+  | 'DIVINE_SHIELD'
+  | 'RUSH'
+  | 'WINDFURY'
+  | 'LIFESTEAL'
+  | 'FREEZE'
+  | 'CHARGE'
+  | 'STEALTH'
+  | 'SECRET'
+  | 'DISCOVER'
+  | 'DEATHRATTLE'
+  | 'SPELL_DAMAGE';
 
 export type EffectType =
   | 'DEAL_DAMAGE'
@@ -75,6 +87,28 @@ export interface CardInstance {
   isExhausted: boolean;
   hasDivineShield: boolean;
   hasTaunt: boolean;
+  isFrozen?: boolean;
+  hasStealth?: boolean;
+  hasRush?: boolean;
+  hasCharge?: boolean;
+  hasWindfury?: boolean;
+  spellDamage?: number;
+}
+
+export interface ActiveSecretInstance {
+  id: string;
+  definitionId: string;
+  name: string;
+  text: string;
+  ownerId: 'player' | 'opponent';
+}
+
+export interface PendingChoice {
+  title: string;
+  options: (CardDefinition | CardInstance)[];
+  sourceCardId?: string;
+  ownerId: 'player' | 'opponent';
+  onSelect?: string;
 }
 
 export interface HeroState {
