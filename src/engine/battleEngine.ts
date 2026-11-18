@@ -8,6 +8,9 @@ import type {
 import { MAGE_CARDS, createStarterMageDeck, hydrateKeywords } from './cards.ts';
 import { resolveCardEffect } from './cardEffects.ts';
 import { createRng, type Rng } from './rng.ts';
+import { getCardBehavior } from './cards/registry.ts';
+import { createBehaviorContext } from './cards/primitives.ts';
+import './cards/index.ts';
 
 export interface BattleHero {
   id: 'player' | 'opponent';
@@ -1299,6 +1302,7 @@ export function playCard(
   const effectiveCost = getEffectiveCardCost(state, isPlayer ? 'player' : 'opponent', card);
   if (hero.mana < effectiveCost) return state;
 
+  const behaviorDef = getCardBehavior(card.definitionId);
   const effect = resolveCardEffect({
     name: card.name,
     text: card.text,
@@ -1306,12 +1310,27 @@ export function playCard(
     type: card.type,
   });
 
-  if (effect.needsTarget && !targetId) return state;
+  const needsTarget = behaviorDef?.needsTarget ?? effect.needsTarget;
+  if (needsTarget && !targetId) return state;
 
   const nextHand = hero.hand.filter((_, idx) => idx !== cardIndex);
   const nextMana = hero.mana - effectiveCost;
-  const nextPlayer = { ...state.player };
-  const nextOpponent = { ...state.opponent };
+  const nextPlayer = {
+    ...state.player,
+    board: [...state.player.board],
+    hand: [...state.player.hand],
+    deck: [...state.player.deck],
+    graveyard: [...state.player.graveyard],
+    secrets: [...state.player.secrets],
+  };
+  const nextOpponent = {
+    ...state.opponent,
+    board: [...state.opponent.board],
+    hand: [...state.opponent.hand],
+    deck: [...state.opponent.deck],
+    graveyard: [...state.opponent.graveyard],
+    secrets: [...state.opponent.secrets],
+  };
   const history = [...state.history];
 
   // 1. Secret Card Play
@@ -1424,7 +1443,45 @@ export function playCard(
       description: `${hero.name} summoned ${card.name} (${card.attack}/${card.health}).`,
       timestamp: Date.now(),
     });
-  } else if (card.type === 'SPELL') {
+  }
+
+  const draft: BattleState = {
+    ...state,
+    player: nextPlayer,
+    opponent: nextOpponent,
+    history,
+  };
+
+  if (behaviorDef) {
+    const ctx = createBehaviorContext(
+      draft,
+      card,
+      isPlayer ? 'player' : 'opponent',
+      targetId,
+      boardIndex
+    );
+    behaviorDef.execute(ctx);
+    draft.rngState = ctx.rng.getState();
+
+    if (card.type === 'SPELL') {
+      const activeHero = isPlayer ? draft.player : draft.opponent;
+      activeHero.graveyard.push(card);
+
+      history.unshift({
+        id: `cast_${Date.now()}`,
+        type: 'PLAY_CARD',
+        ownerId: state.activePlayer,
+        sourceName: card.name,
+        sourceCardId: card.definitionId,
+        description: `${hero.name} cast ${card.name}!`,
+        timestamp: Date.now(),
+      });
+    }
+
+    return resolveDeaths(draft);
+  }
+
+  if (card.type === 'SPELL') {
     // Execute Spell effects
     const spellDmgBonus = getSpellDamageBonus(isPlayer ? nextPlayer.board : nextOpponent.board);
 
