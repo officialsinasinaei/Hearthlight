@@ -1,5 +1,6 @@
 import React from 'react';
 import type { BattleHero } from '../../engine/battleEngine.ts';
+import { ActiveSecretCrest } from './ActiveSecretCrest.tsx';
 
 interface HeroPortraitMedallionProps {
   hero: BattleHero;
@@ -92,6 +93,17 @@ export const HeroPortraitMedallion: React.FC<HeroPortraitMedallionProps> = ({
             >
               {hero.armor}
             </span>
+          </div>
+        )}
+
+        {/* Active Secret Arcane Crest (Apex of Portrait Arch) */}
+        {hero.secrets && hero.secrets.length > 0 && (
+          <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-30">
+            <ActiveSecretCrest
+              secrets={hero.secrets}
+              isPlayer={isPlayer}
+              isCompact={isCompact}
+            />
           </div>
         )}
       </div>

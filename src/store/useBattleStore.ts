@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { SavedDeck } from '../engine/types.ts';
+import type { SavedDeck, CardDefinition, ActiveSecretInstance } from '../engine/types.ts';
 import { useAppStore } from './useAppStore.ts';
 import { MAGE_CARDS } from '../engine/cards.ts';
 import {
@@ -178,6 +178,11 @@ export const useBattleStore = create<BattleStoreState>((set, get) => {
       const next = enginePlayCard(cur, cardInstanceId, targetId, boardIndex);
       set({ battle: next, draggedCardId: null });
       playRatchetTick(1.2);
+      if (next.pendingChoice && next.pendingChoice.ownerId === 'opponent') {
+        setTimeout(() => {
+          get().resolveChoice(0);
+        }, 500);
+      }
     },
 
     useHeroPower: (targetId) => {
@@ -368,9 +373,12 @@ export const useBattleStore = create<BattleStoreState>((set, get) => {
         'opponent'
       );
 
-      let hand = [...cur.player.hand];
+      let hand = cur.player.hand.filter((c) => !c.text.toLowerCase().includes('discover'));
       if (!hand.some((c) => c.type === 'MINION')) {
-        const minionDef = MAGE_CARDS.find((c) => c.type === 'MINION' && (c.cost ?? 0) <= 2) || MAGE_CARDS[0];
+        const minionDef =
+          MAGE_CARDS.find(
+            (c) => c.type === 'MINION' && (c.cost ?? 0) <= 2 && !c.text.toLowerCase().includes('discover')
+          ) || MAGE_CARDS[0];
         hand.push(createCardInstance(minionDef, 'player'));
       }
 
@@ -414,6 +422,68 @@ if (typeof window !== 'undefined') {
     },
     resolveChoice: (index: number) => {
       useBattleStore.getState().resolveChoice(index);
+    },
+    triggerDiscoverForTest: (options?: CardDefinition[]) => {
+      const cur = useBattleStore.getState().battle;
+      if (!cur) return;
+      const opts = options || MAGE_CARDS.slice(0, 3);
+      useBattleStore.setState({
+        battle: {
+          ...cur,
+          pendingChoice: {
+            title: 'Discover a card',
+            options: opts,
+            ownerId: 'player',
+          },
+        },
+      });
+    },
+    addActiveSecretForTest: (ownerId: 'player' | 'opponent' = 'player', secretName = 'Ice Block') => {
+      const cur = useBattleStore.getState().battle;
+      if (!cur) return;
+      const isPlayer = ownerId === 'player';
+      const hero = isPlayer ? cur.player : cur.opponent;
+      const newSecret: ActiveSecretInstance = {
+        id: `secret_test_${Date.now()}`,
+        definitionId: 'CORE_EX1_295',
+        name: secretName,
+        text: 'When your hero takes fatal damage, prevent it and become Immune this turn.',
+        ownerId,
+      };
+      const updatedHero = {
+        ...hero,
+        secrets: [...(hero.secrets || []), newSecret],
+      };
+      useBattleStore.setState({
+        battle: {
+          ...cur,
+          player: isPlayer ? updatedHero : cur.player,
+          opponent: isPlayer ? cur.opponent : updatedHero,
+        },
+      });
+    },
+    setBoardMinionStateForTest: (
+      minionIndex: number,
+      isFriendly: boolean,
+      flags: { isFrozen?: boolean; hasStealth?: boolean; spellDamage?: number }
+    ) => {
+      const cur = useBattleStore.getState().battle;
+      if (!cur) return;
+      const hero = isFriendly ? cur.player : cur.opponent;
+      const board = [...hero.board];
+      if (board[minionIndex]) {
+        board[minionIndex] = {
+          ...board[minionIndex],
+          ...flags,
+        };
+        useBattleStore.setState({
+          battle: {
+            ...cur,
+            player: isFriendly ? { ...cur.player, board } : cur.player,
+            opponent: isFriendly ? cur.opponent : { ...cur.opponent, board },
+          },
+        });
+      }
     },
   };
 }

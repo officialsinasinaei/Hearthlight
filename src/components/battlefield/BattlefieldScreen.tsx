@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useBattleStore } from '../../store/useBattleStore.ts';
 import { MulliganOverlay } from './MulliganOverlay.tsx';
 import { TargetingArrowOverlay } from './TargetingArrowOverlay.tsx';
+import { DiscoverOverlay } from './DiscoverOverlay.tsx';
 import { MatchResultModal } from './MatchResultModal.tsx';
 import { BraidedTurnRope } from './BraidedTurnRope.tsx';
 import { DeckPile3D } from './DeckPile3D.tsx';
@@ -182,7 +183,7 @@ export const BattlefieldScreen: React.FC = () => {
   // Determine if player has playable actions for EndTurn switch state
   const hasPlayableCards = player.hand.some((c) => player.mana >= c.cost);
   const canUsePower = !player.heroPowerUsed && player.mana >= player.heroPowerCost;
-  const canMinionAttack = player.board.some((m) => !m.isExhausted && m.attack > 0);
+  const canMinionAttack = player.board.some((m) => !m.isExhausted && !m.isFrozen && m.attack > 0);
   const hasPlayableActions = isPlayerTurn && (hasPlayableCards || canUsePower || canMinionAttack);
 
   // Handlers for starting attacks / hero powers
@@ -207,7 +208,7 @@ export const BattlefieldScreen: React.FC = () => {
   ) => {
     e.preventDefault();
     const minion = player.board.find((m) => m.instanceId === minionId);
-    if (!isPlayerTurn || !minion || minion.isExhausted || minion.attack <= 0) return;
+    if (!isPlayerTurn || !minion || minion.isExhausted || minion.isFrozen || minion.attack <= 0) return;
     try {
       e.currentTarget.releasePointerCapture?.(e.pointerId);
     } catch {
@@ -511,7 +512,7 @@ export const BattlefieldScreen: React.FC = () => {
           }`}
         >
           {player.board.map((minion, idx) => {
-            const canAttack = isPlayerTurn && !minion.isExhausted && minion.attack > 0;
+            const canAttack = isPlayerTurn && !minion.isExhausted && !minion.isFrozen && minion.attack > 0;
             // Slot parting offset during minion drag
             let partingTransform = '';
             if (minionDrag?.isOverFriendlyBoard) {
@@ -824,6 +825,7 @@ export const BattlefieldScreen: React.FC = () => {
       {/* Overlays */}
       <MulliganOverlay />
       <TargetingArrowOverlay />
+      <DiscoverOverlay />
       <MatchResultModal />
     </div>
   );

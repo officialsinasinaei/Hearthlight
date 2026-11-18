@@ -58,10 +58,16 @@ export const BoardMinion: React.FC<BoardMinionProps> = ({
       {/* Pure Borderless Card Silhouette Artwork */}
       <div
         className={`relative w-full h-full flex items-center justify-center transition-all duration-200 ${
+          minion.hasStealth ? 'opacity-85' : ''
+        } ${
           canAttack
             ? 'filter drop-shadow-[0_0_12px_rgba(34,197,94,0.95)] drop-shadow-[0_0_4px_rgba(74,222,128,0.85)] drop-shadow-[0_8px_14px_rgba(0,0,0,0.75)]'
+            : minion.isFrozen
+            ? 'filter drop-shadow-[0_0_12px_rgba(34,211,238,0.9)] drop-shadow-[0_8px_14px_rgba(0,0,0,0.7)]'
             : minion.hasDivineShield
             ? 'filter drop-shadow-[0_0_12px_rgba(250,204,21,0.9)] drop-shadow-[0_8px_14px_rgba(0,0,0,0.7)]'
+            : (minion.spellDamage ?? 0) > 0
+            ? 'filter drop-shadow-[0_0_10px_rgba(168,85,247,0.8)] drop-shadow-[0_8px_14px_rgba(0,0,0,0.7)]'
             : 'filter drop-shadow-[0_8px_14px_rgba(0,0,0,0.75)]'
         }`}
       >
@@ -75,7 +81,52 @@ export const BoardMinion: React.FC<BoardMinionProps> = ({
         {isDamaged && (
           <div className="absolute inset-0 rounded-2xl bg-radial from-transparent via-red-900/10 to-red-600/25 pointer-events-none" />
         )}
+
+        {/* Frozen Frost Sheen and Ice Crystal Overlay */}
+        {minion.isFrozen && (
+          <div
+            data-testid="minion-frozen-overlay"
+            className="absolute inset-0 rounded-2xl bg-gradient-to-b from-cyan-300/35 via-blue-500/25 to-cyan-400/40 pointer-events-none flex items-center justify-center overflow-hidden z-10"
+          >
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.45)_0%,transparent_65%)]" />
+            <svg
+              viewBox="0 0 48 48"
+              className="w-8 h-8 text-cyan-100/80 filter drop-shadow-[0_0_8px_rgba(34,211,238,0.95)]"
+              fill="currentColor"
+            >
+              <path
+                d="M24 2 L26 18 L38 8 L30 22 L46 24 L30 26 L38 40 L26 30 L24 46 L22 30 L10 40 L18 26 L2 24 L18 22 L10 8 L22 18 Z"
+                opacity="0.75"
+              />
+            </svg>
+          </div>
+        )}
+
+        {/* Stealth Shrouded Shadow Mist Veil */}
+        {minion.hasStealth && (
+          <div
+            data-testid="minion-stealth-overlay"
+            className="absolute inset-0 rounded-2xl bg-gradient-to-t from-purple-950/50 via-stone-900/40 to-transparent pointer-events-none opacity-85 shadow-[inset_0_0_14px_rgba(88,28,135,0.6)] z-10"
+          >
+            <div className="absolute inset-0 rounded-2xl ring-1 ring-purple-500/30" />
+          </div>
+        )}
       </div>
+
+      {/* Spell Damage Arcane Violet Aura */}
+      {(minion.spellDamage ?? 0) > 0 && (
+        <div
+          data-testid="minion-spell-damage-overlay"
+          className="absolute -inset-1 rounded-2xl pointer-events-none -z-10 flex items-center justify-center"
+        >
+          <div className="absolute inset-0 rounded-2xl bg-violet-500/20 animate-pulse blur-[3px]" />
+          <div className="absolute -bottom-1 right-1 flex items-center justify-center text-violet-300 drop-shadow-[0_0_8px_rgba(168,85,247,0.95)]">
+            <svg viewBox="0 0 24 24" className="w-5 h-5 fill-violet-400">
+              <path d="M12 0 L14 9 L23 12 L14 15 L12 24 L10 15 L1 12 L10 9 Z" />
+            </svg>
+          </div>
+        </div>
+      )}
 
       {/* Divine Shield Golden Shimmer Aura Contour */}
       {minion.hasDivineShield && (
