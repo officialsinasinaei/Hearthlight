@@ -94,6 +94,15 @@ async function run() {
         } else {
           console.log('  Player secret tooltip shows secret names and details.');
         }
+
+        const tooltipBox = await tooltip.boundingBox();
+        if (tooltipBox) {
+          if (tooltipBox.x < 8) {
+            failures.push(`Player secret tooltip left-edge clipped off screen: x=${tooltipBox.x} < 8`);
+          } else {
+            console.log(`  Player secret tooltip has comfortable viewport clearance: x=${tooltipBox.x} >= 8`);
+          }
+        }
       }
     }
 
@@ -236,6 +245,29 @@ async function run() {
       failures.push(`Expected 3 discover options, found ${options.length}`);
     } else {
       console.log('  3 Discover card choices rendered cleanly with stats/text/mana/artwork.');
+
+      // Verify pure borderless card silhouette & zero duplicate mana badges
+      for (let i = 0; i < options.length; i++) {
+        const cardData = await options[i].evaluate((btn) => {
+          const cardBox = btn.querySelector('div');
+          const cs = cardBox ? window.getComputedStyle(cardBox) : window.getComputedStyle(btn);
+          const duplicateManaBadge = btn.querySelector('.bg-gradient-to-b.from-blue-400');
+          const duplicateBadges = btn.querySelectorAll('.rounded-full.bg-gradient-to-b');
+          return {
+            borderWidth: cs.borderWidth,
+            hasDuplicateManaBadge: Boolean(duplicateManaBadge),
+            duplicateBadgeCount: duplicateBadges.length,
+          };
+        });
+
+        if (cardData.borderWidth !== '0px') {
+          failures.push(`Discover option #${i} has borderWidth: ${cardData.borderWidth} (must be 0px borderless)`);
+        }
+        if (cardData.hasDuplicateManaBadge || cardData.duplicateBadgeCount > 0) {
+          failures.push(`Discover option #${i} has duplicate stat/mana badges`);
+        }
+      }
+      console.log('  Discover cards verified: pure borderless silhouette (borderWidth 0px) and 0 duplicate mana badges.');
     }
 
     const s3Path = path.join(outDir, '03_discover_overlay.png');

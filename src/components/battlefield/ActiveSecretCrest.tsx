@@ -55,13 +55,13 @@ export const ActiveSecretCrest: React.FC<ActiveSecretCrestProps> = ({
         )}
       </div>
 
-      {/* Arcane Tooltip */}
+      {/* Arcane Tooltip (Positioned right of the medallion with comfortable viewport clearance) */}
       {isHovered && (
         <div
           data-testid="secret-tooltip"
-          className={`absolute left-1/2 -translate-x-1/2 ${
-            isPlayer ? 'bottom-full mb-2' : 'top-full mt-2'
-          } z-50 w-52 p-2.5 rounded-lg bg-stone-900/95 border border-purple-400/80 shadow-[0_8px_20px_rgba(0,0,0,0.9),0_0_12px_rgba(168,85,247,0.4)] backdrop-blur-md pointer-events-none text-left`}
+          className={`absolute left-full ml-3.5 ${
+            isPlayer ? 'bottom-0' : 'top-0'
+          } z-50 w-56 p-2.5 rounded-lg bg-stone-900/95 border border-purple-400/80 shadow-[0_8px_20px_rgba(0,0,0,0.9),0_0_12px_rgba(168,85,247,0.4)] backdrop-blur-md pointer-events-none text-left`}
         >
           {isPlayer ? (
             <div className="flex flex-col gap-1.5">

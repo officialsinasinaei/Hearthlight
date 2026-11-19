@@ -70,13 +70,9 @@ export const DiscoverOverlay: React.FC = () => {
       <div className="relative flex flex-row items-center justify-center gap-3 sm:gap-8 max-w-5xl w-full">
         {pendingChoice.options.map((option: CardDefinition | CardInstance, index: number) => {
           const cardDefId = 'definitionId' in option ? option.definitionId : option.id;
-          const isMinion = option.type === 'MINION';
-          const cost = option.cost ?? 0;
-          const attack = isMinion ? option.attack ?? 0 : null;
-          const health = isMinion ? option.health ?? 0 : null;
 
           return (
-            <div key={cardDefId + '_' + index} className="flex flex-col items-center gap-2 sm:gap-3">
+            <div key={cardDefId + '_' + index} className="flex flex-col items-center">
               <button
                 type="button"
                 data-testid={`discover-option-${index}`}
@@ -84,39 +80,28 @@ export const DiscoverOverlay: React.FC = () => {
                 data-option-index={index}
                 onClick={() => handleSelect(index)}
                 aria-label={`Choose ${option.name}`}
-                className="relative group cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95 flex flex-col items-center focus:outline-none rounded-2xl"
+                className="relative group cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95 flex flex-col items-center focus:outline-none bg-transparent p-0 border-0"
+                style={{ border: '0px', borderWidth: '0px' }}
               >
-                {/* Card Container Frame */}
-                <div className="relative w-28 sm:w-44 md:w-52 h-40 sm:h-64 md:h-76 rounded-[22px] overflow-hidden flex items-center justify-center ring-2 ring-amber-400/70 group-hover:ring-4 group-hover:ring-cyan-300 shadow-[0_10px_25px_rgba(0,0,0,0.85)] group-hover:shadow-[0_0_30px_rgba(34,211,238,0.7)] transition-all bg-stone-900">
+                {/* Pure Borderless Hearthstone Card Silhouette */}
+                <div
+                  className="relative w-32 sm:w-48 md:w-56 h-44 sm:h-68 md:h-80 flex items-center justify-center transition-all duration-200 drop-shadow-[0_12px_24px_rgba(0,0,0,0.85)] group-hover:drop-shadow-[0_0_35px_rgba(250,204,21,0.9)] bg-transparent"
+                  style={{ border: '0px', borderWidth: '0px' }}
+                >
                   <img
                     src={`/art/cards/${cardDefId}.png`}
                     alt={option.name}
-                    className="w-full h-full object-contain filter drop-shadow select-none pointer-events-none"
+                    className="w-full h-full object-contain select-none pointer-events-none"
+                    style={{ border: '0px', borderWidth: '0px' }}
                   />
-
-                  {/* Top-Left Mana Gem */}
-                  <div className="absolute top-1 left-1 sm:top-2 sm:left-2 w-6 sm:w-8 h-6 sm:h-8 rounded-full bg-gradient-to-b from-blue-400 to-blue-700 border-2 border-blue-200 flex items-center justify-center font-serif font-black text-white text-[10px] sm:text-sm shadow-md pointer-events-none">
-                    {cost}
-                  </div>
-
-                  {/* Minion Attack & Health Badges */}
-                  {isMinion && attack !== null && (
-                    <div className="absolute bottom-1 left-1 sm:bottom-2 sm:left-2 w-6 sm:w-8 h-6 sm:h-8 rounded-full bg-gradient-to-b from-amber-400 to-yellow-600 border-2 border-amber-200 flex items-center justify-center font-serif font-black text-stone-950 text-[10px] sm:text-sm shadow-md pointer-events-none">
-                      {attack}
-                    </div>
-                  )}
-
-                  {isMinion && health !== null && (
-                    <div className="absolute bottom-1 right-1 sm:bottom-2 sm:right-2 w-6 sm:w-8 h-6 sm:h-8 rounded-full bg-gradient-to-b from-red-500 to-red-800 border-2 border-red-200 flex items-center justify-center font-serif font-black text-white text-[10px] sm:text-sm shadow-md pointer-events-none">
-                      {health}
-                    </div>
-                  )}
                 </div>
 
-                {/* Tactile Choose Button */}
-                <div className="mt-2 px-3 sm:px-5 py-1 sm:py-1.5 rounded-lg bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 group-hover:from-cyan-500 group-hover:to-blue-600 text-stone-950 group-hover:text-white font-serif font-black text-[11px] sm:text-xs tracking-wider shadow-md transition-all uppercase flex items-center gap-1.5 pointer-events-none">
-                  <span>Choose</span>
-                  <span className="text-[10px] opacity-75 font-mono">[{index + 1}]</span>
+                {/* Subtle Keycap Hint Tucked Below Card */}
+                <div className="mt-2.5 px-3 py-1 rounded-full bg-stone-900/85 border border-amber-500/40 text-amber-200/90 font-mono font-bold text-xs shadow-md tracking-wider flex items-center gap-1.5 pointer-events-none transition-all group-hover:border-amber-400 group-hover:text-amber-100 group-hover:bg-amber-950/90 group-hover:scale-105">
+                  <span className="font-serif text-[11px] uppercase tracking-wider text-amber-300">Choose</span>
+                  <span className="px-1.5 py-0.5 rounded bg-amber-400 text-stone-950 font-black text-[10px] tabular-nums">
+                    [{index + 1}]
+                  </span>
                 </div>
               </button>
             </div>
