@@ -4,6 +4,7 @@ import { MulliganOverlay } from './MulliganOverlay.tsx';
 import { TargetingArrowOverlay } from './TargetingArrowOverlay.tsx';
 import { DiscoverOverlay } from './DiscoverOverlay.tsx';
 import { MatchResultModal } from './MatchResultModal.tsx';
+import { SpellVisualEffectsOverlay } from '../fx/SpellVisualEffectsOverlay.tsx';
 import { BraidedTurnRope } from './BraidedTurnRope.tsx';
 import { DeckPile3D } from './DeckPile3D.tsx';
 import { EndTurnSwitch } from './EndTurnSwitch.tsx';
@@ -14,20 +15,83 @@ import { CarvedManaTray } from './CarvedManaTray.tsx';
 import { SettingsCogMedallion } from './SettingsCogMedallion.tsx';
 import { getStagePointerCoords } from '../../utils/pointerCoords.ts';
 import { resolveCardEffect } from '../../engine/cardEffects.ts';
+import { getCardBehavior } from '../../engine/cards/registry.ts';
+import { getValidTargetsForSpell, getEffectiveCardCost } from '../../engine/battleEngine.ts';
+import type { CardDefinition, CardType } from '../../engine/types.ts';
 import { useViewportStage } from '../layout/LandscapeViewportShell.tsx';
 
-interface MinionDragState {
+interface CardDragState {
   cardId: string;
   cardName: string;
   definitionId: string;
+  cardType: CardType;
   cost: number;
   startX: number;
   startY: number;
   currentX: number;
   currentY: number;
   isOverFriendlyBoard: boolean;
+  isOverBoard: boolean;
   dropIndex: number;
 }
+
+const HandCardArt: React.FC<{ card: Partial<CardDefinition> & { id?: string; name: string; cost?: number; type?: string }; imgClassName?: string }> = ({
+  card,
+  imgClassName,
+}) => {
+  const [hasError, setHasError] = useState(false);
+  const defId = (card as any).definitionId || card.id;
+  const isMinion = card.type === 'MINION';
+
+  if (hasError) {
+    return (
+      <div
+        className={`w-full h-full rounded-xl flex flex-col justify-between p-1.5 sm:p-2 border-2 border-amber-600/80 bg-gradient-to-b ${
+          card.artGradient || 'from-[#2a170b] to-[#120803]'
+        } text-center shadow-md overflow-hidden select-none`}
+      >
+        <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-blue-600 border border-blue-200 text-[10px] sm:text-xs font-black text-white flex items-center justify-center shadow">
+          {card.cost ?? 0}
+        </div>
+        <div className="flex flex-col items-center my-auto px-0.5">
+          <span className="text-xl sm:text-2xl filter drop-shadow">
+            {card.artEmoji || (isMinion ? '🧙' : '✨')}
+          </span>
+          <span className="font-bold text-amber-100 text-[9px] sm:text-[10px] mt-0.5 line-clamp-1">
+            {card.name}
+          </span>
+          {card.text && (
+            <span
+              className="text-[7px] sm:text-[8px] text-stone-300 leading-tight line-clamp-2 mt-0.5"
+              dangerouslySetInnerHTML={{ __html: card.text }}
+            />
+          )}
+        </div>
+        {isMinion && card.attack !== undefined && card.health !== undefined ? (
+          <div className="flex justify-between items-center w-full">
+            <span className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-amber-500 text-black font-black text-[9px] sm:text-[10px] flex items-center justify-center">
+              {card.attack}
+            </span>
+            <span className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-red-600 text-white font-black text-[9px] sm:text-[10px] flex items-center justify-center">
+              {card.health}
+            </span>
+          </div>
+        ) : (
+          <div className="h-1 sm:h-2" />
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={`/art/cards/${defId}.png`}
+      alt={card.name}
+      onError={() => setHasError(true)}
+      className={`w-full h-full object-contain select-none pointer-events-none ${imgClassName || ''}`}
+    />
+  );
+};
 
 export const BattlefieldScreen: React.FC = () => {
   const battle = useBattleStore((s) => s.battle);
@@ -43,7 +107,7 @@ export const BattlefieldScreen: React.FC = () => {
   const setHoveredTarget = useBattleStore((s) => s.setHoveredTarget);
 
   const [hoveredCardId, setHoveredCardId] = useState<string | null>(null);
-  const [minionDrag, setMinionDrag] = useState<MinionDragState | null>(null);
+  const [cardDrag, setCardDrag] = useState<CardDragState | null>(null);
   const [slamEffect, setSlamEffect] = useState<{ x: number; y: number } | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -58,13 +122,13 @@ export const BattlefieldScreen: React.FC = () => {
     typeof document !== 'undefined' &&
     document.documentElement.classList.contains('landscape-forced-portrait');
 
-  // Ref to hold minionDrag state for global event listeners
-  const minionDragRef = useRef<MinionDragState | null>(null);
+  // Ref to hold cardDrag state for global event listeners
+  const cardDragRef = useRef<CardDragState | null>(null);
   useEffect(() => {
-    minionDragRef.current = minionDrag;
-  }, [minionDrag]);
+    cardDragRef.current = cardDrag;
+  }, [cardDrag]);
 
-  // Global pointer move and up handlers when targeting or dragging minions
+  // Global pointer move and up handlers when targeting or dragging cards
   useEffect(() => {
     const handleMove = (e: MouseEvent | TouchEvent | PointerEvent) => {
       const coords = getStagePointerCoords(e, isForcedPortrait);
@@ -75,38 +139,54 @@ export const BattlefieldScreen: React.FC = () => {
         state.updateTargetCoords(coords.x, coords.y);
       }
 
-      // 2. Update minion drag if active
-      const curDrag = minionDragRef.current;
-      if (curDrag && playerBoardRef.current) {
-        const boardRect = playerBoardRef.current.getBoundingClientRect();
-        // Generous vertical drop buffer around the friendly board row
-        const isOver =
-          coords.x >= boardRect.left - 40 &&
-          coords.x <= boardRect.right + 40 &&
-          coords.y >= boardRect.top - 40 &&
-          coords.y <= boardRect.bottom + 60;
+      // 2. Update card drag if active
+      const curDrag = cardDragRef.current;
+      if (curDrag) {
+        // Check overall battlefield arena container for untargeted spell casts anywhere on board
+        let isOverAnyBoard = false;
+        if (containerRef.current) {
+          const containerRect = containerRef.current.getBoundingClientRect();
+          const handTopThreshold = containerRect.bottom - (isCompact ? 90 : 160);
+          isOverAnyBoard =
+            coords.x >= containerRect.left &&
+            coords.x <= containerRect.right &&
+            coords.y >= containerRect.top + 40 &&
+            coords.y <= handTopThreshold;
+        }
 
-        // Calculate drop slot index based on minion centers
-        const curBoard = useBattleStore.getState().battle?.player.board || [];
-        let dropIdx = curBoard.length;
+        // For minions, also compute friendly board slot
+        let isOverFriendly = false;
+        let dropIdx = 0;
+        if (curDrag.cardType === 'MINION' && playerBoardRef.current) {
+          const boardRect = playerBoardRef.current.getBoundingClientRect();
+          isOverFriendly =
+            coords.x >= boardRect.left - 40 &&
+            coords.x <= boardRect.right + 40 &&
+            coords.y >= boardRect.top - 40 &&
+            coords.y <= boardRect.bottom + 60;
 
-        if (curBoard.length > 0) {
-          const minionEls = playerBoardRef.current.querySelectorAll('[data-testid="board-minion"]');
-          for (let i = 0; i < minionEls.length; i++) {
-            const mRect = minionEls[i].getBoundingClientRect();
-            const centerX = mRect.left + mRect.width / 2;
-            if (coords.x < centerX) {
-              dropIdx = i;
-              break;
+          const curBoard = useBattleStore.getState().battle?.player.board || [];
+          dropIdx = curBoard.length;
+
+          if (curBoard.length > 0) {
+            const minionEls = playerBoardRef.current.querySelectorAll('[data-testid="board-minion"]');
+            for (let i = 0; i < minionEls.length; i++) {
+              const mRect = minionEls[i].getBoundingClientRect();
+              const centerX = mRect.left + mRect.width / 2;
+              if (coords.x < centerX) {
+                dropIdx = i;
+                break;
+              }
             }
           }
         }
 
-        setMinionDrag({
+        setCardDrag({
           ...curDrag,
           currentX: coords.x,
           currentY: coords.y,
-          isOverFriendlyBoard: isOver,
+          isOverFriendlyBoard: isOverFriendly,
+          isOverBoard: isOverAnyBoard,
           dropIndex: dropIdx,
         });
       }
@@ -137,17 +217,48 @@ export const BattlefieldScreen: React.FC = () => {
         }
       }
 
-      // 2. Handle minion drag release (Drop on friendly board or glide back)
-      const curDrag = minionDragRef.current;
+      // 2. Handle card drag release (Drop minion on friendly board or untargeted spell anywhere on board)
+      const curDrag = cardDragRef.current;
       if (curDrag) {
-        if (curDrag.isOverFriendlyBoard) {
-          // Play minion into exact slot index
-          playCard(curDrag.cardId, undefined, curDrag.dropIndex);
-          // Trigger board slam shockwave
-          setSlamEffect({ x: curDrag.currentX, y: curDrag.currentY });
-          setTimeout(() => setSlamEffect(null), 500);
+        if (curDrag.cardType === 'MINION') {
+          if (curDrag.isOverFriendlyBoard) {
+            // Check if minion has a targeted battlecry so it doesn't fail placement
+            const currentHand = useBattleStore.getState().battle?.player.hand || [];
+            const draggedCard = currentHand.find((c) => c.instanceId === curDrag.cardId);
+            let targetId: string | undefined = undefined;
+            if (draggedCard) {
+              const bDef = getCardBehavior(draggedCard.definitionId);
+              const eff = resolveCardEffect(draggedCard);
+              if (bDef?.needsTarget ?? eff.needsTarget) {
+                const bState = useBattleStore.getState().battle;
+                if (bState) {
+                  const validTargets = getValidTargetsForSpell(bState, curDrag.cardId);
+                  if (validTargets.length > 0) targetId = validTargets[0];
+                }
+              }
+            }
+            playCard(curDrag.cardId, targetId, curDrag.dropIndex, {
+              startX: curDrag.startX,
+              startY: curDrag.startY,
+              targetX: curDrag.currentX,
+              targetY: curDrag.currentY,
+            });
+            // Trigger board slam shockwave
+            setSlamEffect({ x: curDrag.currentX, y: curDrag.currentY });
+            setTimeout(() => setSlamEffect(null), 500);
+          }
+        } else {
+          // Untargeted spell: cast if released anywhere over the board
+          if (curDrag.isOverBoard || curDrag.isOverFriendlyBoard) {
+            playCard(curDrag.cardId, undefined, undefined, {
+              startX: curDrag.startX,
+              startY: curDrag.startY,
+              targetX: curDrag.currentX,
+              targetY: curDrag.currentY,
+            });
+          }
         }
-        setMinionDrag(null);
+        setCardDrag(null);
       }
     };
 
@@ -172,7 +283,7 @@ export const BattlefieldScreen: React.FC = () => {
       document.removeEventListener('pointerup', handleUp, true);
       document.removeEventListener('mouseup', handleUp, true);
     };
-  }, [isForcedPortrait, playCard]);
+  }, [isForcedPortrait, isCompact, playCard]);
 
   if (!battle) return null;
 
@@ -220,7 +331,7 @@ export const BattlefieldScreen: React.FC = () => {
     startTargeting({ type: 'MINION_ATTACK', id: minionId, name: minionName }, startX, startY);
   };
 
-  // Card interaction: drag-and-drop for minions, targeting arrow for spells needing targets
+  // Card interaction: drag-and-drop for minions and untargeted spells, targeting arrow for spells needing targets
   const handleCardPointerDown = (e: React.PointerEvent<HTMLDivElement>, cardId: string) => {
     e.preventDefault();
     if (!isPlayerTurn) return;
@@ -237,28 +348,27 @@ export const BattlefieldScreen: React.FC = () => {
     const startX = rect.left + rect.width / 2;
     const startY = rect.top + rect.height / 2;
 
-    const effect = resolveCardEffect({
-      name: card.name,
-      text: card.text,
-      cost: card.cost,
-      type: card.type,
-    });
+    const behaviorDef = getCardBehavior(card.definitionId);
+    const effect = resolveCardEffect(card);
+    const needsTarget = behaviorDef?.needsTarget ?? effect.needsTarget;
 
-    if (card.type === 'SPELL' && effect.needsTarget) {
+    if (card.type === 'SPELL' && needsTarget) {
       // Targeted spell uses targeting arrow
       startTargeting({ type: 'SPELL', id: cardId, name: card.name }, startX, startY);
     } else {
-      // Minion or non-targeted spell uses drag-and-drop placement
-      setMinionDrag({
+      // Minion or untargeted spell uses drag
+      setCardDrag({
         cardId: card.instanceId,
         cardName: card.name,
         definitionId: card.definitionId,
+        cardType: card.type,
         cost: card.cost,
         startX,
         startY,
         currentX: startX,
         currentY: startY,
         isOverFriendlyBoard: false,
+        isOverBoard: false,
         dropIndex: player.board.length,
       });
     }
@@ -268,17 +378,54 @@ export const BattlefieldScreen: React.FC = () => {
   const handleCardClick = (cardId: string) => {
     if (!isPlayerTurn) return;
     const card = player.hand.find((c) => c.instanceId === cardId);
-    if (!card || player.mana < card.cost) return;
+    const battleState = useBattleStore.getState().battle;
+    if (!card || !battleState) return;
+    const effectiveCost = getEffectiveCardCost(battleState, 'player', card);
+    if (player.mana < effectiveCost) return;
 
-    const effect = resolveCardEffect({
-      name: card.name,
-      text: card.text,
-      cost: card.cost,
-      type: card.type,
-    });
+    const behaviorDef = getCardBehavior(card.definitionId);
+    const effect = resolveCardEffect(card);
+    const needsTarget = behaviorDef?.needsTarget ?? effect.needsTarget;
 
-    if (!effect.needsTarget) {
-      playCard(cardId, undefined, player.board.length);
+    const cardEl =
+      (typeof document !== 'undefined' &&
+        (document.querySelector(`[data-instance-id="${cardId}"]`) ||
+          document.querySelector(`[data-card-id="${card.definitionId}"]`))) ||
+      null;
+
+    const w = typeof window !== 'undefined' ? window.innerWidth : 1440;
+    const h = typeof window !== 'undefined' ? window.innerHeight : 900;
+    const coords: { startX: number; startY: number; targetX: number; targetY: number } = {
+      startX: w * 0.5,
+      startY: h * 0.85,
+      targetX: w * 0.5,
+      targetY: card.type === 'MINION' ? h * 0.55 : h * 0.35,
+    };
+    if (cardEl) {
+      const rect = cardEl.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) {
+        coords.startX = rect.left + rect.width / 2;
+        coords.startY = rect.top + rect.height / 2;
+      }
+    }
+
+    const boardIndex = player.board.length;
+
+    if (!needsTarget) {
+      if (card.type === 'MINION') {
+        playCard(cardId, undefined, boardIndex, coords);
+        setSlamEffect({ x: coords.targetX, y: coords.targetY });
+        setTimeout(() => setSlamEffect(null), 500);
+      } else {
+        playCard(cardId, undefined, undefined, coords);
+      }
+    } else if (card.type === 'MINION') {
+      let targetId: string | undefined = undefined;
+      const validTargets = getValidTargetsForSpell(battleState, cardId);
+      if (validTargets.length > 0) targetId = validTargets[0];
+      playCard(cardId, targetId, boardIndex, coords);
+      setSlamEffect({ x: coords.targetX, y: coords.targetY });
+      setTimeout(() => setSlamEffect(null), 500);
     }
   };
 
@@ -474,7 +621,7 @@ export const BattlefieldScreen: React.FC = () => {
       {/* Center Battlefield Board (Cracked Sandstone Arena) */}
       <div className="relative z-10 flex-1 min-h-0 w-full max-w-5xl mx-auto flex flex-col justify-around py-0.5 sm:py-1 px-6 sm:px-14">
         {/* Opponent Minions Row (Max 7) */}
-        <div className="flex items-center justify-center gap-1.5 sm:gap-4 min-h-[50px] sm:min-h-[96px] w-full">
+        <div data-testid="opponent-board" className="flex items-center justify-center gap-1.5 sm:gap-4 min-h-[50px] sm:min-h-[96px] w-full">
           {opponent.board.map((minion) => (
             <BoardMinion
               key={minion.instanceId}
@@ -506,17 +653,18 @@ export const BattlefieldScreen: React.FC = () => {
           ref={playerBoardRef}
           data-testid="player-board-dropzone"
           className={`relative flex items-center justify-center gap-1.5 sm:gap-4 min-h-[50px] sm:min-h-[96px] w-full rounded-xl sm:rounded-2xl mb-1.5 sm:mb-0 pb-1 transition-all duration-200 ${
-            minionDrag?.isOverFriendlyBoard
+            cardDrag?.cardType === 'MINION' && cardDrag.isOverFriendlyBoard
               ? 'bg-[radial-gradient(ellipse_at_center,rgba(251,191,36,0.16)_0%,transparent_72%)] shadow-[0_0_35px_rgba(245,158,11,0.2)]'
               : ''
           }`}
         >
           {player.board.map((minion, idx) => {
             const canAttack = isPlayerTurn && !minion.isExhausted && !minion.isFrozen && minion.attack > 0;
-            // Slot parting offset during minion drag
+            // Slot parting offset during minion drag ONLY
+            const isMinionDragActive = cardDrag?.cardType === 'MINION' && cardDrag.isOverFriendlyBoard;
             let partingTransform = '';
-            if (minionDrag?.isOverFriendlyBoard) {
-              if (idx < minionDrag.dropIndex) {
+            if (isMinionDragActive) {
+              if (idx < cardDrag.dropIndex) {
                 partingTransform = 'translateX(-22px)';
               } else {
                 partingTransform = 'translateX(22px)';
@@ -526,7 +674,7 @@ export const BattlefieldScreen: React.FC = () => {
             return (
               <React.Fragment key={minion.instanceId}>
                 {/* Slot Parting Indicator if hovering before this minion */}
-                {minionDrag?.isOverFriendlyBoard && minionDrag.dropIndex === idx && (
+                {isMinionDragActive && cardDrag.dropIndex === idx && (
                   <div
                     data-testid="minion-slot-parting-indicator"
                     className="w-10 sm:w-16 h-14 sm:h-22 rounded-xl flex items-center justify-center flex-shrink-0 mx-0.5 sm:mx-1 pointer-events-none"
@@ -603,7 +751,7 @@ export const BattlefieldScreen: React.FC = () => {
           })}
 
           {/* Slot Parting Indicator if hovering at the very end of board */}
-          {minionDrag?.isOverFriendlyBoard && minionDrag.dropIndex === player.board.length && (
+          {cardDrag?.cardType === 'MINION' && cardDrag.isOverFriendlyBoard && cardDrag.dropIndex === player.board.length && (
             <div
               data-testid="minion-slot-parting-indicator"
               className="w-10 sm:w-16 h-14 sm:h-22 rounded-xl flex items-center justify-center flex-shrink-0 mx-0.5 sm:mx-1 pointer-events-none"
@@ -677,7 +825,7 @@ export const BattlefieldScreen: React.FC = () => {
         } px-2 sm:px-10 w-full flex-shrink-0`}
       >
         {/* Player Hero Cluster (Gilded Arch Medallion + Carved Mana Tray) */}
-        <div className="flex items-center gap-1.5 sm:gap-4 mb-0.5 sm:mb-1 flex-shrink-0 z-20">
+        <div className="relative z-30 flex items-center gap-1.5 sm:gap-4 mb-0.5 sm:mb-1 flex-shrink-0">
           <HeroPortraitMedallion
             hero={player}
             isPlayer={true}
@@ -701,19 +849,29 @@ export const BattlefieldScreen: React.FC = () => {
         <div
           data-testid="player-hand-fan"
           className={`flex-1 flex justify-center ${
-            isCompact ? '-space-x-5 h-[76px]' : '-space-x-10 h-[146px]'
+            isCompact
+              ? player.hand.length > 7
+                ? '-space-x-7 h-[76px]'
+                : '-space-x-5 h-[76px]'
+              : player.hand.length > 7
+              ? '-space-x-14 h-[146px]'
+              : player.hand.length > 5
+              ? '-space-x-11 h-[146px]'
+              : '-space-x-8 h-[146px]'
           } overflow-visible max-w-2xl px-1 sm:px-2 z-10`}
         >
           {player.hand.map((card, idx) => {
             const isPlayable = isPlayerTurn && player.mana >= card.cost;
             const rot = (idx - (player.hand.length - 1) / 2) * 3;
             const isHovered = hoveredCardId === card.instanceId;
-            const isBeingDragged = minionDrag?.cardId === card.instanceId;
+            const isBeingDragged = cardDrag?.cardId === card.instanceId;
 
             return (
               <div
                 key={card.instanceId}
                 data-testid="hand-card"
+                data-card-id={card.definitionId}
+                data-instance-id={card.instanceId}
                 data-card-type={card.type}
                 onPointerDown={(e) => handleCardPointerDown(e, card.instanceId)}
                 onClick={() => handleCardClick(card.instanceId)}
@@ -730,7 +888,7 @@ export const BattlefieldScreen: React.FC = () => {
                       ? 'translateY(-10px) scale(1.1) rotate(0deg)'
                       : 'translateY(-28px) scale(1.25) rotate(0deg)'
                     : `rotate(${rot}deg)`,
-                  zIndex: isHovered ? 40 : idx + 10,
+                  zIndex: isHovered ? 25 : idx + 5,
                   opacity: isBeingDragged ? 0.3 : 1,
                   transition: isBeingDragged
                     ? 'none'
@@ -744,11 +902,7 @@ export const BattlefieldScreen: React.FC = () => {
                     : 'filter drop-shadow-[0_8px_14px_rgba(0,0,0,0.7)]'
                 }`}
               >
-                <img
-                  src={`/art/cards/${card.definitionId}.png`}
-                  alt={card.name}
-                  className="w-full h-full object-contain select-none pointer-events-none"
-                />
+                <HandCardArt card={card} />
               </div>
             );
           })}
@@ -758,26 +912,31 @@ export const BattlefieldScreen: React.FC = () => {
         <SettingsCogMedallion onClick={() => toggleMenu()} />
       </div>
 
-      {/* Floating Card Drag Preview when Dragging Minion */}
-      {minionDrag && (
+      {/* Floating Card Drag Preview when Dragging Minion or Untargeted Spell */}
+      {cardDrag && (
         <div
           className="fixed pointer-events-none z-50 flex items-center justify-center transform -translate-x-1/2 -translate-y-1/2"
           style={{
-            left: `${minionDrag.currentX}px`,
-            top: `${minionDrag.currentY}px`,
+            left: `${cardDrag.currentX}px`,
+            top: `${cardDrag.currentY}px`,
             transform: `translate(-50%, -50%) scale(1.15) rotate(${Math.max(
               -12,
-              Math.min(12, (minionDrag.currentX - minionDrag.startX) * 0.08)
+              Math.min(12, (cardDrag.currentX - cardDrag.startX) * 0.08)
             )}deg)`,
             filter:
-              'drop-shadow(0 20px 35px rgba(0,0,0,0.9)) drop-shadow(0 0 15px rgba(245,158,11,0.6))',
+              cardDrag.cardType === 'MINION'
+                ? 'drop-shadow(0 20px 35px rgba(0,0,0,0.9)) drop-shadow(0 0 15px rgba(245,158,11,0.6))'
+                : 'drop-shadow(0 20px 35px rgba(0,0,0,0.9)) drop-shadow(0 0 15px rgba(168,85,247,0.7))',
           }}
         >
           <div className="w-28 sm:w-32 h-40 sm:h-46">
-            <img
-              src={`/art/cards/${minionDrag.definitionId}.png`}
-              alt={minionDrag.cardName}
-              className="w-full h-full object-contain select-none pointer-events-none"
+            <HandCardArt
+              card={{
+                id: cardDrag.definitionId,
+                name: cardDrag.cardName,
+                cost: cardDrag.cost,
+                type: cardDrag.cardType,
+              }}
             />
           </div>
         </div>
@@ -793,9 +952,17 @@ export const BattlefieldScreen: React.FC = () => {
         </div>
       )}
 
+      {/* Spell & Battlecry Visual Effects Engine Overlay */}
+      <SpellVisualEffectsOverlay />
+
+      {/* Overlays */}
+      <MulliganOverlay />
+      <TargetingArrowOverlay />
+      <DiscoverOverlay />
+
       {/* In-Game Menu Modal */}
       {isMenuOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md animate-fadeIn">
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/85 backdrop-blur-md animate-fadeIn">
           <div className="flex flex-col items-center gap-4 p-8 rounded-3xl bg-[#1c120b] border-4 border-[#8e6129] shadow-[0_0_50px_rgba(0,0,0,0.95)] max-w-sm w-full animate-scaleIn">
             <h3 className="text-3xl font-serif font-black text-amber-200 uppercase tracking-wider drop-shadow">
               Game Menu
@@ -822,10 +989,6 @@ export const BattlefieldScreen: React.FC = () => {
         </div>
       )}
 
-      {/* Overlays */}
-      <MulliganOverlay />
-      <TargetingArrowOverlay />
-      <DiscoverOverlay />
       <MatchResultModal />
     </div>
   );

@@ -57,7 +57,7 @@ export const MulliganOverlay: React.FC = () => {
   return (
     <div
       data-testid="mulligan-overlay"
-      className="fixed inset-0 z-40 flex flex-col items-center justify-between py-6 px-4 select-none bg-black/75 backdrop-blur-[2px] overflow-hidden animate-fadeIn"
+      className="fixed inset-0 z-[60] flex flex-col items-center justify-between py-6 px-4 select-none bg-black/75 backdrop-blur-[2px] overflow-hidden animate-fadeIn"
     >
       {/* Top Banner Ribbon (Matching Hearthstone Reference Image 1) */}
       <div className="relative mt-2 flex flex-col items-center animate-slideDown">

@@ -111,7 +111,7 @@ export const HeroPortraitMedallion: React.FC<HeroPortraitMedallionProps> = ({
       {/* Docked Circular Hero Power Medallion */}
       <button
         type="button"
-        data-testid={isPlayer ? 'player-hero-power' : undefined}
+        data-testid={isPlayer ? 'player-hero-power' : 'opponent-hero-power'}
         onPointerDown={onHeroPowerPointerDown}
         disabled={!canUseHeroPower}
         aria-disabled={!canUseHeroPower}

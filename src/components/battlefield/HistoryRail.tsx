@@ -5,6 +5,50 @@ interface HistoryRailProps {
   history: BattleHistoryEntry[];
 }
 
+const HistoryItemIcon: React.FC<{ item: BattleHistoryEntry }> = ({ item }) => {
+  const [hasError, setHasError] = useState(false);
+  if (!item.sourceCardId || hasError) {
+    return (
+      <span className="text-base sm:text-lg drop-shadow">
+        {item.type === 'ATTACK' ? '⚔️' : item.type === 'HERO_POWER' ? '🔥' : '📜'}
+      </span>
+    );
+  }
+  return (
+    <div className="w-full h-full rounded-lg overflow-hidden flex items-center justify-center">
+      <img
+        src={`/art/cards/${item.sourceCardId}.png`}
+        alt={item.sourceName}
+        onError={() => setHasError(true)}
+        className="w-full h-full object-cover select-none pointer-events-none"
+      />
+    </div>
+  );
+};
+
+const HistoryPreviewImage: React.FC<{ sourceCardId: string; sourceName: string }> = ({
+  sourceCardId,
+  sourceName,
+}) => {
+  const [hasError, setHasError] = useState(false);
+  if (hasError) {
+    return (
+      <div className="w-44 sm:w-52 h-62 sm:h-72 rounded-2xl flex flex-col items-center justify-center p-4 border-2 border-amber-600 bg-gradient-to-b from-[#2a170b] to-[#120803] text-center shadow-2xl select-none">
+        <span className="text-4xl mb-2">📜</span>
+        <span className="font-serif font-black text-amber-200 text-sm">{sourceName}</span>
+      </div>
+    );
+  }
+  return (
+    <img
+      src={`/art/cards/${sourceCardId}.png`}
+      alt={sourceName}
+      onError={() => setHasError(true)}
+      className="w-full h-full object-contain select-none"
+    />
+  );
+};
+
 export const HistoryRail: React.FC<HistoryRailProps> = ({ history }) => {
   const [hoveredEntry, setHoveredEntry] = useState<BattleHistoryEntry | null>(null);
 
@@ -36,19 +80,7 @@ export const HistoryRail: React.FC<HistoryRailProps> = ({ history }) => {
                   : 'border-red-600/80 bg-gradient-to-br from-[#3b1212] to-[#1a0808] shadow-[0_0_8px_rgba(239,68,68,0.5)]'
               }`}
             >
-              {item.sourceCardId ? (
-                <div className="w-full h-full rounded-lg overflow-hidden flex items-center justify-center">
-                  <img
-                    src={`/art/cards/${item.sourceCardId}.png`}
-                    alt={item.sourceName}
-                    className="w-full h-full object-cover select-none pointer-events-none"
-                  />
-                </div>
-              ) : (
-                <span className="text-base sm:text-lg drop-shadow">
-                  {item.type === 'ATTACK' ? '⚔️' : item.type === 'HERO_POWER' ? '🔥' : '📜'}
-                </span>
-              )}
+              <HistoryItemIcon item={item} />
 
               {/* Owner Indicator Pip */}
               <div
@@ -69,10 +101,9 @@ export const HistoryRail: React.FC<HistoryRailProps> = ({ history }) => {
         >
           {hoveredEntry.sourceCardId ? (
             <div className="w-44 sm:w-52 h-62 sm:h-72 flex items-center justify-center filter drop-shadow-[0_16px_35px_rgba(0,0,0,0.95)]">
-              <img
-                src={`/art/cards/${hoveredEntry.sourceCardId}.png`}
-                alt={hoveredEntry.sourceName}
-                className="w-full h-full object-contain select-none"
+              <HistoryPreviewImage
+                sourceCardId={hoveredEntry.sourceCardId}
+                sourceName={hoveredEntry.sourceName}
               />
             </div>
           ) : null}

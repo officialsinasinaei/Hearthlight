@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import type { SavedDeck, CardDefinition, ActiveSecretInstance } from '../engine/types.ts';
 import { useAppStore } from './useAppStore.ts';
 import { MAGE_CARDS } from '../engine/cards.ts';
+import { getTokenCard, TOKEN_CARDS } from '../engine/cards/tokenRegistry.ts';
 import {
   BattleState,
   initBattleState,
@@ -21,6 +22,13 @@ import {
   playOpponentLockedChime,
   playRatchetTick,
 } from '../utils/tavernAudio.ts';
+import type { VisualEffectEvent, SpellSchool } from '../components/fx/types.ts';
+import {
+  classifyCardSchoolAndType,
+  resolveEffectCoordinates,
+  resolveHeroPowerCoordinates,
+  resolveCombatCoordinates,
+} from '../components/fx/types.ts';
 
 export interface TargetingSource {
   type: 'MINION_ATTACK' | 'HERO_POWER' | 'SPELL';
@@ -48,10 +56,20 @@ interface BattleStoreState {
   // Card inspecting / dragging
   draggedCardId: string | null;
 
+  // Visual Effects
+  activeVisualEffect: VisualEffectEvent | null;
+  triggerVisualEffect: (effect: Partial<VisualEffectEvent> & { school: SpellSchool }) => void;
+  clearVisualEffect: () => void;
+
   // Actions
   startMatch: (playerDeck?: SavedDeck | null, options?: { playerFirst?: boolean }) => void;
   confirmMulligan: (replacedIds: string[]) => void;
-  playCard: (cardInstanceId: string, targetId?: string, boardIndex?: number) => void;
+  playCard: (
+    cardInstanceId: string,
+    targetId?: string,
+    boardIndex?: number,
+    coords?: { startX?: number; startY?: number; targetX?: number; targetY?: number }
+  ) => void;
   useHeroPower: (targetId: string) => void;
   attackWithMinion: (attackerId: string, targetId: string) => void;
   endTurn: () => void;
@@ -78,6 +96,7 @@ interface BattleStoreState {
 
 let turnTimerInterval: ReturnType<typeof setInterval> | null = null;
 let botTurnTimeout: ReturnType<typeof setTimeout> | null = null;
+let effectTimeout: ReturnType<typeof setTimeout> | null = null;
 
 function clearAllTimers() {
   if (turnTimerInterval) {
@@ -87,6 +106,10 @@ function clearAllTimers() {
   if (botTurnTimeout) {
     clearTimeout(botTurnTimeout);
     botTurnTimeout = null;
+  }
+  if (effectTimeout) {
+    clearTimeout(effectTimeout);
+    effectTimeout = null;
   }
 }
 
@@ -142,6 +165,43 @@ export const useBattleStore = create<BattleStoreState>((set, get) => {
     targetingCoords: null,
     hoveredTargetId: null,
     draggedCardId: null,
+    activeVisualEffect: null,
+
+    triggerVisualEffect: (effect) => {
+      if (effectTimeout) {
+        clearTimeout(effectTimeout);
+        effectTimeout = null;
+      }
+      const duration = effect.durationMs ?? 550;
+      const newEffect: VisualEffectEvent = {
+        id: `fx_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+        startedAt: Date.now(),
+        durationMs: duration,
+        startX: effect.startX ?? (typeof window !== 'undefined' ? window.innerWidth * 0.5 : 720),
+        startY: effect.startY ?? (typeof window !== 'undefined' ? window.innerHeight * 0.85 : 750),
+        targetX: effect.targetX ?? (typeof window !== 'undefined' ? window.innerWidth * 0.5 : 720),
+        targetY: effect.targetY ?? (typeof window !== 'undefined' ? window.innerHeight * 0.35 : 300),
+        school: effect.school,
+        cardName: effect.cardName,
+        cardId: effect.cardId,
+        sourceType: effect.sourceType,
+        isAoE: effect.isAoE,
+        targetId: effect.targetId,
+      };
+      set({ activeVisualEffect: newEffect });
+      effectTimeout = setTimeout(() => {
+        set({ activeVisualEffect: null });
+        effectTimeout = null;
+      }, duration);
+    },
+
+    clearVisualEffect: () => {
+      if (effectTimeout) {
+        clearTimeout(effectTimeout);
+        effectTimeout = null;
+      }
+      set({ activeVisualEffect: null });
+    },
 
     startMatch: (playerDeck, options) => {
       clearAllTimers();
@@ -158,6 +218,7 @@ export const useBattleStore = create<BattleStoreState>((set, get) => {
         targetingCoords: null,
         hoveredTargetId: null,
         draggedCardId: null,
+        activeVisualEffect: null,
       });
     },
 
@@ -171,9 +232,28 @@ export const useBattleStore = create<BattleStoreState>((set, get) => {
       setupTurnTimer();
     },
 
-    playCard: (cardInstanceId, targetId, boardIndex) => {
+    playCard: (cardInstanceId, targetId, boardIndex, coords) => {
       const cur = get().battle;
       if (!cur || cur.phase !== 'ACTION' || cur.activePlayer !== 'player') return;
+
+      const card = cur.player.hand.find((c) => c.instanceId === cardInstanceId);
+      if (card) {
+        const classification = classifyCardSchoolAndType(card);
+        const fxCoords = resolveEffectCoordinates(card, targetId, coords);
+        get().triggerVisualEffect({
+          school: classification.school,
+          cardName: card.name,
+          cardId: card.definitionId,
+          sourceType: card.type === 'MINION' ? 'MINION' : 'SPELL',
+          isAoE: classification.isAoE,
+          startX: fxCoords.startX,
+          startY: fxCoords.startY,
+          targetX: fxCoords.targetX,
+          targetY: fxCoords.targetY,
+          targetId,
+          durationMs: 550,
+        });
+      }
 
       const next = enginePlayCard(cur, cardInstanceId, targetId, boardIndex);
       set({ battle: next, draggedCardId: null });
@@ -189,6 +269,20 @@ export const useBattleStore = create<BattleStoreState>((set, get) => {
       const cur = get().battle;
       if (!cur || cur.phase !== 'ACTION' || cur.activePlayer !== 'player') return;
 
+      const heroCoords = resolveHeroPowerCoordinates(targetId);
+      get().triggerVisualEffect({
+        school: 'FIRE',
+        cardName: 'Fireblast',
+        sourceType: 'HERO_POWER',
+        isAoE: false,
+        startX: heroCoords.startX,
+        startY: heroCoords.startY,
+        targetX: heroCoords.targetX,
+        targetY: heroCoords.targetY,
+        targetId,
+        durationMs: 500,
+      });
+
       const next = engineUseHeroPower(cur, targetId);
       set({ battle: next });
       playRatchetTick(0.9);
@@ -197,6 +291,18 @@ export const useBattleStore = create<BattleStoreState>((set, get) => {
     attackWithMinion: (attackerId, targetId) => {
       const cur = get().battle;
       if (!cur || cur.phase !== 'ACTION' || cur.activePlayer !== 'player') return;
+
+      const combatCoords = resolveCombatCoordinates(attackerId, targetId);
+      get().triggerVisualEffect({
+        school: 'COMBAT',
+        sourceType: 'ATTACK',
+        startX: combatCoords.startX,
+        startY: combatCoords.startY,
+        targetX: combatCoords.targetX,
+        targetY: combatCoords.targetY,
+        targetId,
+        durationMs: 450,
+      });
 
       const next = engineAttackWithMinion(cur, attackerId, targetId);
       set({ battle: next });
@@ -267,7 +373,7 @@ export const useBattleStore = create<BattleStoreState>((set, get) => {
     },
 
     commitTargeting: (targetId) => {
-      const { targetingSource } = get();
+      const { targetingSource, targetingCoords } = get();
       if (!targetingSource) return;
 
       if (targetingSource.type === 'MINION_ATTACK') {
@@ -275,7 +381,19 @@ export const useBattleStore = create<BattleStoreState>((set, get) => {
       } else if (targetingSource.type === 'HERO_POWER') {
         get().useHeroPower(targetId);
       } else if (targetingSource.type === 'SPELL') {
-        get().playCard(targetingSource.id, targetId);
+        get().playCard(
+          targetingSource.id,
+          targetId,
+          undefined,
+          targetingCoords
+            ? {
+                startX: targetingCoords.startX,
+                startY: targetingCoords.startY,
+                targetX: targetingCoords.currentX,
+                targetY: targetingCoords.currentY,
+              }
+            : undefined
+        );
       }
 
       set({
@@ -484,6 +602,73 @@ if (typeof window !== 'undefined') {
           },
         });
       }
+    },
+    triggerVisualEffect: (effect: Partial<VisualEffectEvent> & { school: SpellSchool }) =>
+      useBattleStore.getState().triggerVisualEffect(effect),
+    getActiveVisualEffect: () => useBattleStore.getState().activeVisualEffect,
+    setupCardPlayScenario: (cardDefOrId: string | CardDefinition): string | null => {
+      clearAllTimers();
+      let cardDef: CardDefinition | undefined;
+      if (typeof cardDefOrId === 'string') {
+        const query = cardDefOrId.toLowerCase();
+        cardDef =
+          MAGE_CARDS.find(
+            (c) => c.id === cardDefOrId || c.slug === cardDefOrId || c.name.toLowerCase() === query
+          ) ||
+          getTokenCard(cardDefOrId) ||
+          Object.values(TOKEN_CARDS).find((t) => t.name.toLowerCase() === query);
+      } else {
+        cardDef = cardDefOrId;
+      }
+      if (!cardDef) return null;
+
+      const initial = initBattleState({ playerFirst: true });
+      const active = engineConfirmMulligan(initial, []);
+      const playerCardInstance = createCardInstance(cardDef, 'player');
+
+      const friendlyMinionDef =
+        MAGE_CARDS.find((c) => c.type === 'MINION' && (c.cost ?? 0) <= 3) || MAGE_CARDS[0];
+      const friendlyMinion = createCardInstance(friendlyMinionDef, 'player');
+      friendlyMinion.canAttack = true;
+      friendlyMinion.isExhausted = false;
+
+      const enemyMinion1Def =
+        MAGE_CARDS.find((c) => c.type === 'MINION' && c.text.toLowerCase().includes('taunt')) || MAGE_CARDS[2];
+      const enemyMinion1 = createCardInstance(enemyMinion1Def, 'opponent');
+      enemyMinion1.hasTaunt = true;
+
+      const enemyMinion2Def =
+        MAGE_CARDS.find((c) => c.type === 'MINION' && c.id !== enemyMinion1Def.id) || MAGE_CARDS[3];
+      const enemyMinion2 = createCardInstance(enemyMinion2Def, 'opponent');
+
+      useBattleStore.setState({
+        battle: {
+          ...active,
+          phase: 'ACTION',
+          activePlayer: 'player',
+          player: {
+            ...active.player,
+            mana: 10,
+            maxMana: 10,
+            hand: [playerCardInstance],
+            board: [friendlyMinion],
+          },
+          opponent: {
+            ...active.opponent,
+            board: [enemyMinion1, enemyMinion2],
+          },
+        },
+        isMenuOpen: false,
+        isTargeting: false,
+        targetingSource: null,
+        targetingCoords: null,
+        hoveredTargetId: null,
+        draggedCardId: null,
+        activeVisualEffect: null,
+      });
+      useAppStore.getState().closeFindingOpponent();
+      useAppStore.getState().navigateTo('BATTLEFIELD');
+      return playerCardInstance.instanceId;
     },
   };
 }

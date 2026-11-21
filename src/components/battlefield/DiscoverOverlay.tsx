@@ -3,6 +3,62 @@ import { useBattleStore } from '../../store/useBattleStore.ts';
 import { playRatchetTick } from '../../utils/tavernAudio.ts';
 import type { CardDefinition, CardInstance } from '../../engine/types.ts';
 
+const DiscoverCardImage: React.FC<{ card: CardDefinition | CardInstance }> = ({ card }) => {
+  const [hasError, setHasError] = React.useState(false);
+  const cardDefId = 'definitionId' in card ? card.definitionId : card.id;
+  const isMinion = card.type === 'MINION';
+
+  if (hasError) {
+    return (
+      <div
+        className={`w-full h-full rounded-2xl flex flex-col justify-between p-3 sm:p-4 border-2 border-amber-500/80 bg-gradient-to-b ${
+          card.artGradient || 'from-[#2a170b] to-[#120803]'
+        } text-center shadow-2xl overflow-hidden select-none`}
+      >
+        <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-blue-600 border border-blue-200 text-xs sm:text-sm font-black text-white flex items-center justify-center shadow">
+          {card.cost}
+        </div>
+        <div className="flex flex-col items-center my-auto px-1">
+          <span className="text-3xl sm:text-5xl filter drop-shadow mb-1">
+            {card.artEmoji || (isMinion ? '🧙' : '✨')}
+          </span>
+          <span className="font-serif font-black text-amber-100 text-xs sm:text-base line-clamp-1 drop-shadow">
+            {card.name}
+          </span>
+          {card.text && (
+            <div
+              className="text-[9px] sm:text-xs text-stone-200 leading-snug line-clamp-3 mt-1.5 px-1 bg-black/40 rounded p-1"
+              dangerouslySetInnerHTML={{ __html: card.text }}
+            />
+          )}
+        </div>
+        {isMinion && card.attack !== undefined && card.health !== undefined ? (
+          <div className="flex justify-between items-center w-full px-1">
+            <span className="w-5 h-5 sm:w-7 sm:h-7 rounded-full bg-amber-500 text-black font-black text-xs sm:text-sm flex items-center justify-center shadow">
+              {card.attack}
+            </span>
+            <span className="w-5 h-5 sm:w-7 sm:h-7 rounded-full bg-red-600 text-white font-black text-xs sm:text-sm flex items-center justify-center shadow">
+              {card.health}
+            </span>
+          </div>
+        ) : (
+          <div className="h-3 sm:h-4" />
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={`/art/cards/${cardDefId}.png`}
+      alt={card.name}
+      onError={() => setHasError(true)}
+      className="w-full h-full object-contain select-none pointer-events-none"
+      style={{ border: '0px', borderWidth: '0px' }}
+    />
+  );
+};
+
 export const DiscoverOverlay: React.FC = () => {
   const pendingChoice = useBattleStore((s) => s.battle?.pendingChoice);
 
@@ -49,7 +105,7 @@ export const DiscoverOverlay: React.FC = () => {
   return (
     <div
       data-testid="discover-overlay"
-      className="fixed inset-0 z-50 flex flex-col items-center justify-center p-4 select-none bg-black/80 backdrop-blur-sm animate-fadeIn"
+      className="fixed inset-0 z-[60] flex flex-col items-center justify-center p-4 select-none bg-black/80 backdrop-blur-sm animate-fadeIn"
     >
       {/* Header Banner */}
       <div className="relative mb-5 sm:mb-8 flex flex-col items-center">
@@ -88,12 +144,7 @@ export const DiscoverOverlay: React.FC = () => {
                   className="relative w-32 sm:w-48 md:w-56 h-44 sm:h-68 md:h-80 flex items-center justify-center transition-all duration-200 drop-shadow-[0_12px_24px_rgba(0,0,0,0.85)] group-hover:drop-shadow-[0_0_35px_rgba(250,204,21,0.9)] bg-transparent"
                   style={{ border: '0px', borderWidth: '0px' }}
                 >
-                  <img
-                    src={`/art/cards/${cardDefId}.png`}
-                    alt={option.name}
-                    className="w-full h-full object-contain select-none pointer-events-none"
-                    style={{ border: '0px', borderWidth: '0px' }}
-                  />
+                  <DiscoverCardImage card={option} />
                 </div>
 
                 {/* Subtle Keycap Hint Tucked Below Card */}

@@ -28,12 +28,15 @@ export const BoardMinion: React.FC<BoardMinionProps> = ({
   style,
   className = '',
 }) => {
+  const [hasImgError, setHasImgError] = React.useState(false);
   const isDamaged = minion.health < minion.baseHealth;
 
   return (
     <div
       data-testid="board-minion"
       data-target-id={minion.instanceId}
+      data-minion-id={minion.instanceId}
+      data-card-id={minion.definitionId}
       onPointerDown={onPointerDown}
       onPointerEnter={onPointerEnter}
       onPointerLeave={onPointerLeave}
@@ -71,11 +74,41 @@ export const BoardMinion: React.FC<BoardMinionProps> = ({
             : 'filter drop-shadow-[0_8px_14px_rgba(0,0,0,0.75)]'
         }`}
       >
-        <img
-          src={`/art/cards/${minion.definitionId}.png`}
-          alt={minion.name}
-          className="w-full h-full object-contain select-none pointer-events-none"
-        />
+        {!hasImgError ? (
+          <img
+            src={`/art/cards/${minion.definitionId}.png`}
+            alt={minion.name}
+            onError={() => setHasImgError(true)}
+            className="w-full h-full object-contain select-none pointer-events-none"
+          />
+        ) : (
+          <div
+            className={`w-full h-full rounded-2xl flex flex-col items-center justify-between p-1.5 overflow-hidden border-2 border-amber-600/70 bg-gradient-to-b ${
+              minion.artGradient || 'from-stone-800 to-stone-950'
+            } shadow-lg select-none`}
+          >
+            {/* Mana cost badge top-left */}
+            <div className="self-start w-5 h-5 rounded-full bg-blue-600 border border-blue-200 text-[10px] font-black text-white flex items-center justify-center shadow">
+              {minion.cost}
+            </div>
+            {/* Emoji & Name */}
+            <div className="flex flex-col items-center justify-center -mt-1 px-1 text-center">
+              <span className="text-2xl sm:text-3xl filter drop-shadow">{minion.artEmoji || '🧙'}</span>
+              <span className="text-[9px] sm:text-[10px] font-serif font-black text-amber-100 text-center line-clamp-1 drop-shadow mt-0.5">
+                {minion.name}
+              </span>
+            </div>
+            {/* Attack and Health badges */}
+            <div className="w-full flex items-center justify-between px-0.5">
+              <div className="w-5 h-5 rounded-full bg-amber-500 border border-yellow-200 text-[10px] font-black text-black flex items-center justify-center shadow">
+                {minion.attack}
+              </div>
+              <div className="w-5 h-5 rounded-full bg-red-600 border border-red-200 text-[10px] font-black text-white flex items-center justify-center shadow">
+                {minion.health}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Subtle Wounded Edge Vignette if damaged */}
         {isDamaged && (

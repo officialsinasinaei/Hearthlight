@@ -470,8 +470,62 @@ export function startTurn(state: BattleState, activePlayer: 'player' | 'opponent
 
 export function endTurn(state: BattleState): BattleState {
   if (state.phase !== 'ACTION') return state;
+  const currentSide = state.activePlayer;
+  const enemySide = currentSide === 'player' ? 'opponent' : 'player';
+  const enemyHero = state[enemySide];
+  const activeHero = state[currentSide];
+
+  // Evaluate Flames of Infinity secret (When your enemy's turn ends, deal INFINITE damage to their highest Health minion)
+  const flamesIdx = enemyHero.secrets.findIndex(
+    (s) =>
+      (s.name || '').toLowerCase().includes('flames of infinity') ||
+      (s.text || '').toLowerCase().includes("enemy's turn ends")
+  );
+
+  let updatedState = state;
+  if (flamesIdx !== -1 && activeHero.board.length > 0) {
+    const updatedEnemySecrets = [...enemyHero.secrets];
+    const [consumedSecret] = updatedEnemySecrets.splice(flamesIdx, 1);
+
+    let highestIdx = 0;
+    let highestHp = -Infinity;
+    for (let i = 0; i < activeHero.board.length; i++) {
+      if (activeHero.board[i].health > highestHp) {
+        highestHp = activeHero.board[i].health;
+        highestIdx = i;
+      }
+    }
+    const victim = activeHero.board[highestIdx];
+    const updatedActiveBoard = activeHero.board.filter((_, idx) => idx !== highestIdx);
+
+    const history: BattleHistoryEntry[] = [
+      {
+        id: `sec_flames_${Date.now()}`,
+        type: 'PLAY_CARD',
+        ownerId: enemyHero.id,
+        sourceName: consumedSecret.name,
+        description: `${enemyHero.name}'s Secret Flames of Infinity triggered! Dealt infinite damage to ${victim.name}.`,
+        timestamp: Date.now(),
+      },
+      ...state.history,
+    ];
+
+    updatedState = {
+      ...state,
+      [enemySide]: {
+        ...enemyHero,
+        secrets: updatedEnemySecrets,
+      },
+      [currentSide]: {
+        ...activeHero,
+        board: updatedActiveBoard,
+      },
+      history,
+    };
+  }
+
   const nextPlayer = state.activePlayer === 'player' ? 'opponent' : 'player';
-  return startTurn(state, nextPlayer);
+  return startTurn(updatedState, nextPlayer);
 }
 
 /**
@@ -495,7 +549,7 @@ export function getSpellDamageBonus(
     if (m.spellDamage !== undefined && m.spellDamage > 0) {
       bonus += m.spellDamage;
     } else {
-      const match = m.text.toLowerCase().match(/spell damage \+(\d+)/);
+      const match = (m.text || '').toLowerCase().match(/spell damage \+(\d+)/);
       if (match) {
         bonus += parseInt(match[1], 10);
       }
@@ -517,8 +571,8 @@ export function getEffectiveCardCost(
   const board = playerSide === 'player' ? state.player.board : state.opponent.board;
 
   for (const minion of board) {
-    const textLower = minion.text.toLowerCase();
-    const nameLower = minion.name.toLowerCase();
+    const textLower = (minion.text || '').toLowerCase();
+    const nameLower = (minion.name || '').toLowerCase();
 
     // Sorcerer's Apprentice / spell cost reduction aura
     if (card.type === 'SPELL') {
@@ -572,14 +626,13 @@ export function getValidTargetsForSpell(state: BattleState, cardInstanceId: stri
   const card = hand.find((c) => c.instanceId === cardInstanceId);
   if (!card) return [];
 
-  const effect = resolveCardEffect({
-    name: card.name,
-    text: card.text,
-    cost: card.cost,
-    type: card.type,
-  });
+  const behaviorDef = getCardBehavior(card.definitionId);
+  const effect = resolveCardEffect(card);
 
-  if (!effect.needsTarget) return [];
+  const needsTarget = behaviorDef?.needsTarget ?? effect.needsTarget;
+  if (!needsTarget) return [];
+
+  const targetType = behaviorDef?.targetType ?? effect.targetType;
 
   const targets: string[] = [];
   const opponent = isPlayer ? state.opponent : state.player;
@@ -588,19 +641,22 @@ export function getValidTargetsForSpell(state: BattleState, cardInstanceId: stri
   // Stealthed enemy minions cannot be targeted by enemy spells
   const targetableEnemyMinions = opponent.board.filter((m) => !m.hasStealth);
 
-  if (effect.targetType === 'ANY' || effect.targetType === 'ENEMY_CHAR') {
+  if (targetType === 'ANY' || targetType === 'ENEMY_CHAR') {
     targets.push(opponent.id);
     targetableEnemyMinions.forEach((m) => targets.push(m.instanceId));
-    if (effect.targetType === 'ANY') {
+    if (targetType === 'ANY') {
       targets.push(player.id);
       player.board.forEach((m) => targets.push(m.instanceId));
     }
-  } else if (effect.targetType === 'ENEMY_MINION') {
+  } else if (targetType === 'ENEMY_MINION') {
     targetableEnemyMinions.forEach((m) => targets.push(m.instanceId));
-  } else if (effect.targetType === 'ANY_MINION') {
+  } else if (targetType === 'ANY_MINION') {
     player.board.forEach((m) => targets.push(m.instanceId));
     targetableEnemyMinions.forEach((m) => targets.push(m.instanceId));
-  } else if (effect.targetType === 'FRIENDLY_MINION') {
+  } else if (targetType === 'FRIENDLY_MINION') {
+    player.board.forEach((m) => targets.push(m.instanceId));
+  } else if (targetType === 'FRIENDLY_CHAR') {
+    targets.push(player.id);
     player.board.forEach((m) => targets.push(m.instanceId));
   }
 
@@ -617,7 +673,7 @@ function triggerDeathrattle(
 ): BattleState {
   const isPlayer = ownerId === 'player';
   const friendly = isPlayer ? state.player : state.opponent;
-  const textLower = minion.text.toLowerCase();
+  const textLower = (minion.text || '').toLowerCase();
 
   // Violet Spellwing: Add an 'Arcane Missiles' spell to hand
   if (textLower.includes('arcane missiles')) {
@@ -801,7 +857,7 @@ export function resolveDeaths(state: BattleState): BattleState {
 
     // Execute Deathrattles in FIFO order
     for (const { minion, owner } of deaths) {
-      if (minion.keywords.includes('DEATHRATTLE') || minion.text.toLowerCase().includes('deathrattle:')) {
+      if (minion.keywords.includes('DEATHRATTLE') || (minion.text && minion.text.toLowerCase().includes('deathrattle:'))) {
         curState = triggerDeathrattle(curState, minion, owner);
       }
     }
@@ -853,8 +909,8 @@ export function attackWithMinion(
 
   // Evaluate active defending secrets in FIFO order
   for (const secret of defendingSecrets) {
-    const secText = secret.text.toLowerCase();
-    const secName = secret.name.toLowerCase();
+    const secText = (secret.text || '').toLowerCase();
+    const secName = (secret.name || '').toLowerCase();
 
     // 1. Mystic Misdirection: When an enemy minion attacks, transform it into a 1/1 Sheep
     if (secName.includes('mystic misdirection') || secText.includes('transform it into a 1/1 sheep')) {
@@ -1303,15 +1359,19 @@ export function playCard(
   if (hero.mana < effectiveCost) return state;
 
   const behaviorDef = getCardBehavior(card.definitionId);
-  const effect = resolveCardEffect({
-    name: card.name,
-    text: card.text,
-    cost: card.cost,
-    type: card.type,
-  });
+  const effect = resolveCardEffect(card);
 
   const needsTarget = behaviorDef?.needsTarget ?? effect.needsTarget;
-  if (needsTarget && !targetId) return state;
+  if (needsTarget && !targetId) {
+    if (card.type === 'MINION') {
+      const validTargets = getValidTargetsForSpell(state, cardInstanceId);
+      if (validTargets.length > 0) {
+        return state;
+      }
+    } else {
+      return state;
+    }
+  }
 
   const nextHand = hero.hand.filter((_, idx) => idx !== cardIndex);
   const nextMana = hero.mana - effectiveCost;
@@ -1334,7 +1394,7 @@ export function playCard(
   const history = [...state.history];
 
   // 1. Secret Card Play
-  const isSecretCard = card.type === 'SPELL' && (card.keywords.includes('SECRET') || card.text.toLowerCase().includes('secret:'));
+  const isSecretCard = card.type === 'SPELL' && (card.keywords.includes('SECRET') || (card.text || '').toLowerCase().includes('secret:'));
   if (isSecretCard) {
     const activeHero = isPlayer ? nextPlayer : nextOpponent;
     if (activeHero.secrets.length >= 5 || activeHero.secrets.some((s) => s.definitionId === card.definitionId || s.name === card.name)) {
@@ -1379,7 +1439,7 @@ export function playCard(
     activeHero.hand = nextHand;
 
     const counterIdx = enemyHero.secrets.findIndex(
-      (s) => s.name.toLowerCase().includes('counterspell') || s.text.toLowerCase().includes('counter')
+      (s) => (s.name || '').toLowerCase().includes('counterspell') || (s.text || '').toLowerCase().includes('counter')
     );
 
     if (counterIdx !== -1) {
@@ -1443,6 +1503,50 @@ export function playCard(
       description: `${hero.name} summoned ${card.name} (${card.attack}/${card.health}).`,
       timestamp: Date.now(),
     });
+
+    // Evaluate enemy secrets on minion play (Explosive Runes)
+    const enemyHeroForMinion = isPlayer ? nextOpponent : nextPlayer;
+    const expRunesIdx = enemyHeroForMinion.secrets.findIndex(
+      (s) =>
+        (s.name || '').toLowerCase().includes('explosive runes') ||
+        (s.text || '').toLowerCase().includes('plays a minion, deal 6 damage')
+    );
+
+    if (expRunesIdx !== -1) {
+      const [consumedSecret] = enemyHeroForMinion.secrets.splice(expRunesIdx, 1);
+      const minionHealth = newMinion.health;
+      const minionDamage = Math.min(6, minionHealth);
+      const heroDamage = 6 - minionDamage;
+      newMinion.health -= minionDamage;
+
+      const activeHeroForMinion = isPlayer ? nextPlayer : nextOpponent;
+      if (heroDamage > 0) {
+        if (activeHeroForMinion.armor >= heroDamage) {
+          activeHeroForMinion.armor -= heroDamage;
+        } else {
+          const excess = heroDamage - activeHeroForMinion.armor;
+          activeHeroForMinion.armor = 0;
+          activeHeroForMinion.hp = Math.max(0, activeHeroForMinion.hp - excess);
+        }
+      }
+
+      history.unshift({
+        id: `sec_exp_${Date.now()}`,
+        type: 'PLAY_CARD',
+        ownerId: enemyHeroForMinion.id,
+        sourceName: consumedSecret.name,
+        description: `${enemyHeroForMinion.name}'s Secret Explosive Runes triggered! Dealt ${minionDamage} damage to ${newMinion.name} and ${heroDamage} to ${activeHeroForMinion.name}.`,
+        timestamp: Date.now(),
+      });
+
+      if (newMinion.health <= 0) {
+        if (isPlayer) {
+          nextPlayer.board = nextPlayer.board.filter((m) => m.instanceId !== newMinion.instanceId);
+        } else {
+          nextOpponent.board = nextOpponent.board.filter((m) => m.instanceId !== newMinion.instanceId);
+        }
+      }
+    }
   }
 
   const draft: BattleState = {
@@ -1589,7 +1693,7 @@ export function playCard(
   // 4. Discover Effect Initiation
   let pendingChoice = state.pendingChoice;
   let nextRngState = state.rngState;
-  if (effect.isDiscover || card.keywords.includes('DISCOVER') || card.text.toLowerCase().includes('discover')) {
+  if (effect.isDiscover || card.keywords.includes('DISCOVER') || (card.text || '').toLowerCase().includes('discover')) {
     const rng = createRng(state.rngState);
     const pool = MAGE_CARDS.filter((c) => c.id !== card.definitionId);
     const shuffled = rng.shuffle(pool);

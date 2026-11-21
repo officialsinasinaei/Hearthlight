@@ -17,7 +17,7 @@ export const MatchResultModal: React.FC = () => {
   return (
     <div
       data-testid="match-result-modal"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md select-none animate-fadeIn"
+      className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md select-none animate-fadeIn"
     >
       <div className="relative flex flex-col items-center max-w-md w-full p-8 rounded-3xl bg-gradient-to-b from-stone-900 via-stone-950 to-stone-900 border-4 border-amber-600/70 shadow-[0_0_60px_rgba(0,0,0,0.9)] text-center animate-scaleIn">
         {/* Glow backdrop aura */}

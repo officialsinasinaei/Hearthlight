@@ -1,4 +1,5 @@
 import type { CardDefinition, Keyword } from './types.ts';
+import { getCardBehavior } from './cards/registry.ts';
 
 export interface ResolvedEffect {
   needsTarget: boolean;
@@ -23,9 +24,143 @@ export interface ResolvedEffect {
  * Deterministic card effect parser and resolver for all Mage cards + The Coin.
  * Extracts combat, spell, and battlecry rules from card text and definition.
  */
-export function resolveCardEffect(card: CardDefinition | { name: string; text?: string; cost: number; type: string }): ResolvedEffect {
+export function resolveCardEffect(card: CardDefinition | { name: string; text?: string; cost: number; type: string; id?: string; definitionId?: string }): ResolvedEffect {
   const text = (card.text || '').toLowerCase();
   const name = card.name.toLowerCase();
+
+  // Explicit overrides for Mage cards with custom or non-heuristic targeting behaviors
+  if (name.includes("constellar's calling")) {
+    return {
+      needsTarget: true,
+      targetType: 'FRIENDLY_MINION',
+      customDescription: 'Choose a friendly minion. Summon a random minion of the same Cost.',
+    };
+  }
+  if (name.includes('arcane flow')) {
+    return {
+      needsTarget: true,
+      targetType: 'ANY',
+      damage: 4,
+      customDescription: 'Deal 4 damage to any character.',
+    };
+  }
+  if (name.includes('arcane barrage')) {
+    return {
+      needsTarget: true,
+      targetType: 'ENEMY_CHAR',
+      damage: 3,
+      customDescription: 'Deal 3 damage to an enemy.',
+    };
+  }
+  if (name.includes('sheep mask')) {
+    return {
+      needsTarget: true,
+      targetType: 'ANY_MINION',
+      transformTarget: { name: 'Sheep', attack: 1, health: 1, text: 'Deathrattle: Deal 2 damage to all minions.' },
+      customDescription: 'Transform a minion into a 1/1 Explosive Sheep.',
+    };
+  }
+  if (name.includes('bitter end')) {
+    return {
+      needsTarget: true,
+      targetType: 'ANY_MINION',
+      damage: 5,
+      freeze: true,
+      customDescription: 'Freeze a minion and deal 5 damage to it.',
+    };
+  }
+  if (name.includes('tribute dance')) {
+    return {
+      needsTarget: true,
+      targetType: 'ANY_MINION',
+      customDescription: 'Destroy a minion. Summon random minions of each Cost.',
+    };
+  }
+  if (name.includes('spire security')) {
+    return {
+      needsTarget: true,
+      targetType: 'ENEMY_CHAR',
+      damage: 2,
+      customDescription: 'Battlecry: Deal 2 damage to an enemy.',
+    };
+  }
+  if (name.includes('temporal construct')) {
+    return {
+      needsTarget: true,
+      targetType: 'ENEMY_MINION',
+      damage: 5,
+      customDescription: 'Battlecry: Deal 5 damage to an enemy minion. Excess damage draws cards.',
+    };
+  }
+  if (name.includes('scorching winds')) {
+    return {
+      needsTarget: false,
+      targetType: 'NONE',
+      aoeDamage: { target: 'ALL_MINIONS', amount: 3 },
+      customDescription: 'Deal AoE damage to all minions.',
+    };
+  }
+  if (name.includes('starsurge')) {
+    return {
+      needsTarget: false,
+      targetType: 'ANY',
+      customDescription: 'Deal 4 damage or 2 damage to all enemy minions.',
+    };
+  }
+  if (name.includes('storage scuffle')) {
+    return {
+      needsTarget: false,
+      targetType: 'NONE',
+      isDiscover: true,
+      customDescription: 'Discover a minion.',
+    };
+  }
+  if (name.includes('astral rain')) {
+    return {
+      needsTarget: false,
+      targetType: 'NONE',
+      customDescription: 'Deal 2 damage to random enemy minions 5 times.',
+    };
+  }
+  if (name.includes('bursting leyline')) {
+    return {
+      needsTarget: false,
+      targetType: 'NONE',
+      customDescription: 'Deal 4 damage to a random enemy minion and excess to enemy hero.',
+    };
+  }
+  if (name.includes("spellweaver's brilliance")) {
+    return {
+      needsTarget: false,
+      targetType: 'NONE',
+      customDescription: 'Summon a 6/6 Dragon.',
+    };
+  }
+  if (name.includes('unstable spellcaster')) {
+    return {
+      needsTarget: false,
+      targetType: 'NONE',
+      customDescription: 'Battlecry: If you dealt damage with a spell this turn, summon a copy of this.',
+    };
+  }
+  if (name.includes('aessina')) {
+    return {
+      needsTarget: false,
+      targetType: 'NONE',
+      customDescription: 'Battlecry: If 20 friendly minions died, deal 20 damage split among all enemies.',
+    };
+  }
+
+  // If card has an authoritative registered behavior with explicit targeting, respect it
+  const cardId = (card as any).definitionId || (card as any).id;
+  const registeredBehavior = cardId ? getCardBehavior(cardId) : undefined;
+  if (registeredBehavior && registeredBehavior.needsTarget !== undefined && registeredBehavior.targetType) {
+    return {
+      needsTarget: registeredBehavior.needsTarget,
+      targetType: registeredBehavior.targetType,
+      customDescription: card.name,
+    };
+  }
 
   // The Coin
   if (name === 'the coin' || card.name === 'The Coin') {
